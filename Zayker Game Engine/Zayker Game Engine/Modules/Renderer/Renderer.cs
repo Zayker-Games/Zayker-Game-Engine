@@ -6,12 +6,12 @@ using Silk.NET.Windowing;
 
 namespace Zayker_Game_Engine.Modules.Renderer
 {
-    class Renderer : Zayker_Game_Engine.Core.EngineModule
+    class Renderer : Core.EngineModules.EngineModule
     {
         /// <summary>
-        /// List of all windows. The window at index[0] is considered the main window and handles updates.
+        /// List of all windows. 
         /// </summary>
-        public List<Window> windows;
+        public List<Window> windows = new List<Window>();
 
         public Renderer()
         {
@@ -23,9 +23,22 @@ namespace Zayker_Game_Engine.Modules.Renderer
             base.OnEnable();
         }
 
+        public override void Update(float deltaTime)
+        {
+            base.Update(deltaTime);
+
+            foreach (Window window in windows)
+            {
+                window.Update();
+                window.Render();
+            }
+        }
+
         public Window CreateWindow()
         {
-            return new Window();
+            Window window = new Window();
+            windows.Add(window);
+            return window;
         }
     }
 
@@ -38,46 +51,23 @@ namespace Zayker_Game_Engine.Modules.Renderer
             //Create a window.
             var options = WindowOptions.Default;
             options.Size = new Silk.NET.Maths.Vector2D<int>(800, 600);
-            options.Title = "LearnOpenGL with Silk.NET";
+            options.Title = "Window";
 
             window = Silk.NET.Windowing.Window.Create(options);
 
-            //Assign events.
-            window.Load += OnLoad;
-            window.Update += OnUpdate;
-            window.Render += OnRender;
-
             //Run the window.
-            window.Run();
+            window.Initialize();
         }
 
-        private void OnLoad()
+        public void Update()
         {
-            //Set-up input context.
-            IInputContext input = window.CreateInput();
-            for (int i = 0; i < input.Keyboards.Count; i++)
-            {
-                input.Keyboards[i].KeyDown += KeyDown;
-            }
+            window.DoUpdate();
+            window.DoEvents();
         }
 
-        private void OnRender(double obj)
+        public void Render()
         {
-            //Here all rendering should be done.
-        }
-
-        private void OnUpdate(double obj)
-        {
-            //Here all updates to the program should be done.
-        }
-
-        private void KeyDown(IKeyboard arg1, Key arg2, int arg3)
-        {
-            //Check to close the window on escape.
-            if (arg2 == Key.Escape)
-            {
-                window.Close();
-            }
+            window.DoRender();
         }
     }
 }

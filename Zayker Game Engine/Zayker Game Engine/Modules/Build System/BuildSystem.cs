@@ -39,10 +39,10 @@ namespace Zayker_Game_Engine.Modules.Build_System
             public Compiler(string projectPath)
             {
                 string[] sourceCodePaths = System.IO.Directory.GetFiles(projectPath, "*.cs");
+                // TODO: Add all the included module scripts to the sourceCodePaths
                 Console.WriteLine("Found " + sourceCodePaths.Length + " files to compile.");
                 var syntaxTrees = ParseSyntaxTrees(sourceCodePaths);
                 _compilation = CSharpCompilation.Create("Build.exe", syntaxTrees, ReferenceAssemblies.NetStandard20, GetCompilationOptions());
-                Console.WriteLine(_compilation.References.Count());
             }
 
             public EmitResult Emit(string filePath)
@@ -73,6 +73,7 @@ namespace Zayker_Game_Engine.Modules.Build_System
 
                 List<MetadataReference> o = a.ToList();
                 o.AddRange(b.ToList());
+
                 return new MetadataReference[] { 
                     MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
                     MetadataReference.CreateFromFile(typeof(Console).Assembly.Location)

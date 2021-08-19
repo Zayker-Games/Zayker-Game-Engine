@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zayker_Game_Engine.Core
+namespace Zayker_Game_Engine.Core.EngineModules
 {
     /// <summary>
     /// Handles all enabled engine-modules. This includes setup, update and shutdown of those. 
@@ -19,7 +19,16 @@ namespace Zayker_Game_Engine.Core
         {
             modules = new List<EngineModule>();
             // Initiate all modules as disabled and store them in modules list
-            modules.Add(new Zayker_Game_Engine.Modules.Renderer.Renderer());
+            modules.Add(new Modules.Renderer.Renderer());
+        }
+
+        public static void Update(float deltaTime)
+        {
+            foreach (EngineModule module in modules)
+            {
+                if (module.isEnabled)
+                    module.Update(deltaTime);
+            }
         }
 
         public static EngineModule GetModuleById(string moduleId)
@@ -38,8 +47,6 @@ namespace Zayker_Game_Engine.Core
         {
             EngineModule moduleToEnable = GetModuleById(moduleId);
 
-            // Add to build folder
-
             moduleToEnable.isEnabled = true;
             moduleToEnable.OnEnable();
         }
@@ -47,8 +54,6 @@ namespace Zayker_Game_Engine.Core
         public static void DisableModule(string moduleId)
         {
             EngineModule moduleToDisable = GetModuleById(moduleId);
-
-            // Remove from build folder
 
             moduleToDisable.isEnabled = false;
             moduleToDisable.OnDisable();
