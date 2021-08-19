@@ -13,6 +13,7 @@ namespace Zayker_Game_Engine.Modules.Renderer
         /// </summary>
         public List<Window> windows = new List<Window>();
 
+
         public Renderer()
         {
             this.id = "engine_renderer";
@@ -41,23 +42,24 @@ namespace Zayker_Game_Engine.Modules.Renderer
             windows.Add(window);
             return window;
         }
+
+        
     }
 
     public class Window
     {
         public IWindow window;
         private static GL Gl;
+        Dictionary<string, uint> shaders = new Dictionary<string, uint>();
 
         private static uint Vbo;
         private static uint Ebo;
         private static uint Vao;
-        private static uint Shader;
 
         //Vertex shaders are run on each vertex.
         private static readonly string VertexShaderSource = @"
         #version 330 core //Using version GLSL version 3.3
         layout (location = 0) in vec4 vPos;
-        
         void main()
         {
             gl_Position = vec4(vPos.x, vPos.y, vPos.z, 1.0);
@@ -66,12 +68,11 @@ namespace Zayker_Game_Engine.Modules.Renderer
 
         //Fragment shaders are run on each fragment/pixel of the geometry.
         private static readonly string FragmentShaderSource = @"
-        #version 330 core
+        #version 400 core
         out vec4 FragColor;
-
         void main()
         {
-            FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+            FragColor = vec4(gl_FragCoord.x/500, gl_FragCoord.y/500, 0.0f, 1.0f);
         }
         ";
 
@@ -82,7 +83,7 @@ namespace Zayker_Game_Engine.Modules.Renderer
              0.5f,  0.5f, 0.0f,
              0.5f, -0.5f, 0.0f,
             -0.5f, -0.5f, 0.0f,
-            -0.5f,  0.5f, 0.5f
+            -0.5f,  0.5f, 0.6f
         };
 
         //Index data, uploaded to the EBO.
@@ -107,7 +108,6 @@ namespace Zayker_Game_Engine.Modules.Renderer
 
             window.Initialize();
         }
-
 
         private unsafe void OnLoad()
         {
@@ -135,6 +135,58 @@ namespace Zayker_Game_Engine.Modules.Renderer
                 Gl.BufferData(BufferTargetARB.ElementArrayBuffer, (uint)(Indices.Length * sizeof(uint)), i, BufferUsageARB.StaticDraw); //Setting buffer data.
             }
 
+            GenerateShaderFromSource("default", VertexShaderSource, FragmentShaderSource);
+
+            //Tell opengl how to give the data to the shaders.
+            Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
+            Gl.EnableVertexAttribArray(0);
+        }
+
+        private unsafe void OnRender(double obj)
+        {
+            //Clear the color channel.
+            Gl.Clear((uint)ClearBufferMask.ColorBufferBit);
+
+            //Bind the geometry and shader.
+            Gl.BindVertexArray(Vao);
+            Gl.UseProgram(shaders["default"]);
+
+            //Draw the geometry.
+            Gl.DrawElements(GLEnum.Triangles, (uint)Indices.Length, GLEnum.UnsignedInt, (void*)0);
+        }
+
+        private void OnUpdate(double obj)
+        {
+
+        }
+
+        private void OnClose()
+        {
+            Gl.DeleteBuffer(Vbo);
+            Gl.DeleteBuffer(Ebo);
+            Gl.DeleteVertexArray(Vao);
+            foreach (uint shader in shaders.Values)
+            {
+                Gl.DeleteProgram(shader);
+            }
+        }
+
+        private void KeyDown(IKeyboard arg1, Key arg2, int arg3)
+        {
+            if (arg2 == Key.Escape)
+            {
+                window.Close();
+            }
+        }
+
+        /// <summary>
+        /// Compiles vertex and fragment shaders into one shader and saves it in the shaders-dictionary.
+        /// </summary>
+        void GenerateShaderFromSource(string name, string vertexSource, string fragmentSource)
+        {
+            if (shaders.ContainsKey(name))
+                Console.WriteLine("\"Shader with the name \"" + name + "\" already exists! Overwriting!");
+
             //Creating a vertex shader.
             uint vertexShader = Gl.CreateShader(ShaderType.VertexShader);
             Gl.ShaderSource(vertexShader, VertexShaderSource);
@@ -160,13 +212,13 @@ namespace Zayker_Game_Engine.Modules.Renderer
             }
 
             //Combining the shaders under one shader program.
-            Shader = Gl.CreateProgram();
-            Gl.AttachShader(Shader, vertexShader);
-            Gl.AttachShader(Shader, fragmentShader);
-            Gl.LinkProgram(Shader);
+            shaders.Add(name, Gl.CreateProgram());
+            Gl.AttachShader(shaders[name], vertexShader);
+            Gl.AttachShader(shaders[name], fragmentShader);
+            Gl.LinkProgram(shaders[name]);
 
             //Checking the linking for errors.
-            string shader = Gl.GetProgramInfoLog(Shader);
+            string shader = Gl.GetProgramInfoLog(shaders[name]);
             if (!string.IsNullOrWhiteSpace(shader))
             {
                 Console.WriteLine($"Error linking shader {infoLog}");
@@ -175,44 +227,6 @@ namespace Zayker_Game_Engine.Modules.Renderer
             //Delete the no longer useful individual shaders;
             Gl.DeleteShader(vertexShader);
             Gl.DeleteShader(fragmentShader);
-
-            //Tell opengl how to give the data to the shaders.
-            Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
-            Gl.EnableVertexAttribArray(0);
-        }
-
-        private static unsafe void OnRender(double obj)
-        {
-            //Clear the color channel.
-            Gl.Clear((uint)ClearBufferMask.ColorBufferBit);
-
-            //Bind the geometry and shader.
-            Gl.BindVertexArray(Vao);
-            Gl.UseProgram(Shader);
-
-            //Draw the geometry.
-            Gl.DrawElements(GLEnum.Triangles, (uint)Indices.Length, GLEnum.UnsignedInt, (void*)0);
-        }
-
-        private static void OnUpdate(double obj)
-        {
-
-        }
-
-        private static void OnClose()
-        {
-            Gl.DeleteBuffer(Vbo);
-            Gl.DeleteBuffer(Ebo);
-            Gl.DeleteVertexArray(Vao);
-            Gl.DeleteProgram(Shader);
-        }
-
-        private void KeyDown(IKeyboard arg1, Key arg2, int arg3)
-        {
-            if (arg2 == Key.Escape)
-            {
-                window.Close();
-            }
         }
     }
 }
