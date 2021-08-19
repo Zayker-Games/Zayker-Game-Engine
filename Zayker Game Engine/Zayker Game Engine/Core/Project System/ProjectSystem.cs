@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace Zayker_Game_Engine.Core.Project_System
 {
@@ -10,7 +10,7 @@ namespace Zayker_Game_Engine.Core.Project_System
         public static void LoadProject(string projectPath)
         {
             // Read project.meta
-            ProjectSettings projectSettings = JsonSerializer.Deserialize<ProjectSettings>(projectPath + "project.meta");
+            ProjectSettings projectSettings = JsonConvert.DeserializeObject<ProjectSettings>(System.IO.File.ReadAllText(projectPath + "project.meta"));
 
             // Apply the gathered information
             foreach (string moduleId in projectSettings.includedModules)
@@ -21,16 +21,21 @@ namespace Zayker_Game_Engine.Core.Project_System
 
         public static void SaveProject(string projectPath)
         {
+            // Create Settings
             ProjectSettings projectSettings = new ProjectSettings();
+            projectSettings.includedModules = new List<string>();
 
-            // Apply the gathered information
+            // Gather information
             foreach (EngineModules.EngineModule module in EngineModules.EngineModuleSystem.modules)
             {
                 if (module.isEnabled)
+                {
+                    Console.WriteLine(module.id);
                     projectSettings.includedModules.Add(module.id);
+                }
             }
-            string jsonString = JsonSerializer.Serialize(projectSettings);
-            Console.WriteLine(jsonString);
+
+            string jsonString = JsonConvert.SerializeObject(projectSettings);
             System.IO.File.WriteAllText(projectPath + "project.meta", jsonString);
         }
 
@@ -40,9 +45,10 @@ namespace Zayker_Game_Engine.Core.Project_System
         }
     }
 
-    class ProjectSettings
+    [Serializable]
+    public struct ProjectSettings
     {
-        public string name = "Unnamed Project";
-        public List<string> includedModules = new List<string>();
+        public string name;
+        public List<string> includedModules;
     }
 }

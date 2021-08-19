@@ -19,11 +19,11 @@ namespace Zayker_Game_Engine
             renderer.CreateWindow();
 
             // Project
-            Core.Project_System.ProjectSystem.SaveProject(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game\");
+            //Core.Project_System.ProjectSystem.LoadProject(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game\");
 
             while(true)
             {
-                OnUpdate.Invoke(0.1f); // TODO: DT
+                OnUpdate.Invoke(0.1f); // TODO: Actuall dt
             }
         }
     }
