@@ -2,22 +2,22 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zayker_Game_Engine.Core.EngineModules
+namespace Zayker_Game_Engine.Core
 {
     /// <summary>
     /// Handles all enabled engine-modules. This includes setup, update and shutdown of those. 
     /// This is static, because we only ever want one ModuleSystem.
     /// </summary>
-    static class EngineModuleSystem
+    static class ModuleSystem
     {
         /// <summary>
         /// List of all modules included in the engine, regardless of rather or not they are enabled. 
         /// </summary>
-        public static List<EngineModule> modules;
+        public static List<Module> modules;
 
         public static void Initialize()
         {
-            modules = new List<EngineModule>();
+            modules = new List<Module>();
             // Initiate all modules as disabled and store them in modules list
             modules.Add(new Renderer.Renderer());
             modules.Add(new Input.Input());
@@ -25,16 +25,16 @@ namespace Zayker_Game_Engine.Core.EngineModules
 
         public static void Update(float deltaTime)
         {
-            foreach (EngineModule module in modules)
+            foreach (Module module in modules)
             {
                 if (module.isEnabled)
                     module.Update(deltaTime);
             }
         }
 
-        public static EngineModule GetModuleById(string moduleId)
+        public static Module GetModuleById(string moduleId)
         {
-            foreach (EngineModule engineModule in modules)
+            foreach (Module engineModule in modules)
             {
                 if(engineModule.id == moduleId)
                 {
@@ -46,7 +46,7 @@ namespace Zayker_Game_Engine.Core.EngineModules
 
         public static void EnableModule(string moduleId)
         {
-            EngineModule moduleToEnable = GetModuleById(moduleId);
+            Module moduleToEnable = GetModuleById(moduleId);
 
             moduleToEnable.isEnabled = true;
             moduleToEnable.OnEnable();
@@ -54,7 +54,7 @@ namespace Zayker_Game_Engine.Core.EngineModules
 
         public static void DisableModule(string moduleId)
         {
-            EngineModule moduleToDisable = GetModuleById(moduleId);
+            Module moduleToDisable = GetModuleById(moduleId);
 
             moduleToDisable.isEnabled = false;
             moduleToDisable.OnDisable();

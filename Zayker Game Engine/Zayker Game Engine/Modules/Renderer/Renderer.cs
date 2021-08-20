@@ -6,7 +6,7 @@ using Silk.NET.Input;
 
 namespace Zayker_Game_Engine.Renderer
 {
-    class Renderer : Core.EngineModules.EngineModule
+    class Renderer : Core.Module
     {
         /// <summary>
         /// List of all windows. 
@@ -92,7 +92,6 @@ namespace Zayker_Game_Engine.Renderer
             window.Render += OnRender;
             window.Update += OnUpdate;
             window.Closing += OnClose;
-
             window.Initialize();
         }
 

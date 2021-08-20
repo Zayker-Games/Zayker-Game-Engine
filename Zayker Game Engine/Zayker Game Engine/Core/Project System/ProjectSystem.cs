@@ -19,7 +19,7 @@ namespace Zayker_Game_Engine.Core.Project_System
             // Apply the gathered information
             foreach (string moduleId in projectSettings.includedModules)
             {
-                Core.EngineModules.EngineModuleSystem.EnableModule(moduleId);
+                ModuleSystem.EnableModule(moduleId);
             }
         }
 
@@ -36,7 +36,7 @@ namespace Zayker_Game_Engine.Core.Project_System
             projectSettings.includedModules = new List<string>();
 
             // Gather information
-            foreach (EngineModules.EngineModule module in EngineModules.EngineModuleSystem.modules)
+            foreach (Module module in ModuleSystem.modules)
             {
                 if (module.isEnabled)
                 {

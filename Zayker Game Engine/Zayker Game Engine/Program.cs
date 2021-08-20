@@ -15,6 +15,8 @@ namespace Zayker_Game_Engine
 
         private static void Main(string[] args)
         {
+            Console.WriteLine("Engine starting...");
+
             // Get modulesDirectory
             if(System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1")) // If we are building the engine, use the working directory
                 modulesDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\";
@@ -22,15 +24,15 @@ namespace Zayker_Game_Engine
                 modulesDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Modules\";
 
             // Add event for update loop
-            OnUpdate += Core.EngineModules.EngineModuleSystem.Update;
+            OnUpdate += Core.ModuleSystem.Update;
 
             // Enable modules
-            Core.EngineModules.EngineModuleSystem.Initialize();
-            Core.EngineModules.EngineModuleSystem.EnableModule("engine_input");
-            Core.EngineModules.EngineModuleSystem.EnableModule("engine_renderer");
+            Core.ModuleSystem.Initialize();
+            Core.ModuleSystem.EnableModule("engine_input");
+            Core.ModuleSystem.EnableModule("engine_renderer");
 
             // Get reference to renderer module
-            Renderer.Renderer renderer = (Renderer.Renderer)(Core.EngineModules.EngineModuleSystem.GetModuleById("engine_renderer"));
+            Renderer.Renderer renderer = (Renderer.Renderer)(Core.ModuleSystem.GetModuleById("engine_renderer"));
 
             // Create testing window
             renderer.CreateWindow();
@@ -42,6 +44,7 @@ namespace Zayker_Game_Engine
             Input.Input.OnKeyDown += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↓" + arg2); };
             Input.Input.OnKeyUp += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↑" + arg2); };
 
+            Console.WriteLine("Engine initialized. Entering main loop...");
             while (true)
             {
                 OnUpdate.Invoke(0.1f); // TODO: Actuall dt

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Zayker_Game_Engine.Example_Module
 {
-    class ExampleModule : Core.EngineModules.EngineModule
+    class ExampleModule : Core.Module
     {
         public ExampleModule ()
         {

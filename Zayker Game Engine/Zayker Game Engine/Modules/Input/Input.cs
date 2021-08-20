@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Zayker_Game_Engine.Input
 {
-    class Input : Core.EngineModules.EngineModule
+    class Input : Core.Module
     {
         public delegate void KeyUpEvent(IKeyboard arg1, Key arg2, int arg3);
         public delegate void KeyDownEvent(IKeyboard arg1, Key arg2, int arg3);
