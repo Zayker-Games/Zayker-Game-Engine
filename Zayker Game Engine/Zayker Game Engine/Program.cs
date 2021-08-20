@@ -5,6 +5,11 @@ namespace Zayker_Game_Engine
 {
     class Program
     {
+        /// <summary>
+        /// Directory to the "Modules"-Folder. This is inside the engine folder for the editor and inside the project folder for the game. 
+        /// </summary>
+        public static string modulesDirectory;
+
         public delegate void Update(float deltaTime);
         public static event Update OnUpdate;
         private static void Main(string[] args)

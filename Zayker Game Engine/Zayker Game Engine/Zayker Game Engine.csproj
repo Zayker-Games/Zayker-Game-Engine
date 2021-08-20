@@ -30,4 +30,10 @@
     <PackageReference Include="System.CodeDom" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Modules\Renderer\BuiltInShaders\BuildInShader.vert">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

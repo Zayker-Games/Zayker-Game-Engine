@@ -56,6 +56,7 @@ namespace Zayker_Game_Engine.Modules.Renderer
         private static uint Ebo;
         private static uint Vao;
 
+        /*
         //Vertex shaders are run on each vertex.
         private static readonly string VertexShaderSource = @"
         #version 330 core //Using version GLSL version 3.3
@@ -75,6 +76,7 @@ namespace Zayker_Game_Engine.Modules.Renderer
             FragColor = vec4(gl_FragCoord.x/500, gl_FragCoord.y/500, 0.0f, 1.0f);
         }
         ";
+        */
 
         //Vertex data, uploaded to the VBO.
         private static readonly float[] Vertices =
@@ -135,7 +137,7 @@ namespace Zayker_Game_Engine.Modules.Renderer
                 Gl.BufferData(BufferTargetARB.ElementArrayBuffer, (uint)(Indices.Length * sizeof(uint)), i, BufferUsageARB.StaticDraw); //Setting buffer data.
             }
 
-            GenerateShaderFromSource("default", VertexShaderSource, FragmentShaderSource);
+            GenerateShaderFromFile("default", Core.Project_System.ProjectSystem.currentProjectPath, FragmentShaderSource);
 
             //Tell opengl how to give the data to the shaders.
             Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
@@ -177,6 +179,11 @@ namespace Zayker_Game_Engine.Modules.Renderer
             {
                 window.Close();
             }
+        }
+
+        void GenerateShaderFromFile(string name, string vertexPath, string fragmentPath)
+        {
+            GenerateShaderFromSource(name, System.IO.File.ReadAllText(vertexPath), System.IO.File.ReadAllText(fragmentPath));
         }
 
         /// <summary>

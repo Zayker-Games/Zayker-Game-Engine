@@ -17,19 +17,23 @@ namespace Zayker_Game_Engine.Modules.Build_System
     {
         public static void BuildFolder(string projectPath)
         {
-            var assemblyPath = projectPath + "Build.exe";
+            var assemblyPath = projectPath + "Build/" + "Build.exe";
             Compiler compiler = new Compiler(projectPath);
 
+            // Build C# Code
+            Console.WriteLine("Compiling C# code...");
             EmitResult r = compiler.Emit(assemblyPath);
-
-            Console.WriteLine();
             foreach (Diagnostic d in r.Diagnostics)
             {
                 Console.WriteLine(d);
             }
-            Console.WriteLine();
-            Console.WriteLine(r.Success ? "Build completed" : "Build Failed");
-            Console.ReadLine();
+            Console.WriteLine(r.Success ? "Copiled C# code successfully!" : "Failed to compile C# code!");
+
+            // Copy asset folder
+
+            // Copy Modules Files (Shaders, etc.)
+
+            // Copy Module System
         }
 
         public class Compiler
