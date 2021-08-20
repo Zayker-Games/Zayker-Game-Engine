@@ -8,7 +8,7 @@ using System.Linq;
 using Microsoft.Extensions.DependencyModel;
 using Basic.Reference.Assemblies;
 
-namespace Zayker_Game_Engine.Modules.Build_System
+namespace Zayker_Game_Engine.Core.Build_System
 {
     /// <summary>
     /// The build-system handles comping the users project into an executable (and other formats in later versions).

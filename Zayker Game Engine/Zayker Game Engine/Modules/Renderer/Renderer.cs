@@ -4,7 +4,7 @@ using Silk.NET.Windowing;
 using System;
 using Silk.NET.Input;
 
-namespace Zayker_Game_Engine.Modules.Renderer
+namespace Zayker_Game_Engine.Renderer
 {
     class Renderer : Core.EngineModules.EngineModule
     {
@@ -38,7 +38,7 @@ namespace Zayker_Game_Engine.Modules.Renderer
 
         public Window CreateWindow()
         {
-            Window window = new Modules.Renderer.Window();
+            Window window = new Window();
             windows.Add(window);
             return window;
         }
@@ -145,6 +145,13 @@ namespace Zayker_Game_Engine.Modules.Renderer
             VaoA = CreateVertexArrayObject(VerticesA, Indices);
             VaoB = CreateVertexArrayObject(VerticesB, Indices);
 
+            // Here we add the callbacks to the input module (if it is enabled)
+            IInputContext input = window.CreateInput();
+            for (int i = 0; i < input.Keyboards.Count; i++)
+            {
+                input.Keyboards[i].KeyDown += Input.Input.InvokeKeyDownEvent;
+                input.Keyboards[i].KeyUp += Input.Input.InvokeKeyUpEvent;
+            }
         }
 
         private unsafe void OnRender(double obj)
@@ -152,21 +159,20 @@ namespace Zayker_Game_Engine.Modules.Renderer
             //Clear the color channel.
             Gl.Clear((uint)ClearBufferMask.ColorBufferBit);
 
-            //Bind the geometry and shader.
-            Gl.BindVertexArray(VaoA); // We already bound this ealier
-            Gl.UseProgram(shaders["default"]);
-
-            //Draw the geometry.
-            Gl.DrawElements(GLEnum.Triangles, (uint)Indices.Length, GLEnum.UnsignedInt, (void*)0);
-
-            //Bind the geometry and shader.
-            Gl.BindVertexArray(VaoB); // We already bound this ealier
-            Gl.UseProgram(shaders["default"]);
-
-            //Draw the geometry.
-            Gl.DrawElements(GLEnum.Triangles, (uint)Indices.Length, GLEnum.UnsignedInt, (void*)0);
+            DrawVertexArrayObject(VaoA);
+            DrawVertexArrayObject(VaoB);
 
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.
+        }
+
+        private unsafe void DrawVertexArrayObject(uint vao)
+        {
+            //Bind the geometry and shader.
+            Gl.BindVertexArray(vao); // We already bound this ealier
+            Gl.UseProgram(shaders["default"]);
+
+            //Draw the geometry.
+            Gl.DrawElements(GLEnum.Triangles, (uint)Indices.Length, GLEnum.UnsignedInt, (void*)0);
         }
 
         private void OnUpdate(double obj)
@@ -178,17 +184,14 @@ namespace Zayker_Game_Engine.Modules.Renderer
         {
             Gl.DeleteVertexArray(VaoA);
             Gl.DeleteVertexArray(VaoB);
+
+            Silk.NET.Maths.Matrix4X4<float> m = new Silk.NET.Maths.Matrix4X4<float>(1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f);
+            
+
+
             foreach (uint shader in shaders.Values)
             {
                 Gl.DeleteProgram(shader);
-            }
-        }
-
-        private void KeyDown(IKeyboard arg1, Key arg2, int arg3)
-        {
-            if (arg2 == Key.Escape)
-            {
-                window.Close();
             }
         }
 

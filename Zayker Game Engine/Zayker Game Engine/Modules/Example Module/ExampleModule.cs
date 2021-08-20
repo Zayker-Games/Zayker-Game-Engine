@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zayker_Game_Engine.Modules.Example_Module
+namespace Zayker_Game_Engine.Example_Module
 {
     class ExampleModule : Core.EngineModules.EngineModule
     {

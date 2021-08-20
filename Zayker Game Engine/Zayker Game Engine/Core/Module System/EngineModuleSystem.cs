@@ -19,7 +19,8 @@ namespace Zayker_Game_Engine.Core.EngineModules
         {
             modules = new List<EngineModule>();
             // Initiate all modules as disabled and store them in modules list
-            modules.Add(new Modules.Renderer.Renderer());
+            modules.Add(new Renderer.Renderer());
+            modules.Add(new Input.Input());
         }
 
         public static void Update(float deltaTime)
