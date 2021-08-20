@@ -137,7 +137,8 @@ namespace Zayker_Game_Engine.Modules.Renderer
                 Gl.BufferData(BufferTargetARB.ElementArrayBuffer, (uint)(Indices.Length * sizeof(uint)), i, BufferUsageARB.StaticDraw); //Setting buffer data.
             }
 
-            GenerateShaderFromFile("default", Core.Project_System.ProjectSystem.currentProjectPath, FragmentShaderSource);
+            GenerateShaderFromFile("default", Program.modulesDirectory+ "Renderer/BuiltInShaders/BuiltInShader.vert", 
+                                              Program.modulesDirectory + "Renderer/BuiltInShaders/BuiltInShader.frag");
 
             //Tell opengl how to give the data to the shaders.
             Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
@@ -196,7 +197,7 @@ namespace Zayker_Game_Engine.Modules.Renderer
 
             //Creating a vertex shader.
             uint vertexShader = Gl.CreateShader(ShaderType.VertexShader);
-            Gl.ShaderSource(vertexShader, VertexShaderSource);
+            Gl.ShaderSource(vertexShader, vertexSource);
             Gl.CompileShader(vertexShader);
 
             //Checking the shader for compilation errors.
@@ -208,7 +209,7 @@ namespace Zayker_Game_Engine.Modules.Renderer
 
             //Creating a fragment shader.
             uint fragmentShader = Gl.CreateShader(ShaderType.FragmentShader);
-            Gl.ShaderSource(fragmentShader, FragmentShaderSource);
+            Gl.ShaderSource(fragmentShader, fragmentSource);
             Gl.CompileShader(fragmentShader);
 
             //Checking the shader for compilation errors.

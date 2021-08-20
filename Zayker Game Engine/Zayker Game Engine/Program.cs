@@ -14,6 +14,11 @@ namespace Zayker_Game_Engine
         public static event Update OnUpdate;
         private static void Main(string[] args)
         {
+            if(System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1")) // If we are building the engine, use the working directory
+                modulesDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\";
+            else // If we are not, use the current directory (Not tested!)
+                modulesDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Modules\";
+
             // Callbacks
             OnUpdate += Core.EngineModules.EngineModuleSystem.Update;
 
