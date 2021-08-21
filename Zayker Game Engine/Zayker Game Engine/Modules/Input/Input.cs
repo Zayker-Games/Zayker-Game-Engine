@@ -15,7 +15,7 @@ namespace Zayker_Game_Engine.Input
 
         public Input()
         {
-            this.id = "engine_input";
+            this.id = "input";
         }
 
         public override void OnEnable()

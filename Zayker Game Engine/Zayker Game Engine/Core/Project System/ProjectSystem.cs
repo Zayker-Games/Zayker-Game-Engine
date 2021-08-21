@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
@@ -9,18 +10,16 @@ namespace Zayker_Game_Engine.Core.Project_System
     {
         public static string currentProjectPath = "";
 
+        public static ProjectSettings currentProjectSettings;
+
         public static void LoadProject(string projectPath)
         {
             currentProjectPath = projectPath;
 
             // Read project.meta
             ProjectSettings projectSettings = JsonConvert.DeserializeObject<ProjectSettings>(System.IO.File.ReadAllText(projectPath + "project.meta"));
-
-            // Apply the gathered information
-            foreach (string moduleId in projectSettings.includedModules)
-            {
-                ModuleSystem.EnableModule(moduleId);
-            }
+            
+            currentProjectSettings = projectSettings;
         }
 
         public static void SaveProject()
@@ -31,6 +30,8 @@ namespace Zayker_Game_Engine.Core.Project_System
 
         public static void SaveProject(string projectPath)
         {
+            currentProjectPath = projectPath;
+
             // Create Settings
             ProjectSettings projectSettings = new ProjectSettings();
             projectSettings.includedModules = new List<string>();
@@ -49,9 +50,62 @@ namespace Zayker_Game_Engine.Core.Project_System
             System.IO.File.WriteAllText(projectPath + "project.meta", jsonString);
         }
 
+        // Copies module to target directory, if always reimport is enabled
+        public static void ReimportAllModulesToProject()
+        {
+            if (Directory.Exists(ProjectSystem.currentProjectPath + "/Modules/")) 
+                Directory.Delete(ProjectSystem.currentProjectPath + "/Modules/", true);
+            if (!Directory.Exists(ProjectSystem.currentProjectPath + "/Modules/"))
+
+                Directory.CreateDirectory(ProjectSystem.currentProjectPath + "/Modules/");
+            foreach (string moduleId in currentProjectSettings.includedModules)
+            {
+                ImportModuleToProject(moduleId);
+            }
+        }
+
+        static void ImportModuleToProject(string moduleId)
+        {
+            DirectoryCopy(Program.modulesDirectory + "/" + moduleId + "/", Project_System.ProjectSystem.currentProjectPath + "/Modules/" + moduleId + "/");
+        }
+
         public static void CloseProject()
         {
             currentProjectPath = "";
+        }
+
+        private static void DirectoryCopy(string sourcePath, string destPath)
+        {
+            // Get the subdirectories for the specified directory.
+            DirectoryInfo dir = new DirectoryInfo(sourcePath);
+
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourcePath);
+            }
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            // If the destination directory doesn't exist, create it.       
+            Directory.CreateDirectory(destPath);
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string tempPath = Path.Combine(destPath, file.Name);
+                file.CopyTo(tempPath, true);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                string tempPath = Path.Combine(destPath, subdir.Name);
+                DirectoryCopy(subdir.FullName, tempPath);
+            }
+
         }
     }
 

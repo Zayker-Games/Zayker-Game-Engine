@@ -17,7 +17,9 @@ namespace Zayker_Game_Engine.Core.Build_System
     {
         public static void BuildFolder(string projectPath)
         {
-            var assemblyPath = projectPath + "Build/" + "Build.exe";
+            var assemblyPath = projectPath + "/Build/" + "Build.exe";
+            if (!System.IO.Directory.Exists(projectPath + "/Build/"))
+                System.IO.Directory.CreateDirectory(projectPath + "/Build/");
             Compiler compiler = new Compiler(projectPath);
 
             // Build C# Code
@@ -42,12 +44,48 @@ namespace Zayker_Game_Engine.Core.Build_System
 
             public Compiler(string projectPath)
             {
-                string[] sourceCodePaths = System.IO.Directory.GetFiles(projectPath, "*.cs");
-                // TODO: Add all the included module scripts to the sourceCodePaths
+                string[] sourceCodePaths = System.IO.Directory.GetFiles(projectPath, "*.cs", SearchOption.AllDirectories);
                 Console.WriteLine("Found " + sourceCodePaths.Length + " files to compile.");
                 var syntaxTrees = ParseSyntaxTrees(sourceCodePaths);
-                _compilation = CSharpCompilation.Create("Build.exe", syntaxTrees, ReferenceAssemblies.NetStandard20, GetCompilationOptions());
+                _compilation = CSharpCompilation.Create("Build.exe", syntaxTrees, GetMetadataReference(), GetCompilationOptions());
             }
+
+            
+
+            private static void DirectoryCopy(string sourcePath, string destPath)
+            {
+                // Get the subdirectories for the specified directory.
+                DirectoryInfo dir = new DirectoryInfo(sourcePath);
+
+                if (!dir.Exists)
+                {
+                    throw new DirectoryNotFoundException(
+                        "Source directory does not exist or could not be found: "
+                        + sourcePath);
+                }
+
+                DirectoryInfo[] dirs = dir.GetDirectories();
+
+                // If the destination directory doesn't exist, create it.       
+                Directory.CreateDirectory(destPath);
+
+                // Get the files in the directory and copy them to the new location.
+                FileInfo[] files = dir.GetFiles();
+                foreach (FileInfo file in files)
+                {
+                    string tempPath = Path.Combine(destPath, file.Name);
+                    file.CopyTo(tempPath, true);
+                }
+
+                // If copying subdirectories, copy them and their contents to new location.
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    string tempPath = Path.Combine(destPath, subdir.Name);
+                    DirectoryCopy(subdir.FullName, tempPath);
+                }
+
+            }
+
 
             public EmitResult Emit(string filePath)
             {
@@ -59,29 +97,39 @@ namespace Zayker_Game_Engine.Core.Build_System
                 return sourceCodePaths.Select(source => CSharpSyntaxTree.ParseText(File.ReadAllText(source)));
             }
 
-            public IEnumerable<MetadataReference> GetMetadataReference()
+            public unsafe IEnumerable<MetadataReference> GetMetadataReference()
             {
-                MetadataReference[] a =
-                    DependencyContext.Default.CompileLibraries
-                    .SelectMany(cl => cl.ResolveReferencePaths())
-                    .Select(asm => MetadataReference.CreateFromFile(asm))
-                    .ToArray();
-                var assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location);
-                var netstandard = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == "netstandard").Single();
-                MetadataReference[] b = new MetadataReference[] {
-                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                    MetadataReference.CreateFromFile(netstandard.Location),
-                    MetadataReference.CreateFromFile(typeof(System.Runtime.AssemblyTargetedPatchBandAttribute).Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(Microsoft.CSharp.RuntimeBinder.CSharpArgumentInfo).Assembly.Location),
-                };
+                List<PortableExecutableReference> referenceAssemblies = new List<PortableExecutableReference>();
 
-                List<MetadataReference> o = a.ToList();
-                o.AddRange(b.ToList());
+                // Add references for netcoreapp31
+                referenceAssemblies.AddRange(ReferenceAssemblies.Get(ReferenceAssemblyKind.NetStandard20).ToList());
+                
+                // Try getting the version of System.Runtime that is in memory
+                PortableExecutableReference coreRef;
+                if (System.Reflection.Metadata.AssemblyExtensions.TryGetRawMetadata(typeof(System.Object).Assembly, out var blob, out var length))
+                {
+                    var md = ModuleMetadata.CreateFromMetadata((IntPtr)blob, length);
+                    coreRef = AssemblyMetadata.Create(md).GetReference();
+                    //referenceAssemblies.Add(coreRef);
+                }
+                // Try adding System.Runtime
+                //referenceAssemblies.Add(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+                //referenceAssemblies.Add(MetadataReference.CreateFromFile(Path.Combine(@"C:\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.1.0\ref\netcoreapp2.1", "System.Runtime.dll")));
+                //referenceAssemblies.Add(MetadataReference.CreateFromFile(typeof(System.Console).Assembly.Location));
+                // Add silk references
+                referenceAssemblies.Add(MetadataReference.CreateFromFile(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Zayker Game Engine\bin\Debug\netcoreapp3.1\Silk.NET.Core.dll"));
+                referenceAssemblies.Add(MetadataReference.CreateFromFile(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Zayker Game Engine\bin\Debug\netcoreapp3.1\Silk.NET.Maths.dll"));
+                referenceAssemblies.Add(MetadataReference.CreateFromFile(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Zayker Game Engine\bin\Debug\netcoreapp3.1\Silk.NET.OpenGL.dll"));
+                referenceAssemblies.Add(MetadataReference.CreateFromFile(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Zayker Game Engine\bin\Debug\netcoreapp3.1\Silk.NET.Windowing.Common.dll"));
 
-                return new MetadataReference[] { 
-                    MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                    MetadataReference.CreateFromFile(typeof(Console).Assembly.Location)
-                };
+                foreach (PortableExecutableReference p in referenceAssemblies)
+                {
+                    Console.WriteLine("   " + p.Display + " - " + p.FilePath);
+                }
+                Console.WriteLine("");
+
+                // Return all references we added
+                return referenceAssemblies;
             }
 
             private CSharpCompilationOptions GetCompilationOptions()

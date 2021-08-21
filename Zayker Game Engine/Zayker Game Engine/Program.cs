@@ -15,34 +15,40 @@ namespace Zayker_Game_Engine
 
         private static void Main(string[] args)
         {
-            Console.WriteLine("Engine starting...");
-
             // Get modulesDirectory
-            if(System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1")) // If we are building the engine, use the working directory
+            if (System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1")) // If we are building the engine, use the working directory
                 modulesDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\";
             else // If we are not, use the current directory (Not tested!)
                 modulesDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Modules\";
+
+            Console.WriteLine("Engine starting...");
 
             // Add event for update loop
             OnUpdate += Core.ModuleSystem.Update;
 
             // Enable modules
             Core.ModuleSystem.Initialize();
-            Core.ModuleSystem.EnableModule("engine_input");
-            Core.ModuleSystem.EnableModule("engine_renderer");
+            Core.ModuleSystem.EnableModule("input");
+            Core.ModuleSystem.EnableModule("renderer_core");
+            Core.ModuleSystem.EnableModule("ecs");
 
             // Get reference to renderer module
-            Renderer.Renderer renderer = (Renderer.Renderer)(Core.ModuleSystem.GetModuleById("engine_renderer"));
+            Rendering.RendererCore renderer = (Rendering.RendererCore)(Core.ModuleSystem.GetModuleById("renderer_core"));
 
             // Create testing window
             renderer.CreateWindow();
 
             // Test saving/loading system
-            //Core.Project_System.ProjectSystem.LoadProject(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game\");
+            //Core.Project_System.ProjectSystem.SaveProject(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game\");
+            Core.Project_System.ProjectSystem.LoadProject(@"D:\C# Projects\Zayker-Game-Engine\Sandbox\");
+            Core.Project_System.ProjectSystem.ReimportAllModulesToProject();
 
             // Test input module
             Input.Input.OnKeyDown += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↓" + arg2); };
             Input.Input.OnKeyUp += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↑" + arg2); };
+
+            // Test build module
+            //Core.Build_System.BuildSystem.BuildFolder(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game");
 
             Console.WriteLine("Engine initialized. Entering main loop...");
             while (true)

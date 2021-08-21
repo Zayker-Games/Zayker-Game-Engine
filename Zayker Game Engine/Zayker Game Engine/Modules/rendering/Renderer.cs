@@ -4,9 +4,9 @@ using Silk.NET.Windowing;
 using System;
 using Silk.NET.Input;
 
-namespace Zayker_Game_Engine.Renderer
+namespace Zayker_Game_Engine.Rendering
 {
-    class Renderer : Core.Module
+    class RendererCore : Core.Module
     {
         /// <summary>
         /// List of all windows. 
@@ -14,9 +14,9 @@ namespace Zayker_Game_Engine.Renderer
         public List<Window> windows = new List<Window>();
 
 
-        public Renderer()
+        public RendererCore()
         {
-            this.id = "engine_renderer";
+            this.id = "renderer_core";
         }
 
         public override void OnEnable()
@@ -138,8 +138,8 @@ namespace Zayker_Game_Engine.Renderer
             Gl = GL.GetApi(window);
 
             // Generate the engines default shader
-            GenerateShaderFromFile("default", Program.modulesDirectory + "Renderer/BuiltInShaders/BuiltInShader.vert",
-                                              Program.modulesDirectory + "Renderer/BuiltInShaders/BuiltInShader.frag");
+            GenerateShaderFromFile("default", Program.modulesDirectory + "rendering/BuiltInShaders/BuiltInShader.vert",
+                                              Program.modulesDirectory + "rendering/BuiltInShaders/BuiltInShader.frag");
 
             VaoA = CreateVertexArrayObject(VerticesA, Indices);
             VaoB = CreateVertexArrayObject(VerticesB, Indices);

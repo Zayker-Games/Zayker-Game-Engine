@@ -10,8 +10,12 @@ namespace Zayker_Game_Engine.Core
     class Module
     {
         public string id;
-
         public bool isEnabled;
+
+        /// <summary>
+        /// Directory of the source. 
+        /// </summary>
+        public string directory;
 
         /// <summary>
         /// List of other modules, that this module needs to function. 
@@ -25,7 +29,7 @@ namespace Zayker_Game_Engine.Core
 
         public virtual void OnEnable()
         {
-
+            
         }
 
         public virtual void OnDisable()
