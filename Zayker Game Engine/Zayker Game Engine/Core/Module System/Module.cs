@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zayker_Game_Engine.Core
+namespace ZEngine.Core
 {
     /// <summary>
     /// An Engine-Module adds a set of features to the engine, if it is enabled for the current project. 

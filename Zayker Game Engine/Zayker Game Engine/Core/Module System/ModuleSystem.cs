@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zayker_Game_Engine.Core
+namespace ZEngine.Core
 {
     /// <summary>
     /// Handles all enabled engine-modules. This includes setup, update and shutdown of those. 
@@ -48,6 +48,9 @@ namespace Zayker_Game_Engine.Core
         public static void EnableModule(string moduleId)
         {
             Module moduleToEnable = GetModuleById(moduleId);
+
+            if (moduleToEnable == null)
+                throw new System.Exception("Module " + moduleId + " was not found!");
 
             moduleToEnable.isEnabled = true;
             moduleToEnable.OnEnable();

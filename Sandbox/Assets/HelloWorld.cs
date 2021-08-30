@@ -17,5 +17,7 @@ public class Program
 		
 		System.Console.WriteLine("Hey");
 		System.Console.ReadLine();
+
+		ZEngine.Rendering.RendererCore a;
 	}
 }

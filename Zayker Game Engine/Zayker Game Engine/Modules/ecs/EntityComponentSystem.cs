@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zayker_Game_Engine.ECS
+namespace ZEngine.ECS
 {
     class EntityComponentSystem : Core.Module
     {

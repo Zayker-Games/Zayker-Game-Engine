@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zayker_Game_Engine.Example_Module
+namespace ZEngine.ExampleModule
 {
     class ExampleModule : Core.Module
     {
         public ExampleModule ()
         {
-            this.id = "engine_example";
+            // The id must match the modules folder name!
+            this.id = "example";
         }
 
         public override void OnEnable()

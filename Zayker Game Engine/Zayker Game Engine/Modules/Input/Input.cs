@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zayker_Game_Engine.Input
+namespace ZEngine.Input
 {
     class Input : Core.Module
     {

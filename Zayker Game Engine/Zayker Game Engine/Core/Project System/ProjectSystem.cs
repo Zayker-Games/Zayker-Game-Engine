@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace Zayker_Game_Engine.Core.Project_System
+namespace ZEngine.Core.Project_System
 {
     static class ProjectSystem
     {
@@ -50,28 +50,48 @@ namespace Zayker_Game_Engine.Core.Project_System
             System.IO.File.WriteAllText(projectPath + "project.meta", jsonString);
         }
 
-        // Copies module to target directory, if always reimport is enabled
+        // Copies module to target directory (UNDOES ALL CHANGES TO SOURCE!)
         public static void ReimportAllModulesToProject()
         {
-            if (Directory.Exists(ProjectSystem.currentProjectPath + "/Modules/")) 
-                Directory.Delete(ProjectSystem.currentProjectPath + "/Modules/", true);
-            if (!Directory.Exists(ProjectSystem.currentProjectPath + "/Modules/"))
+            if (Directory.Exists(GetProjectModulesPath()))
+                Directory.Delete(GetProjectModulesPath(), true);
+            if (!Directory.Exists(GetProjectModulesPath()))
+                Directory.CreateDirectory(GetProjectModulesPath());
 
-                Directory.CreateDirectory(ProjectSystem.currentProjectPath + "/Modules/");
             foreach (string moduleId in currentProjectSettings.includedModules)
             {
                 ImportModuleToProject(moduleId);
             }
         }
 
+        static void ImportModuleSystemToProject()
+        {
+            if (Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
+                Directory.Delete(Path.Combine(GetProjectEngineSourcePath(), "Module System"), true);
+            if (!Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
+                Directory.CreateDirectory(Path.Combine(GetProjectEngineSourcePath(), "Module System"));
+
+        }
+
         static void ImportModuleToProject(string moduleId)
         {
-            DirectoryCopy(Program.modulesDirectory + "/" + moduleId + "/", Project_System.ProjectSystem.currentProjectPath + "/Modules/" + moduleId + "/");
+            
+            DirectoryCopy(Path.Combine(Program.modulesDirectory, moduleId), Path.Combine(GetProjectModulesPath(), moduleId));
         }
 
         public static void CloseProject()
         {
             currentProjectPath = "";
+        }
+
+        private static string GetProjectEngineSourcePath()
+        {
+            return Path.Combine(currentProjectPath, "Engine");
+        }
+
+        private static string GetProjectModulesPath()
+        {
+            return Path.Combine(GetProjectEngineSourcePath(), "Modules");
         }
 
         private static void DirectoryCopy(string sourcePath, string destPath)

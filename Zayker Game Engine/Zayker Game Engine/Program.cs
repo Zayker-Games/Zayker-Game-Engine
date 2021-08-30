@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace Zayker_Game_Engine
+namespace ZEngine
 {
     class Program
     {

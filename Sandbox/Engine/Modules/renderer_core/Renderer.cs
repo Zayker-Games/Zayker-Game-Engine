@@ -4,7 +4,7 @@ using Silk.NET.Windowing;
 using System;
 using Silk.NET.Input;
 
-namespace Zayker_Game_Engine.Rendering
+namespace ZEngine.Rendering
 {
     class RendererCore : Core.Module
     {
@@ -138,8 +138,8 @@ namespace Zayker_Game_Engine.Rendering
             Gl = GL.GetApi(window);
 
             // Generate the engines default shader
-            GenerateShaderFromFile("default", Program.modulesDirectory + "rendering/BuiltInShaders/BuiltInShader.vert",
-                                              Program.modulesDirectory + "rendering/BuiltInShaders/BuiltInShader.frag");
+            GenerateShaderFromFile("default", Program.modulesDirectory + "renderer_core/BuiltInShaders/BuiltInShader.vert",
+                                              Program.modulesDirectory + "renderer_core/BuiltInShaders/BuiltInShader.frag");
 
             VaoA = CreateVertexArrayObject(VerticesA, Indices);
             VaoB = CreateVertexArrayObject(VerticesB, Indices);
