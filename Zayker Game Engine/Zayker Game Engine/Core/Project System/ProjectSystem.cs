@@ -64,13 +64,14 @@ namespace ZEngine.Core.Project_System
             }
         }
 
-        static void ImportModuleSystemToProject()
+        public static void ImportModuleSystemToProject()
         {
             if (Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
                 Directory.Delete(Path.Combine(GetProjectEngineSourcePath(), "Module System"), true);
             if (!Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
                 Directory.CreateDirectory(Path.Combine(GetProjectEngineSourcePath(), "Module System"));
 
+            DirectoryCopy(Path.Combine(Program.coreDirectory, "Module System"), Path.Combine(GetProjectEngineSourcePath(), "Module System"));
         }
 
         static void ImportModuleToProject(string moduleId)

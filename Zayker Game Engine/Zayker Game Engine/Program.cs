@@ -9,6 +9,7 @@ namespace ZEngine
         /// Directory to the "Modules"-Folder. This is inside the engine folder for the editor and inside the project folder for the game. 
         /// </summary>
         public static string modulesDirectory;
+        public static string coreDirectory;
 
         public delegate void Update(float deltaTime);
         public static event Update OnUpdate;
@@ -16,10 +17,18 @@ namespace ZEngine
         private static void Main(string[] args)
         {
             // Get modulesDirectory
-            if (System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1")) // If we are building the engine, use the working directory
+            if (System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1"))
+            {
+                // If we are building the engine, use the working directory
                 modulesDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\";
-            else // If we are not, use the current directory (Not tested!)
+                coreDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Core\";
+            }
+            else
+            {
+                // If we are not, use the current directory (Not tested!)
                 modulesDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Modules\";
+                coreDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Core\";
+            }
 
             Console.WriteLine("Engine starting...");
 
@@ -41,6 +50,8 @@ namespace ZEngine
             // Test saving/loading system
             //Core.Project_System.ProjectSystem.SaveProject(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game\");
             Core.Project_System.ProjectSystem.LoadProject(@"D:\C# Projects\Zayker-Game-Engine\Sandbox\");
+
+            Core.Project_System.ProjectSystem.ImportModuleSystemToProject();
             Core.Project_System.ProjectSystem.ReimportAllModulesToProject();
 
             // Test input module
