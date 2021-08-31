@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace ZEngine.Core.Project_System
+namespace ZEngine.Core
 {
     static class ProjectSystem
     {
@@ -64,7 +64,7 @@ namespace ZEngine.Core.Project_System
             }
         }
 
-        public static void ImportModuleSystemToProject()
+        public static void ImportCoreToProject()
         {
             if (Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
                 Directory.Delete(Path.Combine(GetProjectEngineSourcePath(), "Module System"), true);
@@ -72,6 +72,8 @@ namespace ZEngine.Core.Project_System
                 Directory.CreateDirectory(Path.Combine(GetProjectEngineSourcePath(), "Module System"));
 
             DirectoryCopy(Path.Combine(Program.coreDirectory, "Module System"), Path.Combine(GetProjectEngineSourcePath(), "Module System"));
+
+            File.Copy(Path.Combine(Program.coreDirectory, "Game.cs"), Path.Combine(GetProjectEngineSourcePath(), "Game.cs"), true);
         }
 
         static void ImportModuleToProject(string moduleId)

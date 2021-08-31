@@ -49,10 +49,10 @@ namespace ZEngine
 
             // Test saving/loading system
             //Core.Project_System.ProjectSystem.SaveProject(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game\");
-            Core.Project_System.ProjectSystem.LoadProject(@"D:\C# Projects\Zayker-Game-Engine\Sandbox\");
+            Core.ProjectSystem.LoadProject(@"D:\C# Projects\Zayker-Game-Engine\Sandbox\");
 
-            Core.Project_System.ProjectSystem.ImportModuleSystemToProject();
-            Core.Project_System.ProjectSystem.ReimportAllModulesToProject();
+            Core.ProjectSystem.ImportCoreToProject();
+            Core.ProjectSystem.ReimportAllModulesToProject();
 
             // Test input module
             Input.Input.OnKeyDown += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↓" + arg2); };
