@@ -34,6 +34,7 @@ namespace ZEngine.Core
 
             while (true)
             {
+                Console.WriteLine("Hey");
                 OnUpdate.Invoke(0.1f); // TODO: Actuall dt
             }
         }

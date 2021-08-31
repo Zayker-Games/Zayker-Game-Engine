@@ -7,12 +7,14 @@
 	<PreserveCompilationContext>true</PreserveCompilationContext>
 	<AssemblyName>Zayker Game Engine</AssemblyName>
 	<StartupObject>ZEngine.Engine</StartupObject>
+	<RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>TRACE</DefineConstants>
     <DocumentationFile></DocumentationFile>
+    <OutputPath>D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Build\Debug\</OutputPath>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -39,5 +41,9 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="@ECHO ON&#xD;&#xA;call &quot;$(SolutionDir)BuildTask.bat&quot;" />
+  </Target>
 
 </Project>

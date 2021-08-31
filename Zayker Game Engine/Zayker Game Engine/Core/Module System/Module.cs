@@ -47,13 +47,13 @@ namespace ZEngine.Core
         /// </summary>
         public string GetDirectory()
         {
-            if (System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1"))
+            if (false && System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1"))
             {
                 return System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\" + id + @"\";
             }
             else
             {
-                return System.IO.Directory.GetCurrentDirectory() + @"\Modules\" + id + @"\";
+                return System.IO.Directory.GetCurrentDirectory() + @"\Engine\Modules\" + id + @"\";
             }
         }
     }
