@@ -7,7 +7,7 @@ using System.Text;
 /// </summary>
 namespace ZEngine.Core
 {
-    public static class Game
+    public static class EngineRuntime
     {
         // The games main update loop event 
         public delegate void Update(float deltaTime);
@@ -21,8 +21,16 @@ namespace ZEngine.Core
         public static void Start()
         {
             OnUpdate += Core.ModuleSystem.Update;
+            OnUpdate += Game.Update;
 
+            // Initialize and enable all modules
             Core.ModuleSystem.Initialize();
+            foreach (Module m in ModuleSystem.modules)
+            {
+                ModuleSystem.EnableModule(m.id);
+            }
+
+            Game.Start();
 
             while (true)
             {

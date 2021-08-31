@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>ZEngine</RootNamespace>
 	<PreserveCompilationContext>true</PreserveCompilationContext>
-	<StartupObject>ZEngine.Core.Game</StartupObject>
+	<StartupObject>ZEngine.Core.EngineRuntime</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

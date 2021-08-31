@@ -73,7 +73,7 @@ namespace ZEngine.Core
 
             DirectoryCopy(Path.Combine(Engine.coreDirectory, "Module System"), Path.Combine(GetProjectEngineSourcePath(), "Module System"));
 
-            File.Copy(Path.Combine(Engine.coreDirectory, "Game.cs"), Path.Combine(GetProjectEngineSourcePath(), "Game.cs"), true);
+            File.Copy(Path.Combine(Engine.coreDirectory, "EngineRuntime.cs"), Path.Combine(GetProjectEngineSourcePath(), "EngineRuntime.cs"), true);
         }
 
         static void ImportModuleToProject(string moduleId)
