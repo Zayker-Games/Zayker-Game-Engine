@@ -6,7 +6,7 @@
     <RootNamespace>ZEngine</RootNamespace>
 	<PreserveCompilationContext>true</PreserveCompilationContext>
 	<AssemblyName>Zayker Game Engine</AssemblyName>
-	<StartupObject>ZEngine.Program</StartupObject>
+	<StartupObject>ZEngine.Engine</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

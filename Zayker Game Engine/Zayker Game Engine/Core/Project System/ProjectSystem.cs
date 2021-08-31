@@ -71,15 +71,15 @@ namespace ZEngine.Core
             if (!Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
                 Directory.CreateDirectory(Path.Combine(GetProjectEngineSourcePath(), "Module System"));
 
-            DirectoryCopy(Path.Combine(Program.coreDirectory, "Module System"), Path.Combine(GetProjectEngineSourcePath(), "Module System"));
+            DirectoryCopy(Path.Combine(Engine.coreDirectory, "Module System"), Path.Combine(GetProjectEngineSourcePath(), "Module System"));
 
-            File.Copy(Path.Combine(Program.coreDirectory, "Game.cs"), Path.Combine(GetProjectEngineSourcePath(), "Game.cs"), true);
+            File.Copy(Path.Combine(Engine.coreDirectory, "Game.cs"), Path.Combine(GetProjectEngineSourcePath(), "Game.cs"), true);
         }
 
         static void ImportModuleToProject(string moduleId)
         {
             
-            DirectoryCopy(Path.Combine(Program.modulesDirectory, moduleId), Path.Combine(GetProjectModulesPath(), moduleId));
+            DirectoryCopy(ModuleSystem.GetModuleById(moduleId).GetDirectory(), Path.Combine(GetProjectModulesPath(), moduleId));
         }
 
         public static void CloseProject()

@@ -17,11 +17,23 @@ namespace ZEngine.Core
 
         public static void Initialize()
         {
+            InitializeModules();
+        }
+
+        private static void InitializeModules()
+        {
             modules = new List<Module>();
             // Initiate all modules as disabled and store them in modules list
             modules.Add(new Rendering.RendererCore());
-            modules.Add(new Input.Input());
-            modules.Add(new ECS.EntityComponentSystem());
+
+            // Initialize all classes deriving from the Module class
+            foreach (Type t in System.Reflection.Assembly.GetAssembly(typeof(Module)).GetTypes())
+            {
+                if (t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(Module)))
+                {
+                    modules.Add((Module)Activator.CreateInstance(t));
+                }
+            }
         }
 
         public static void Update(float deltaTime)

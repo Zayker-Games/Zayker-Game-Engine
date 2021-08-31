@@ -41,5 +41,20 @@ namespace ZEngine.Core
         {
 
         }
+
+        /// <summary>
+        /// Returns the path to this modules directory.
+        /// </summary>
+        public string GetDirectory()
+        {
+            if (System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1"))
+            {
+                return System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\" + id + @"\";
+            }
+            else
+            {
+                return System.IO.Directory.GetCurrentDirectory() + @"\Modules\" + id + @"\";
+            }
+        }
     }
 }

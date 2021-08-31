@@ -3,12 +3,12 @@ using System.Drawing;
 
 namespace ZEngine
 {
-    class Program
+    class Engine
     {
         /// <summary>
         /// Directory to the "Modules"-Folder. This is inside the engine folder for the editor and inside the project folder for the game. 
         /// </summary>
-        public static string modulesDirectory;
+        //public static string modulesDirectory;
         public static string coreDirectory;
 
         public delegate void Update(float deltaTime);
@@ -20,13 +20,13 @@ namespace ZEngine
             if (System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1"))
             {
                 // If we are building the engine, use the working directory
-                modulesDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\";
+                //modulesDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\";
                 coreDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Core\";
             }
             else
             {
                 // If we are not, use the current directory (Not tested!)
-                modulesDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Modules\";
+                //modulesDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Modules\";
                 coreDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Core\";
             }
 

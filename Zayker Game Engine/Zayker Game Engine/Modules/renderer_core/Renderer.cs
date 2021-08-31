@@ -138,8 +138,8 @@ namespace ZEngine.Rendering
             Gl = GL.GetApi(window);
 
             // Generate the engines default shader
-            GenerateShaderFromFile("default", Program.modulesDirectory + "renderer_core/BuiltInShaders/BuiltInShader.vert",
-                                              Program.modulesDirectory + "renderer_core/BuiltInShaders/BuiltInShader.frag");
+            GenerateShaderFromFile("default", System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.vert"),
+                                              System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag"));
 
             VaoA = CreateVertexArrayObject(VerticesA, Indices);
             VaoB = CreateVertexArrayObject(VerticesB, Indices);
