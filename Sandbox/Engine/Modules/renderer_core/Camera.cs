@@ -14,5 +14,6 @@ namespace ZEngine.Rendering
         public float yaw = -90f;
         public float pitch = 0f;
         public float fov = 45f;
+        public float aspectRatio = 1f;
     }
 }

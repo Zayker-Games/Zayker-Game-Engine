@@ -1,6 +1,7 @@
 ﻿using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace ZEngine.Rendering
@@ -13,12 +14,16 @@ namespace ZEngine.Rendering
         uint vao;
         uint ebo;
 
+        int indicesCound;
+
         public unsafe VertexArrayObject(GL gl, float[] vertices, uint[] indices)
         {
             _gl = gl;
 
+            indicesCound = indices.Length;
+
             //Creating the vertex array, storing all data. 
-            
+
             _gl.CreateVertexArrays(1, out vao);
             _gl.BindVertexArray(vao);
 
@@ -47,6 +52,27 @@ namespace ZEngine.Rendering
             //_handle = _gl.GenVertexArray();
             _handle = vao;
             Bind();
+        }
+
+        public unsafe void Draw(Shader shader, Camera camera)
+        {
+            //Bind the geometry and shader.
+            _gl.BindVertexArray(_handle); // We already bound this ealier
+
+            shader.Use();
+
+            var model = Matrix4x4.CreateRotationZ(Core.Math.DegreesToRadians(0)) * 
+                        Matrix4x4.CreateRotationY(Core.Math.DegreesToRadians(0)) * 
+                        Matrix4x4.CreateRotationX(Core.Math.DegreesToRadians(0));
+            var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
+
+            shader.SetUniform("uModel", model);
+            shader.SetUniform("uView", view);
+            shader.SetUniform("uProjection", projection);
+
+            //Draw the geometry.
+            _gl.DrawElements(Silk.NET.OpenGL.GLEnum.Triangles, (uint)indicesCound, Silk.NET.OpenGL.GLEnum.UnsignedInt, (void*)0);
         }
 
         public void Bind()

@@ -92,11 +92,12 @@ namespace ZEngine.Rendering
             options.Size = new Silk.NET.Maths.Vector2D<int>(500, 500);
             options.Title = "LearnOpenGL with Silk.NET";
             window = Silk.NET.Windowing.Window.Create(options);
-
+            
             window.Load += OnLoad;
             window.Render += OnRender;
             window.Update += OnUpdate;
             window.Closing += OnClose;
+            window.Resize += OnResize;
             window.Initialize();
         }
 
@@ -129,43 +130,21 @@ namespace ZEngine.Rendering
         {
             //Clear the color channel.
             Gl.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
+            Gl.ClearColor(System.Drawing.Color.Cyan);
             Gl.Clear((uint)(Silk.NET.OpenGL.ClearBufferMask.ColorBufferBit | Silk.NET.OpenGL.ClearBufferMask.DepthBufferBit));
 
-            DrawVertexArrayObject(VaoA._handle);
-            DrawVertexArrayObject(VaoB._handle);
+            camera.position.X = MathF.Sin((float)window.Time);
+            camera.position.Y = MathF.Cos((float)window.Time);
+            camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
+            camera.fov = (MathF.Sin((float)window.Time) + 2f) * 45f;
+
+            VaoA.Draw(shaders["default"], camera);
+            VaoB.Draw(shaders["default"], camera);
+
+            //DrawVertexArrayObject(VaoA);
+            //DrawVertexArrayObject(VaoB);
 
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.
-        }
-
-
-        private const int Width = 800;
-        private const int Height = 700;
-
-        
-        private unsafe void DrawVertexArrayObject(uint vao)
-        {
-            //Bind the geometry and shader.
-            Gl.BindVertexArray(vao); // We already bound this ealier
-            shaders["default"].Use();
-
-            //Use elapsed time to convert to radians to allow our cube to rotate over time
-            var difference = (float)(window.Time * 100);
-
-            var model = Matrix4x4.CreateRotationY(DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(DegreesToRadians(difference));
-            var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(DegreesToRadians(camera.fov), Width / Height, 0.1f, 100.0f);
-
-            shaders["default"].SetUniform("uModel", model);
-            shaders["default"].SetUniform("uView", view);
-            shaders["default"].SetUniform("uProjection", projection);
-
-            //Draw the geometry.
-            Gl.DrawElements(Silk.NET.OpenGL.GLEnum.Triangles, (uint)Indices.Length, Silk.NET.OpenGL.GLEnum.UnsignedInt, (void*)0);
-        }
-
-        public static float DegreesToRadians(float degrees)
-        {
-            return MathF.PI / 180f * degrees;
         }
 
         private void OnUpdate(double obj)
@@ -182,6 +161,11 @@ namespace ZEngine.Rendering
             {
                 shader.Delete();
             }
+        }
+
+        private void OnResize(Silk.NET.Maths.Vector2D<int> obj)
+        {
+            Gl.Viewport(window.Size);
         }
     }
 }
