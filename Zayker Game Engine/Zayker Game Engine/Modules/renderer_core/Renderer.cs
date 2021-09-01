@@ -62,10 +62,10 @@ namespace ZEngine.Rendering
         private static readonly float[] VerticesA =
         {
             //X    Y      Z
-             0.5f,  0.9f, 0.0f,
-             0.5f,  0.1f, 0.0f,
-            -0.5f,  0.1f, 0.0f,
-            -0.5f,  0.9f, 0.6f
+             0.5f,  0.9f, 0.5f,
+             0.5f,  0.1f, 0.5f,
+            -0.5f,  0.1f, 0.5f,
+            -0.5f,  0.9f, 0.5f
         };
         private static readonly float[] VerticesB =
         {
@@ -73,7 +73,7 @@ namespace ZEngine.Rendering
              0.5f, -0.1f, 0.0f,
              0.5f, -0.9f, 0.0f,
             -0.5f, -0.9f, 0.0f,
-            -0.5f, -0.1f, 0.6f
+            -0.5f, -0.1f, 0.0f
         };
 
         //Index data, uploaded to the EBO.
@@ -164,7 +164,8 @@ namespace ZEngine.Rendering
         private unsafe void OnRender(double obj)
         {
             //Clear the color channel.
-            Gl.Clear((uint)ClearBufferMask.ColorBufferBit);
+            Gl.Enable(EnableCap.DepthTest);
+            Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
 
             DrawVertexArrayObject(VaoA);
             DrawVertexArrayObject(VaoB);
@@ -179,30 +180,31 @@ namespace ZEngine.Rendering
             Gl.UseProgram(shaders["default"]);
 
             // Calculate object transformation matrix
-            //Silk.NET.Maths.Matrix4X4<float> transformMatrix = Silk.NET.Maths.Matrix4X4.CreateTranslation(0f, 0f, 0f);
-            //Silk.NET.Maths.Matrix4X4<float> scalingMatrix = Silk.NET.Maths.Matrix4X4.CreateScale(1f, 1f, 1f);
-            //Silk.NET.Maths.Matrix4X4<float> xRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationX(0f);
-            //Silk.NET.Maths.Matrix4X4<float> yRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationY(0f);
-            //Silk.NET.Maths.Matrix4X4<float> zRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationZ(0f);
-            //Silk.NET.Maths.Matrix4X4<float> rotationMatrix = zRotationMatrix * yRotationMatrix * xRotationMatrix;
-            //Silk.NET.Maths.Matrix4X4<float> modelMatrix = transformMatrix * rotationMatrix * scalingMatrix;
+            Silk.NET.Maths.Matrix4X4<float> transformMatrix = Silk.NET.Maths.Matrix4X4.CreateTranslation(0f, 0f, 0f);
+            Silk.NET.Maths.Matrix4X4<float> scalingMatrix = Silk.NET.Maths.Matrix4X4.CreateScale(1f, 1f, 1f);
+            Silk.NET.Maths.Matrix4X4<float> xRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationX(0f);
+            Silk.NET.Maths.Matrix4X4<float> yRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationY((float)window.Time);
+            Silk.NET.Maths.Matrix4X4<float> zRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationZ(0f);
+            Silk.NET.Maths.Matrix4X4<float> rotationMatrix = zRotationMatrix * yRotationMatrix * xRotationMatrix;
+            Silk.NET.Maths.Matrix4X4<float> modelMatrix = transformMatrix * rotationMatrix * scalingMatrix;
 
             // Calculate view matrix
-            //Silk.NET.Maths.Matrix4X4<float> viewMatrix = Silk.NET.Maths.Matrix4X4.CreateLookAt(
-            //    new Silk.NET.Maths.Vector3D<float>(0f, 0f, -5f), 
-            //    new Silk.NET.Maths.Vector3D<float>(0f, 0f, 0f), 
-            //    new Silk.NET.Maths.Vector3D<float>(0f, 1f, 0f)
-            //    );
+            Silk.NET.Maths.Matrix4X4<float> viewMatrix = Silk.NET.Maths.Matrix4X4.CreateLookAt(
+                new Silk.NET.Maths.Vector3D<float>(0f, 0f, -1f),
+                new Silk.NET.Maths.Vector3D<float>(0f, 0f, 0f),
+                new Silk.NET.Maths.Vector3D<float>(0f, 1f, 0f)
+                );
+
 
             // Calculate projection matrix
-            //Silk.NET.Maths.Matrix4X4<float> projectionMatrix = Silk.NET.Maths.Matrix4X4.CreatePerspectiveFieldOfView(
-            //    (((float)Math.PI / 180f) * 90f), (float)window.Size.Y / (float)window.Size.X, 0.1f, 100.0f);
+            Silk.NET.Maths.Matrix4X4<float> projectionMatrix = Silk.NET.Maths.Matrix4X4.CreatePerspectiveFieldOfView(
+                (MathF.PI / 180f) * 65f, 1f, 0.1f, 100f
+                );
 
             // Combine and send to shader projectionMatrix * viewMatrix * modelMatrix
-            Silk.NET.Maths.Matrix4X4<float> MVPmatrix = new Silk.NET.Maths.Matrix4X4<float>(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+            Silk.NET.Maths.Matrix4X4<float> MVPmatrix = projectionMatrix * viewMatrix * modelMatrix;
             int matrixID = Gl.GetUniformLocation(shaders["default"], "MVP");
-            Gl.UniformMatrix4(matrixID, 1, false, MVPmatrix[0][0]);
-
+            Gl.UniformMatrix4(matrixID, 1, false, (float*)&MVPmatrix);
             //Draw the geometry.
             Gl.DrawElements(GLEnum.Triangles, (uint)Indices.Length, GLEnum.UnsignedInt, (void*)0);
         }
@@ -217,16 +219,12 @@ namespace ZEngine.Rendering
             Gl.DeleteVertexArray(VaoA);
             Gl.DeleteVertexArray(VaoB);
 
-            Silk.NET.Maths.Matrix4X4<float> m = new Silk.NET.Maths.Matrix4X4<float>(1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f);
-            
-
-
             foreach (uint shader in shaders.Values)
             {
                 Gl.DeleteProgram(shader);
             }
         }
-
+        // a
         void GenerateShaderFromFile(string name, string vertexPath, string fragmentPath)
         {
             GenerateShaderFromSource(name, System.IO.File.ReadAllText(vertexPath), System.IO.File.ReadAllText(fragmentPath));

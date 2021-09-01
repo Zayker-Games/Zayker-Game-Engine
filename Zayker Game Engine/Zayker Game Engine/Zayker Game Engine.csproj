@@ -22,6 +22,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Modules\renderer_core\BuiltInShaders\BuiltInShader.frag" />
+    <None Remove="Modules\renderer_core\BuiltInShaders\BuiltInShader.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\BuiltInShader.frag" />
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\BuiltInShader.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Basic.Reference.Assemblies" Version="1.1.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="3.11.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
