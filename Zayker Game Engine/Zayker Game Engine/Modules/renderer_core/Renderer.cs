@@ -46,6 +46,9 @@ namespace ZEngine.Rendering
         
     }
 
+    /// <summary>
+    /// Instance of a window. This has its own OpenGl instance. 
+    /// </summary>
     public class Window
     {
         public IWindow window;
@@ -95,9 +98,11 @@ namespace ZEngine.Rendering
             window.Initialize();
         }
 
+        /// <summary>
+        /// Creates a VertexArrayObject from vertice positions and the index array. 
+        /// </summary>
         unsafe uint CreateVertexArrayObject(float[] vertices, uint[] indices)
         {
-
             //Creating the vertex array, storing all data. 
             uint vao;
             Gl.CreateVertexArrays(1, out vao);
@@ -132,6 +137,9 @@ namespace ZEngine.Rendering
             return vao;
         }
 
+        /// <summary>
+        /// Runs once when the window is created. Initializes openGl.
+        /// </summary>
         private unsafe void OnLoad()
         {
             //Getting the opengl api for drawing to the screen.
@@ -169,6 +177,31 @@ namespace ZEngine.Rendering
             //Bind the geometry and shader.
             Gl.BindVertexArray(vao); // We already bound this ealier
             Gl.UseProgram(shaders["default"]);
+
+            // Calculate object transformation matrix
+            //Silk.NET.Maths.Matrix4X4<float> transformMatrix = Silk.NET.Maths.Matrix4X4.CreateTranslation(0f, 0f, 0f);
+            //Silk.NET.Maths.Matrix4X4<float> scalingMatrix = Silk.NET.Maths.Matrix4X4.CreateScale(1f, 1f, 1f);
+            //Silk.NET.Maths.Matrix4X4<float> xRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationX(0f);
+            //Silk.NET.Maths.Matrix4X4<float> yRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationY(0f);
+            //Silk.NET.Maths.Matrix4X4<float> zRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationZ(0f);
+            //Silk.NET.Maths.Matrix4X4<float> rotationMatrix = zRotationMatrix * yRotationMatrix * xRotationMatrix;
+            //Silk.NET.Maths.Matrix4X4<float> modelMatrix = transformMatrix * rotationMatrix * scalingMatrix;
+
+            // Calculate view matrix
+            //Silk.NET.Maths.Matrix4X4<float> viewMatrix = Silk.NET.Maths.Matrix4X4.CreateLookAt(
+            //    new Silk.NET.Maths.Vector3D<float>(0f, 0f, -5f), 
+            //    new Silk.NET.Maths.Vector3D<float>(0f, 0f, 0f), 
+            //    new Silk.NET.Maths.Vector3D<float>(0f, 1f, 0f)
+            //    );
+
+            // Calculate projection matrix
+            //Silk.NET.Maths.Matrix4X4<float> projectionMatrix = Silk.NET.Maths.Matrix4X4.CreatePerspectiveFieldOfView(
+            //    (((float)Math.PI / 180f) * 90f), (float)window.Size.Y / (float)window.Size.X, 0.1f, 100.0f);
+
+            // Combine and send to shader projectionMatrix * viewMatrix * modelMatrix
+            Silk.NET.Maths.Matrix4X4<float> MVPmatrix = new Silk.NET.Maths.Matrix4X4<float>(1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1);
+            int matrixID = Gl.GetUniformLocation(shaders["default"], "MVP");
+            Gl.UniformMatrix4(matrixID, 1, false, MVPmatrix[0][0]);
 
             //Draw the geometry.
             Gl.DrawElements(GLEnum.Triangles, (uint)Indices.Length, GLEnum.UnsignedInt, (void*)0);
