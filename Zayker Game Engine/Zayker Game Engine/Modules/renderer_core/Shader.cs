@@ -1,13 +1,14 @@
 ﻿using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Text;
 
 namespace ZEngine.Rendering
 {
     public class Shader
     {
-        public uint handle;
+        private uint _handle;
         private GL _gl;
 
         /// <summary>
@@ -15,12 +16,23 @@ namespace ZEngine.Rendering
         /// </summary>
         public void Delete()
         {
-            _gl.DeleteProgram(handle);
+            _gl.DeleteProgram(_handle);
         }
 
         public void Use()
         {
-            _gl.UseProgram(handle);
+            _gl.UseProgram(_handle);
+        }
+
+        /// <summary>
+        /// Set a uniform 4x4 Matrix for this shader.
+        /// </summary>
+        public unsafe void SetUniform(string name, Matrix4x4 value)
+        {
+            int location = _gl.GetUniformLocation(_handle, name);
+            if (location == -1)
+                throw new Exception($"{name} uniform not found on shader.");
+            _gl.UniformMatrix4(location, 1, false, (float*)&value);
         }
 
         // Create a new Shader from two files (vertex and fragment shader)
@@ -62,13 +74,13 @@ namespace ZEngine.Rendering
             }
 
             //Combining the shaders under one shader program.
-            newShader.handle = Gl.CreateProgram();
-            Gl.AttachShader(newShader.handle, vertexShader);
-            Gl.AttachShader(newShader.handle, fragmentShader);
-            Gl.LinkProgram(newShader.handle);
+            newShader._handle = Gl.CreateProgram();
+            Gl.AttachShader(newShader._handle, vertexShader);
+            Gl.AttachShader(newShader._handle, fragmentShader);
+            Gl.LinkProgram(newShader._handle);
 
             //Checking the linking for errors.
-            string shader = Gl.GetProgramInfoLog(newShader.handle);
+            string shader = Gl.GetProgramInfoLog(newShader._handle);
             if (!string.IsNullOrWhiteSpace(shader))
             {
                 Console.WriteLine($"Error linking shader {infoLog}");

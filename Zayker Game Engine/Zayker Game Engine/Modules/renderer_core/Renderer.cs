@@ -155,12 +155,9 @@ namespace ZEngine.Rendering
             var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(DegreesToRadians(camera.fov), Width / Height, 0.1f, 100.0f);
 
-            int matrixIDModel = Gl.GetUniformLocation(shaders["default"].handle, "uModel");
-            Gl.UniformMatrix4(matrixIDModel, 1, false, (float*)&model);
-            int matrixIDView = Gl.GetUniformLocation(shaders["default"].handle, "uView");
-            Gl.UniformMatrix4(matrixIDView, 1, false, (float*)&view);
-            int matrixIDProjection = Gl.GetUniformLocation(shaders["default"].handle, "uProjection");
-            Gl.UniformMatrix4(matrixIDProjection, 1, false, (float*)&projection);
+            shaders["default"].SetUniform("uModel", model);
+            shaders["default"].SetUniform("uView", view);
+            shaders["default"].SetUniform("uProjection", projection);
 
             //Draw the geometry.
             Gl.DrawElements(Silk.NET.OpenGL.GLEnum.Triangles, (uint)Indices.Length, Silk.NET.OpenGL.GLEnum.UnsignedInt, (void*)0);
