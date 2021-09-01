@@ -55,8 +55,10 @@ namespace ZEngine.Rendering
         private static Silk.NET.OpenGL.GL Gl;
         Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 
-        private static uint VaoA;
-        private static uint VaoB;
+        private static VertexArrayObject VaoA;
+        private static VertexArrayObject VaoB;
+
+        private Camera camera;
 
         //Vertex data, uploaded to the VBO.
         private static readonly float[] VerticesA =
@@ -99,45 +101,6 @@ namespace ZEngine.Rendering
         }
 
         /// <summary>
-        /// Creates a VertexArrayObject from vertice positions and the index array. 
-        /// </summary>
-        unsafe uint CreateVertexArrayObject(float[] vertices, uint[] indices)
-        {
-            //Creating the vertex array, storing all data. 
-            uint vao;
-            Gl.CreateVertexArrays(1, out vao);
-            Gl.BindVertexArray(vao);
-
-            //Initializing a vertex buffer that holds the vertex data.
-            uint vbo;
-            Gl.CreateBuffers(1, out vbo);
-            Gl.BindBuffer(Silk.NET.OpenGL.BufferTargetARB.ArrayBuffer, vbo);
-            fixed (void* v = &vertices[0])
-            {
-                Gl.BufferData(Silk.NET.OpenGL.BufferTargetARB.ArrayBuffer, (uint)(vertices.Length * sizeof(uint)), v, Silk.NET.OpenGL.BufferUsageARB.StaticDraw); //Setting buffer data.
-            }
-
-            //Initializing a element buffer that holds the index data.
-            uint ebo;
-            Gl.CreateBuffers(1, out ebo); //Creating the buffer.
-            Gl.BindBuffer(Silk.NET.OpenGL.BufferTargetARB.ElementArrayBuffer, ebo); //Binding the buffer.
-            fixed (void* i = &indices[0])
-            {
-                Gl.BufferData(Silk.NET.OpenGL.BufferTargetARB.ElementArrayBuffer, (uint)(indices.Length * sizeof(uint)), i, Silk.NET.OpenGL.BufferUsageARB.StaticDraw); //Setting buffer data.
-            }
-
-            //Tell opengl how to give the data to the shaders.
-            Gl.VertexAttribPointer(0, 3, Silk.NET.OpenGL.VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
-            Gl.EnableVertexAttribArray(0);
-
-            // vbo and ebo should be deleted when the program stops. I cant do that right now, because there are no references passed out. 
-            // Gl.DeleteBuffer(vbo);
-            // Gl.DeleteBuffer(ebo);
-
-            return vao;
-        }
-
-        /// <summary>
         /// Runs once when the window is created. Initializes openGl.
         /// </summary>
         private unsafe void OnLoad()
@@ -148,8 +111,10 @@ namespace ZEngine.Rendering
             shaders.Add("default", Shader.FromFiles(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.vert"),
                                               System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag")));
 
-            VaoA = CreateVertexArrayObject(VerticesA, Indices);
-            VaoB = CreateVertexArrayObject(VerticesB, Indices);
+            VaoA = new VertexArrayObject(Gl, VerticesA, Indices);
+            VaoB = new VertexArrayObject(Gl, VerticesB, Indices);
+
+            camera = new Camera();
 
             // Here we add the callbacks to the input module (if it is enabled)
             IInputContext input = window.CreateInput();
@@ -166,8 +131,8 @@ namespace ZEngine.Rendering
             Gl.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
             Gl.Clear((uint)(Silk.NET.OpenGL.ClearBufferMask.ColorBufferBit | Silk.NET.OpenGL.ClearBufferMask.DepthBufferBit));
 
-            DrawVertexArrayObject(VaoA);
-            DrawVertexArrayObject(VaoB);
+            DrawVertexArrayObject(VaoA._handle);
+            DrawVertexArrayObject(VaoB._handle);
 
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.
         }
@@ -176,27 +141,19 @@ namespace ZEngine.Rendering
         private const int Width = 800;
         private const int Height = 700;
 
-        //Setup the camera's location, directions, and movement speed
-        private static Vector3 CameraPosition = new Vector3(0.0f, 0.0f, 3.0f);
-        private static Vector3 CameraFront = new Vector3(0.0f, 0.0f, -1.0f);
-        private static Vector3 CameraUp = Vector3.UnitY;
-        private static Vector3 CameraDirection = Vector3.Zero;
-        private static float CameraYaw = -90f;
-        private static float CameraPitch = 0f;
-        private static float CameraZoom = 45f;
-
+        
         private unsafe void DrawVertexArrayObject(uint vao)
         {
             //Bind the geometry and shader.
             Gl.BindVertexArray(vao); // We already bound this ealier
-            Gl.UseProgram(shaders["default"].handle);
+            shaders["default"].Use();
 
             //Use elapsed time to convert to radians to allow our cube to rotate over time
             var difference = (float)(window.Time * 100);
 
             var model = Matrix4x4.CreateRotationY(DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(DegreesToRadians(difference));
-            var view = Matrix4x4.CreateLookAt(CameraPosition, CameraPosition + CameraFront, CameraUp);
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(DegreesToRadians(CameraZoom), Width / Height, 0.1f, 100.0f);
+            var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(DegreesToRadians(camera.fov), Width / Height, 0.1f, 100.0f);
 
             int matrixIDModel = Gl.GetUniformLocation(shaders["default"].handle, "uModel");
             Gl.UniformMatrix4(matrixIDModel, 1, false, (float*)&model);
@@ -221,8 +178,8 @@ namespace ZEngine.Rendering
 
         private void OnClose()
         {
-            Gl.DeleteVertexArray(VaoA);
-            Gl.DeleteVertexArray(VaoB);
+            VaoA.Dispose();
+            VaoB.Dispose();
 
             foreach (Shader shader in shaders.Values)
             {

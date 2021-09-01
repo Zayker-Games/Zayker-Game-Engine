@@ -18,6 +18,11 @@ namespace ZEngine.Rendering
             _gl.DeleteProgram(handle);
         }
 
+        public void Use()
+        {
+            _gl.UseProgram(handle);
+        }
+
         // Create a new Shader from two files (vertex and fragment shader)
         public static Shader FromFiles(GL Gl, string vertexPath, string fragmentPath)
         {
