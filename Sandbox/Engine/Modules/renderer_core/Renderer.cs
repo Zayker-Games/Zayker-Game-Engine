@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using System;
+using System.Numerics;
 using Silk.NET.Input;
 
 namespace ZEngine.Rendering
@@ -52,8 +52,8 @@ namespace ZEngine.Rendering
     public class Window
     {
         public IWindow window;
-        private static GL Gl;
-        Dictionary<string, uint> shaders = new Dictionary<string, uint>();
+        private static Silk.NET.OpenGL.GL Gl;
+        Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 
         private static uint VaoA;
         private static uint VaoB;
@@ -111,23 +111,23 @@ namespace ZEngine.Rendering
             //Initializing a vertex buffer that holds the vertex data.
             uint vbo;
             Gl.CreateBuffers(1, out vbo);
-            Gl.BindBuffer(BufferTargetARB.ArrayBuffer, vbo);
+            Gl.BindBuffer(Silk.NET.OpenGL.BufferTargetARB.ArrayBuffer, vbo);
             fixed (void* v = &vertices[0])
             {
-                Gl.BufferData(BufferTargetARB.ArrayBuffer, (uint)(vertices.Length * sizeof(uint)), v, BufferUsageARB.StaticDraw); //Setting buffer data.
+                Gl.BufferData(Silk.NET.OpenGL.BufferTargetARB.ArrayBuffer, (uint)(vertices.Length * sizeof(uint)), v, Silk.NET.OpenGL.BufferUsageARB.StaticDraw); //Setting buffer data.
             }
 
             //Initializing a element buffer that holds the index data.
             uint ebo;
             Gl.CreateBuffers(1, out ebo); //Creating the buffer.
-            Gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, ebo); //Binding the buffer.
+            Gl.BindBuffer(Silk.NET.OpenGL.BufferTargetARB.ElementArrayBuffer, ebo); //Binding the buffer.
             fixed (void* i = &indices[0])
             {
-                Gl.BufferData(BufferTargetARB.ElementArrayBuffer, (uint)(indices.Length * sizeof(uint)), i, BufferUsageARB.StaticDraw); //Setting buffer data.
+                Gl.BufferData(Silk.NET.OpenGL.BufferTargetARB.ElementArrayBuffer, (uint)(indices.Length * sizeof(uint)), i, Silk.NET.OpenGL.BufferUsageARB.StaticDraw); //Setting buffer data.
             }
 
             //Tell opengl how to give the data to the shaders.
-            Gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
+            Gl.VertexAttribPointer(0, 3, Silk.NET.OpenGL.VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
             Gl.EnableVertexAttribArray(0);
 
             // vbo and ebo should be deleted when the program stops. I cant do that right now, because there are no references passed out. 
@@ -143,11 +143,10 @@ namespace ZEngine.Rendering
         private unsafe void OnLoad()
         {
             //Getting the opengl api for drawing to the screen.
-            Gl = GL.GetApi(window);
+            Gl = Silk.NET.OpenGL.GL.GetApi(window);
 
-            // Generate the engines default shader
-            GenerateShaderFromFile("default", System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.vert"),
-                                              System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag"));
+            shaders.Add("default", Shader.FromFiles(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.vert"),
+                                              System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag")));
 
             VaoA = CreateVertexArrayObject(VerticesA, Indices);
             VaoB = CreateVertexArrayObject(VerticesB, Indices);
@@ -164,8 +163,8 @@ namespace ZEngine.Rendering
         private unsafe void OnRender(double obj)
         {
             //Clear the color channel.
-            Gl.Enable(EnableCap.DepthTest);
-            Gl.Clear((uint)(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit));
+            Gl.Enable(Silk.NET.OpenGL.EnableCap.DepthTest);
+            Gl.Clear((uint)(Silk.NET.OpenGL.ClearBufferMask.ColorBufferBit | Silk.NET.OpenGL.ClearBufferMask.DepthBufferBit));
 
             DrawVertexArrayObject(VaoA);
             DrawVertexArrayObject(VaoB);
@@ -173,40 +172,46 @@ namespace ZEngine.Rendering
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.
         }
 
+
+        private const int Width = 800;
+        private const int Height = 700;
+
+        //Setup the camera's location, directions, and movement speed
+        private static Vector3 CameraPosition = new Vector3(0.0f, 0.0f, 3.0f);
+        private static Vector3 CameraFront = new Vector3(0.0f, 0.0f, -1.0f);
+        private static Vector3 CameraUp = Vector3.UnitY;
+        private static Vector3 CameraDirection = Vector3.Zero;
+        private static float CameraYaw = -90f;
+        private static float CameraPitch = 0f;
+        private static float CameraZoom = 45f;
+
         private unsafe void DrawVertexArrayObject(uint vao)
         {
             //Bind the geometry and shader.
             Gl.BindVertexArray(vao); // We already bound this ealier
-            Gl.UseProgram(shaders["default"]);
+            Gl.UseProgram(shaders["default"].handle);
 
-            // Calculate object transformation matrix
-            Silk.NET.Maths.Matrix4X4<float> transformMatrix = Silk.NET.Maths.Matrix4X4.CreateTranslation(0f, 0f, 0f);
-            Silk.NET.Maths.Matrix4X4<float> scalingMatrix = Silk.NET.Maths.Matrix4X4.CreateScale(1f, 1f, 1f);
-            Silk.NET.Maths.Matrix4X4<float> xRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationX(0f);
-            Silk.NET.Maths.Matrix4X4<float> yRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationY((float)window.Time);
-            Silk.NET.Maths.Matrix4X4<float> zRotationMatrix = Silk.NET.Maths.Matrix4X4.CreateRotationZ(0f);
-            Silk.NET.Maths.Matrix4X4<float> rotationMatrix = zRotationMatrix * yRotationMatrix * xRotationMatrix;
-            Silk.NET.Maths.Matrix4X4<float> modelMatrix = transformMatrix * rotationMatrix * scalingMatrix;
+            //Use elapsed time to convert to radians to allow our cube to rotate over time
+            var difference = (float)(window.Time * 100);
 
-            // Calculate view matrix
-            Silk.NET.Maths.Matrix4X4<float> viewMatrix = Silk.NET.Maths.Matrix4X4.CreateLookAt(
-                new Silk.NET.Maths.Vector3D<float>(0f, 0f, -1f),
-                new Silk.NET.Maths.Vector3D<float>(0f, 0f, 0f),
-                new Silk.NET.Maths.Vector3D<float>(0f, 1f, 0f)
-                );
+            var model = Matrix4x4.CreateRotationY(DegreesToRadians(difference)) * Matrix4x4.CreateRotationX(DegreesToRadians(difference));
+            var view = Matrix4x4.CreateLookAt(CameraPosition, CameraPosition + CameraFront, CameraUp);
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(DegreesToRadians(CameraZoom), Width / Height, 0.1f, 100.0f);
 
+            int matrixIDModel = Gl.GetUniformLocation(shaders["default"].handle, "uModel");
+            Gl.UniformMatrix4(matrixIDModel, 1, false, (float*)&model);
+            int matrixIDView = Gl.GetUniformLocation(shaders["default"].handle, "uView");
+            Gl.UniformMatrix4(matrixIDView, 1, false, (float*)&view);
+            int matrixIDProjection = Gl.GetUniformLocation(shaders["default"].handle, "uProjection");
+            Gl.UniformMatrix4(matrixIDProjection, 1, false, (float*)&projection);
 
-            // Calculate projection matrix
-            Silk.NET.Maths.Matrix4X4<float> projectionMatrix = Silk.NET.Maths.Matrix4X4.CreatePerspectiveFieldOfView(
-                (MathF.PI / 180f) * 65f, 1f, 0.1f, 100f
-                );
-
-            // Combine and send to shader projectionMatrix * viewMatrix * modelMatrix
-            Silk.NET.Maths.Matrix4X4<float> MVPmatrix = projectionMatrix * viewMatrix * modelMatrix;
-            int matrixID = Gl.GetUniformLocation(shaders["default"], "MVP");
-            Gl.UniformMatrix4(matrixID, 1, false, (float*)&MVPmatrix);
             //Draw the geometry.
-            Gl.DrawElements(GLEnum.Triangles, (uint)Indices.Length, GLEnum.UnsignedInt, (void*)0);
+            Gl.DrawElements(Silk.NET.OpenGL.GLEnum.Triangles, (uint)Indices.Length, Silk.NET.OpenGL.GLEnum.UnsignedInt, (void*)0);
+        }
+
+        public static float DegreesToRadians(float degrees)
+        {
+            return MathF.PI / 180f * degrees;
         }
 
         private void OnUpdate(double obj)
@@ -219,65 +224,10 @@ namespace ZEngine.Rendering
             Gl.DeleteVertexArray(VaoA);
             Gl.DeleteVertexArray(VaoB);
 
-            foreach (uint shader in shaders.Values)
+            foreach (Shader shader in shaders.Values)
             {
-                Gl.DeleteProgram(shader);
+                shader.Delete();
             }
-        }
-        // a
-        void GenerateShaderFromFile(string name, string vertexPath, string fragmentPath)
-        {
-            GenerateShaderFromSource(name, System.IO.File.ReadAllText(vertexPath), System.IO.File.ReadAllText(fragmentPath));
-        }
-
-        /// <summary>
-        /// Compiles vertex and fragment shaders into one shader and saves it in the shaders-dictionary.
-        /// </summary>
-        void GenerateShaderFromSource(string name, string vertexSource, string fragmentSource)
-        {
-            if (shaders.ContainsKey(name))
-                Console.WriteLine("\"Shader with the name \"" + name + "\" already exists! Overwriting!");
-
-            //Creating a vertex shader.
-            uint vertexShader = Gl.CreateShader(ShaderType.VertexShader);
-            Gl.ShaderSource(vertexShader, vertexSource);
-            Gl.CompileShader(vertexShader);
-
-            //Checking the shader for compilation errors.
-            string infoLog = Gl.GetShaderInfoLog(vertexShader);
-            if (!string.IsNullOrWhiteSpace(infoLog))
-            {
-                Console.WriteLine($"Error compiling vertex shader {infoLog}");
-            }
-
-            //Creating a fragment shader.
-            uint fragmentShader = Gl.CreateShader(ShaderType.FragmentShader);
-            Gl.ShaderSource(fragmentShader, fragmentSource);
-            Gl.CompileShader(fragmentShader);
-
-            //Checking the shader for compilation errors.
-            infoLog = Gl.GetShaderInfoLog(fragmentShader);
-            if (!string.IsNullOrWhiteSpace(infoLog))
-            {
-                Console.WriteLine($"Error compiling fragment shader {infoLog}");
-            }
-
-            //Combining the shaders under one shader program.
-            shaders.Add(name, Gl.CreateProgram());
-            Gl.AttachShader(shaders[name], vertexShader);
-            Gl.AttachShader(shaders[name], fragmentShader);
-            Gl.LinkProgram(shaders[name]);
-
-            //Checking the linking for errors.
-            string shader = Gl.GetProgramInfoLog(shaders[name]);
-            if (!string.IsNullOrWhiteSpace(shader))
-            {
-                Console.WriteLine($"Error linking shader {infoLog}");
-            }
-
-            //Delete the no longer useful individual shaders;
-            Gl.DeleteShader(vertexShader);
-            Gl.DeleteShader(fragmentShader);
         }
     }
 }
