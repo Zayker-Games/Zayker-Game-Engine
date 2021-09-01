@@ -55,6 +55,8 @@ namespace ZEngine.Rendering
         private static Silk.NET.OpenGL.GL Gl;
         Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 
+        private List<VertexArrayObject> vaoRenderQue = new List<VertexArrayObject>();
+
         private static VertexArrayObject VaoA;
         private static VertexArrayObject VaoB;
 
@@ -112,8 +114,8 @@ namespace ZEngine.Rendering
             shaders.Add("default", Shader.FromFiles(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.vert"),
                                               System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag")));
 
-            VaoA = new VertexArrayObject(Gl, VerticesA, Indices);
-            VaoB = new VertexArrayObject(Gl, VerticesB, Indices);
+            VaoA = Primitives.Plane(Gl);
+            VaoB = new VertexArrayObject(Gl, VerticesB, Indices, new float[] { });
 
             camera = new Camera();
 
@@ -138,18 +140,20 @@ namespace ZEngine.Rendering
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
             camera.fov = (MathF.Sin((float)window.Time) + 2f) * 45f;
 
-            VaoA.Draw(shaders["default"], camera);
-            VaoB.Draw(shaders["default"], camera);
+            foreach (VertexArrayObject vao in vaoRenderQue)
+            {
+                vao.Draw(shaders["default"], camera);
+            }
 
-            //DrawVertexArrayObject(VaoA);
-            //DrawVertexArrayObject(VaoB);
+            vaoRenderQue.Clear();
 
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.
         }
 
         private void OnUpdate(double obj)
         {
-
+            vaoRenderQue.Add(VaoA);
+            vaoRenderQue.Add(VaoB);
         }
 
         private void OnClose()
