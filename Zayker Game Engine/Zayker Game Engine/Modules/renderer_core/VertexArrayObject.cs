@@ -61,7 +61,7 @@ namespace ZEngine.Rendering
             Bind();
         }
 
-        public unsafe void Draw(Shader shader, Camera camera)
+        public unsafe void Draw(Shader shader, Camera camera, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
         {
             //Bind the geometry and shader.
             _gl.BindVertexArray(_handle); // We already bound this ealier
@@ -69,9 +69,12 @@ namespace ZEngine.Rendering
             shader.Use();
 
             // Generate transform matrices
-            var model = Matrix4x4.CreateRotationZ(Core.Math.DegreesToRadians(0)) * 
-                        Matrix4x4.CreateRotationY(Core.Math.DegreesToRadians(0)) * 
-                        Matrix4x4.CreateRotationX(Core.Math.DegreesToRadians(0));
+            var model = Matrix4x4.CreateTranslation(positionInWorldspace) *
+                       (Matrix4x4.CreateRotationZ(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Z)) * 
+                        Matrix4x4.CreateRotationY(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Y)) * 
+                        Matrix4x4.CreateRotationX(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.X)) *
+                        Matrix4x4.CreateScale(scaleInWorldspace)
+                        );
             var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
 
@@ -122,6 +125,9 @@ namespace ZEngine.Rendering
 
     public static class ModelLoader
     {
+        /// <summary>
+        /// Load a mesh from a .obj file at a given path. Returns a VertexArrayObject containing this meshs data.
+        /// </summary>
         public static VertexArrayObject LoadObjFile(GL gl, string path)
         {
             List<string> lines = new List<string>();
@@ -137,7 +143,6 @@ namespace ZEngine.Rendering
             
             List<float> vertices = new List<float>();
             List<uint> indices = new List<uint>();
-            float[] uvData;
             List<Vector2> rawObjuvData = new List<Vector2>();
 
             // Load raw uv coordinates in the order they are present in the .obj file
@@ -158,8 +163,8 @@ namespace ZEngine.Rendering
                 vertices.Add(float.Parse(formated[2], CultureInfo.InvariantCulture));
             }
 
-            // Set the length of the uv List to the length of the vertices, because every vertice has a uv coordinate.
-            uvData = new float[(vertices.Count / 3) * 2];
+            // Array of uv coordinates for each vertex. Length is the ammound of vertices times two, because each coordinate is a vec2
+            float[] uvData = new float[(vertices.Count / 3) * 2];
 
             // Load indices and uvs
             foreach (string l in lines.Where(x => x.Substring(0, 2) == "f "))
@@ -171,22 +176,15 @@ namespace ZEngine.Rendering
 
                 uint indice;
 
-                // Indices
-                indice = uint.Parse(formated[0].Split("/")[0]) - 1;
-                indices.Add(indice);
-                uvData[(int)((indice) * 2)    ] = rawObjuvData[int.Parse(formated[0].Split("/")[1]) - 1].X;
-                uvData[(int)((indice) * 2) + 1] = rawObjuvData[int.Parse(formated[0].Split("/")[1]) - 1].Y;
-
-                indice = uint.Parse(formated[1].Split("/")[0]) - 1;
-                indices.Add(indice);
-                uvData[(int)((indice) * 2)] = rawObjuvData[int.Parse(formated[1].Split("/")[1]) - 1].X;
-                uvData[(int)((indice) * 2) + 1] = rawObjuvData[int.Parse(formated[1].Split("/")[1]) - 1].Y;
-
-                indice = uint.Parse(formated[2].Split("/")[0]) - 1;
-                indices.Add(indice);
-                uvData[(int)((indice) * 2)] = rawObjuvData[int.Parse(formated[2].Split("/")[1]) - 1].X;
-                uvData[(int)((indice) * 2) + 1] = rawObjuvData[int.Parse(formated[2].Split("/")[1]) - 1].Y;
-
+                // Iterate through the pairs of three, which are a triangle. 
+                // Then save the indices and uv data in the respective array
+                for (int i = 0; i < 3; i++)
+                {
+                    indice = uint.Parse(formated[i].Split("/")[0]) - 1;
+                    indices.Add(indice);
+                    uvData[(int)((indice) * 2)] = rawObjuvData[int.Parse(formated[i].Split("/")[1]) - 1].X;
+                    uvData[(int)((indice) * 2) + 1] = rawObjuvData[int.Parse(formated[i].Split("/")[1]) - 1].Y;
+                }
             }
 
             return new VertexArrayObject(gl, vertices.ToArray(), indices.ToArray(), uvData.ToArray());
@@ -225,23 +223,7 @@ namespace ZEngine.Rendering
 
         public static VertexArrayObject Cube(GL gl)
         {
-            float[] vertices =
-            {
-                //X    Y      Z
-                 0.5f,  0.5f, 0.0f,
-                 0.5f, -0.5f, 0.0f,
-                -0.5f, -0.5f, 0.0f,
-                -0.5f,  0.5f, 0.0f
-            };
-
-            //Index data, uploaded to the EBO.
-            uint[] indices =
-            {
-                0, 1, 3,
-                1, 2, 3
-            };
-
-            return new VertexArrayObject(gl, vertices, indices, new float[] { });
+            return ModelLoader.LoadObjFile(gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/cube.obj"));
         }
     }
 }

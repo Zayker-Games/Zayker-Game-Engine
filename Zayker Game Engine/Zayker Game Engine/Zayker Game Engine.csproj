@@ -24,19 +24,21 @@
   <ItemGroup>
     <None Remove="Modules\renderer_core\BuildInMeshes\circle.mtl" />
     <None Remove="Modules\renderer_core\BuildInMeshes\circle.obj" />
-    <None Remove="Modules\renderer_core\BuildInMeshes\plane.mtl" />
-    <None Remove="Modules\renderer_core\BuildInMeshes\plane.obj" />
+    <None Remove="Modules\renderer_core\BuildInMeshes\cube.mtl" />
+    <None Remove="Modules\renderer_core\BuildInMeshes\cube.obj" />
     <None Remove="Modules\renderer_core\BuiltInShaders\BuiltInShader.frag" />
     <None Remove="Modules\renderer_core\BuiltInShaders\BuiltInShader.vert" />
+    <None Remove="Modules\renderer_core\BuiltInTextures\uvTest.png" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\circle.mtl" />
     <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\circle.obj" />
-    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\plane.mtl" />
-    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\plane.obj" />
+    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\cube.mtl" />
+    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\cube.obj" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\BuiltInShader.frag" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\BuiltInShader.vert" />
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInTextures\uvTest.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +53,7 @@
     <PackageReference Include="Silk.NET.OpenGL" Version="2.7.0" />
     <PackageReference Include="Silk.NET.Windowing" Version="2.7.0" />
     <PackageReference Include="Silk.NET.Windowing.Common" Version="2.7.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
     <PackageReference Include="System.CodeDom" Version="5.0.0" />
   </ItemGroup>
 

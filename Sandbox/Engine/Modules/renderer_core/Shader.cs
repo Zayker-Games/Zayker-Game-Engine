@@ -35,6 +35,16 @@ namespace ZEngine.Rendering
             _gl.UniformMatrix4(location, 1, false, (float*)&value);
         }
 
+        public void SetUniform(string name, float value)
+        {
+            int location = _gl.GetUniformLocation(_handle, name);
+            if (location == -1)
+            {
+                throw new Exception($"{name} uniform not found on shader.");
+            }
+            _gl.Uniform1(location, value);
+        }
+
         // Create a new Shader from two files (vertex and fragment shader)
         public static Shader FromFiles(GL Gl, string vertexPath, string fragmentPath)
         {

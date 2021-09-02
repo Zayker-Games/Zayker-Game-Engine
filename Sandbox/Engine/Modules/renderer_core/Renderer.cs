@@ -62,6 +62,8 @@ namespace ZEngine.Rendering
 
         private Camera camera;
 
+        Texture testTexture;
+
         //Vertex data, uploaded to the VBO.
         private static readonly float[] VerticesA =
         {
@@ -114,8 +116,8 @@ namespace ZEngine.Rendering
             shaders.Add("default", Shader.FromFiles(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.vert"),
                                               System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag")));
 
-            VaoA = Primitives.Plane(Gl);
-            VaoB = ModelLoader.LoadObjFile(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/circle.obj"));
+            VaoA = Primitives.Cube(Gl);
+            //VaoB = Primitives.Cube(Gl);
             //VaoB = new VertexArrayObject(Gl, VerticesB, Indices, new float[] { }); 
 
             camera = new Camera();
@@ -127,6 +129,8 @@ namespace ZEngine.Rendering
                 input.Keyboards[i].KeyDown += Input.Input.InvokeKeyDownEvent;
                 input.Keyboards[i].KeyUp += Input.Input.InvokeKeyUpEvent;
             }
+
+            testTexture = new Texture(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/uvTest.png"));
         }
 
         private unsafe void OnRender(double obj)
@@ -136,14 +140,18 @@ namespace ZEngine.Rendering
             Gl.ClearColor(System.Drawing.Color.Cyan);
             Gl.Clear((uint)(Silk.NET.OpenGL.ClearBufferMask.ColorBufferBit | Silk.NET.OpenGL.ClearBufferMask.DepthBufferBit));
 
-            camera.position.X = MathF.Sin((float)window.Time) * 1f;
-            camera.position.Y = MathF.Cos((float)window.Time) * 1f;
+            camera.position.X = 0f;
+            camera.position.Y = 0f;
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
-            camera.fov = (MathF.Sin((float)window.Time) + 2f) * 45f;
+            camera.fov = 45f;
+
+            //Bind a texture and and set the uTexture0 to use texture0.
+            testTexture.Bind(Silk.NET.OpenGL.TextureUnit.Texture0);
+            shaders["default"].SetUniform("uTexture0", 0);
 
             foreach (VertexArrayObject vao in vaoRenderQue)
             {
-                vao.Draw(shaders["default"], camera);
+                vao.Draw(shaders["default"], camera, new Vector3(0f, 0f, 0f), new Vector3(0f, (float)window.Time * 100f, 0f), new Vector3(1f, 1f, 1f));
             }
 
             vaoRenderQue.Clear();
@@ -154,7 +162,7 @@ namespace ZEngine.Rendering
         private void OnUpdate(double obj)
         {
             vaoRenderQue.Add(VaoA);
-            vaoRenderQue.Add(VaoB);
+            //vaoRenderQue.Add(VaoB);
         }
 
         private void OnClose()
