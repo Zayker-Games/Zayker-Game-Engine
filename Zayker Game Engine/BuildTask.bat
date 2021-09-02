@@ -5,7 +5,7 @@ echo Starting Build Task
 cd ..\
 
 rem delete old folders
-rem del /q "Build"
+del /f /q /s "Build"
 
 rem Copy to debug folder
 robocopy "Zayker Game Engine\Core" "Build\Debug\netcoreapp3.1\Engine\Core" /E /IS /it

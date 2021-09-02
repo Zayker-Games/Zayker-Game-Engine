@@ -53,12 +53,10 @@ namespace ZEngine.Rendering
             //Tell opengl how to give the data to the shaders.
             _gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
             _gl.EnableVertexAttribArray(0);
-
-
-
+            int a;
             //_handle = _gl.GenVertexArray();
             _handle = vao;
-            Bind();
+            Bind(); 
         }
 
         public unsafe void Draw(Shader shader, Camera camera, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
@@ -182,8 +180,8 @@ namespace ZEngine.Rendering
                 if (formated.Length != 3)
                     Console.WriteLine("Warning! The renderer only supports triangles at this point! Triangulate your mesh!");
 
-                // Iterate through the pairs of three, which are a triangle. 
-                // Then save the indices and uv data in the respective array
+                // Iterate through the three verts of a triangle.
+                // Then save the data that is refered to into its list. 
                 for (int i = 0; i < 3; i++)
                 {
                     // Add the refered to vertex to the new list
@@ -201,6 +199,7 @@ namespace ZEngine.Rendering
                 }
             }
 
+            // Using the collected data, we create and return a new VAO. 
             return new VertexArrayObject(gl, vertices.ToArray(), indices.ToArray(), uvData.ToArray());
         }
     }

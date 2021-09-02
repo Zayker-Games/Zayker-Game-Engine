@@ -54,11 +54,8 @@ namespace ZEngine.Rendering
             _gl.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), null);
             _gl.EnableVertexAttribArray(0);
 
-
-
-            //_handle = _gl.GenVertexArray();
             _handle = vao;
-            Bind();
+            Bind(); 
         }
 
         public unsafe void Draw(Shader shader, Camera camera, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
