@@ -116,7 +116,7 @@ namespace ZEngine.Rendering
             shaders.Add("default", Shader.FromFiles(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.vert"),
                                               System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag")));
 
-            VaoA = Primitives.Cube(Gl);
+            VaoA = ModelLoader.LoadObjFile(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
             //VaoB = Primitives.Cube(Gl);
             //VaoB = new VertexArrayObject(Gl, VerticesB, Indices, new float[] { }); 
 
@@ -130,7 +130,7 @@ namespace ZEngine.Rendering
                 input.Keyboards[i].KeyUp += Input.Input.InvokeKeyUpEvent;
             }
 
-            testTexture = new Texture(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/uvTest.png"));
+            testTexture = new Texture(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/EngineMascotPalette.png"));
         }
 
         private unsafe void OnRender(double obj)
@@ -141,7 +141,9 @@ namespace ZEngine.Rendering
             Gl.Clear((uint)(Silk.NET.OpenGL.ClearBufferMask.ColorBufferBit | Silk.NET.OpenGL.ClearBufferMask.DepthBufferBit));
 
             camera.position.X = 0.0f;
-            camera.position.Y = 0.25f;
+            camera.position.Y = 2.5f;
+            camera.position.Z = 5.0f;
+            camera.forwards = Vector3.Normalize(new Vector3(0f, -0.5f, -1f));
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
             camera.fov = 45f;
 

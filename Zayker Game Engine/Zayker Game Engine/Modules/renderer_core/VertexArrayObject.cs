@@ -147,7 +147,7 @@ namespace ZEngine.Rendering
             // This is important, because the .obj file referes to these in the faces, 
             // while we need them to be in a list.
             List<Vector2> rawObjuvData = new List<Vector2>();
-            foreach (string l in lines.Where(x => x.Substring(0, 2) == "vt"))
+            foreach (string l in lines.Where(x => x.Length > 2 && x.Substring(0, 2) == "vt"))
             {
                 string[] formated = l.Substring(3).Split(" ");
                 rawObjuvData.Add(new Vector2(float.Parse(formated[0], CultureInfo.InvariantCulture), float.Parse(formated[1], CultureInfo.InvariantCulture)));
@@ -156,7 +156,7 @@ namespace ZEngine.Rendering
             // Load raw vertex positions. The raw vertex positions are the vertices as they are present in the obj file.
             // We need this list for easier and faster access, when we create our own vertex list.
             List<float> rawObjVertices = new List<float>();
-            foreach (string l in lines.Where(x => x.Substring(0, 2) == "v "))
+            foreach (string l in lines.Where(x => x.Length > 2 && x.Substring(0, 2) == "v "))
             {
                 string[] formated = l.Substring(2).Split(" ");
                 rawObjVertices.Add(float.Parse(formated[0], CultureInfo.InvariantCulture));
@@ -171,7 +171,7 @@ namespace ZEngine.Rendering
             //      This means, that one verice can have multiple normals and uvs, which is not possible with this current implementaion.
             //      Therefor this code creates a new verices list, where these shared vertices are cloned, so that each only has 1 uv and normal.
             uint vertexIndex = 0;
-            foreach (string l in lines.Where(x => x.Substring(0, 2) == "f "))
+            foreach (string l in lines.Where(x => x.Length > 2 &&  x.Substring(0, 2) == "f "))
             {
                 // Split the string into its three sections (one for each vert of the current face/triangle)
                 string[] formated = l.Substring(2).Split(" ");
