@@ -131,15 +131,14 @@ namespace ZEngine.Rendering
             System.IO.StreamReader file = new System.IO.StreamReader(path);
             while ((line = file.ReadLine()) != null)
             {
-                Console.WriteLine(line);
                 lines.Add(line);
             }
             file.Close();
             
             List<float> vertices = new List<float>();
             List<uint> indices = new List<uint>();
-            List<float> uvData = new List<float>();
-            List<float> rawObjuvData = new List<float>();
+            float[] uvData;
+            List<Vector2> rawObjuvData = new List<Vector2>();
 
             // Load raw uv coordinates in the order they are present in the .obj file
             // This is important, because the .obj file referes to these in the faces, 
@@ -147,11 +146,7 @@ namespace ZEngine.Rendering
             foreach (string l in lines.Where(x => x.Substring(0, 2) == "vt"))
             {
                 string[] formated = l.Substring(3).Split(" ");
-                rawObjuvData.Add(float.Parse(formated[0], CultureInfo.InvariantCulture));
-                rawObjuvData.Add(float.Parse(formated[1], CultureInfo.InvariantCulture));
-                Console.WriteLine(l);
-                Console.WriteLine(float.Parse(formated[0], CultureInfo.InvariantCulture));
-                Console.WriteLine(float.Parse(formated[1], CultureInfo.InvariantCulture));
+                rawObjuvData.Add(new Vector2(float.Parse(formated[0], CultureInfo.InvariantCulture), float.Parse(formated[1], CultureInfo.InvariantCulture)));
             }
 
             // Load vertex positions
@@ -162,6 +157,9 @@ namespace ZEngine.Rendering
                 vertices.Add(float.Parse(formated[1], CultureInfo.InvariantCulture));
                 vertices.Add(float.Parse(formated[2], CultureInfo.InvariantCulture));
             }
+
+            // Set the length of the uv List to the length of the vertices, because every vertice has a uv coordinate.
+            uvData = new float[(vertices.Count / 3) * 2];
 
             // Load indices and uvs
             foreach (string l in lines.Where(x => x.Substring(0, 2) == "f "))
@@ -176,35 +174,19 @@ namespace ZEngine.Rendering
                 // Indices
                 indice = uint.Parse(formated[0].Split("/")[0]) - 1;
                 indices.Add(indice);
-                indices.Add(uint.Parse(formated[1].Split("/")[0]) - 1);
-                indices.Add(uint.Parse(formated[2].Split("/")[0]) - 1);
+                uvData[(int)((indice) * 2)    ] = rawObjuvData[int.Parse(formated[0].Split("/")[1]) - 1].X;
+                uvData[(int)((indice) * 2) + 1] = rawObjuvData[int.Parse(formated[0].Split("/")[1]) - 1].Y;
 
+                indice = uint.Parse(formated[1].Split("/")[0]) - 1;
+                indices.Add(indice);
+                uvData[(int)((indice) * 2)] = rawObjuvData[int.Parse(formated[1].Split("/")[1]) - 1].X;
+                uvData[(int)((indice) * 2) + 1] = rawObjuvData[int.Parse(formated[1].Split("/")[1]) - 1].Y;
 
-                // UVs
-                int rawUvDataXIndex = (int.Parse(formated[0].Split("/")[1]) - 1) * 2;
-                uvData.Add(rawObjuvData[rawUvDataXIndex]);      // x
-                uvData.Add(rawObjuvData[rawUvDataXIndex + 1]);  // y
-                Console.WriteLine(uint.Parse(formated[0].Split("/")[0]) - 1 + " -> " + rawObjuvData[rawUvDataXIndex] + ", " + rawObjuvData[rawUvDataXIndex + 1]);
+                indice = uint.Parse(formated[2].Split("/")[0]) - 1;
+                indices.Add(indice);
+                uvData[(int)((indice) * 2)] = rawObjuvData[int.Parse(formated[2].Split("/")[1]) - 1].X;
+                uvData[(int)((indice) * 2) + 1] = rawObjuvData[int.Parse(formated[2].Split("/")[1]) - 1].Y;
 
-                rawUvDataXIndex = (int.Parse(formated[1].Split("/")[1]) - 1) * 2;
-                uvData.Add(rawObjuvData[rawUvDataXIndex]);      // x
-                uvData.Add(rawObjuvData[rawUvDataXIndex + 1]);  // y
-                Console.WriteLine(uint.Parse(formated[1].Split("/")[0]) - 1 + " -> " + rawObjuvData[rawUvDataXIndex] + ", " + rawObjuvData[rawUvDataXIndex + 1]);
-
-                rawUvDataXIndex = (int.Parse(formated[2].Split("/")[1]) - 1) * 2;
-                uvData.Add(rawObjuvData[rawUvDataXIndex]);      // x
-                uvData.Add(rawObjuvData[rawUvDataXIndex + 1]);  // y
-                Console.WriteLine(uint.Parse(formated[2].Split("/")[0]) - 1 + " -> " + rawObjuvData[rawUvDataXIndex] + ", " + rawObjuvData[rawUvDataXIndex + 1]);
-
-            }
-
-            foreach (float f in indices)
-            {
-                Console.WriteLine("i: " + f);
-            }
-            foreach (float f in uvData)
-            {
-                Console.WriteLine("uv: " + f);
             }
 
             return new VertexArrayObject(gl, vertices.ToArray(), indices.ToArray(), uvData.ToArray());
