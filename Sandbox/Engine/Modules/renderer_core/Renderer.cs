@@ -115,7 +115,8 @@ namespace ZEngine.Rendering
                                               System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag")));
 
             VaoA = Primitives.Plane(Gl);
-            VaoB = new VertexArrayObject(Gl, VerticesB, Indices, new float[] { });
+            VaoB = ModelLoader.LoadObjFile(Gl, @"C:\Users\Janis\3D Objects\cube.obj");
+            //VaoB = new VertexArrayObject(Gl, VerticesB, Indices, new float[] { });
 
             camera = new Camera();
 
@@ -135,8 +136,8 @@ namespace ZEngine.Rendering
             Gl.ClearColor(System.Drawing.Color.Cyan);
             Gl.Clear((uint)(Silk.NET.OpenGL.ClearBufferMask.ColorBufferBit | Silk.NET.OpenGL.ClearBufferMask.DepthBufferBit));
 
-            camera.position.X = MathF.Sin((float)window.Time);
-            camera.position.Y = MathF.Cos((float)window.Time);
+            camera.position.X = MathF.Sin((float)window.Time) * 1f;
+            camera.position.Y = MathF.Cos((float)window.Time) * 1f;
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
             camera.fov = (MathF.Sin((float)window.Time) + 2f) * 45f;
 
