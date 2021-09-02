@@ -22,11 +22,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Modules\renderer_core\BuildInMeshes\circle.mtl" />
+    <None Remove="Modules\renderer_core\BuildInMeshes\circle.obj" />
+    <None Remove="Modules\renderer_core\BuildInMeshes\plane.mtl" />
+    <None Remove="Modules\renderer_core\BuildInMeshes\plane.obj" />
     <None Remove="Modules\renderer_core\BuiltInShaders\BuiltInShader.frag" />
     <None Remove="Modules\renderer_core\BuiltInShaders\BuiltInShader.vert" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\circle.mtl" />
+    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\circle.obj" />
+    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\plane.mtl" />
+    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\plane.obj" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\BuiltInShader.frag" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\BuiltInShader.vert" />
   </ItemGroup>

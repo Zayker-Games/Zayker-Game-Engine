@@ -115,8 +115,8 @@ namespace ZEngine.Rendering
                                               System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag")));
 
             VaoA = Primitives.Plane(Gl);
-            VaoB = ModelLoader.LoadObjFile(Gl, @"C:\Users\Janis\3D Objects\cube.obj");
-            //VaoB = new VertexArrayObject(Gl, VerticesB, Indices, new float[] { });
+            VaoB = ModelLoader.LoadObjFile(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/circle.obj"));
+            //VaoB = new VertexArrayObject(Gl, VerticesB, Indices, new float[] { }); 
 
             camera = new Camera();
 
