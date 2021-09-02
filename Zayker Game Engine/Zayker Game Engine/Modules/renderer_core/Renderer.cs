@@ -94,7 +94,7 @@ namespace ZEngine.Rendering
         {
             var options = WindowOptions.Default;
             options.Size = new Silk.NET.Maths.Vector2D<int>(500, 500);
-            options.Title = "LearnOpenGL with Silk.NET";
+            options.Title = "Z-Engine";
             window = Silk.NET.Windowing.Window.Create(options);
             
             window.Load += OnLoad;
@@ -140,8 +140,8 @@ namespace ZEngine.Rendering
             Gl.ClearColor(System.Drawing.Color.Cyan);
             Gl.Clear((uint)(Silk.NET.OpenGL.ClearBufferMask.ColorBufferBit | Silk.NET.OpenGL.ClearBufferMask.DepthBufferBit));
 
-            camera.position.X = 0f;
-            camera.position.Y = 0f;
+            camera.position.X = 0.0f;
+            camera.position.Y = 0.25f;
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
             camera.fov = 45f;
 

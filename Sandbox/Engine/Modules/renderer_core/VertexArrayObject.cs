@@ -85,15 +85,15 @@ namespace ZEngine.Rendering
 
             // Set uvs
             if(uvData.Length > 0) { 
-                uint colorbuffer;
-                _gl.GenBuffers(1, &colorbuffer);
-                _gl.BindBuffer(BufferTargetARB.ArrayBuffer, colorbuffer);
+                uint uvBuffer;
+                _gl.GenBuffers(1, &uvBuffer);
+                _gl.BindBuffer(BufferTargetARB.ArrayBuffer, uvBuffer);
                 fixed (void* d = uvData)
                 {
                     _gl.BufferData(BufferTargetARB.ArrayBuffer, (uint)(sizeof(float) * uvData.Length), d, GLEnum.StaticDraw);
                 }
 
-                _gl.BindBuffer(BufferTargetARB.ArrayBuffer, colorbuffer);
+                _gl.BindBuffer(BufferTargetARB.ArrayBuffer, uvBuffer);
                 _gl.VertexAttribPointer(
                     1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
                     2,                                // size
@@ -130,60 +130,74 @@ namespace ZEngine.Rendering
         /// </summary>
         public static VertexArrayObject LoadObjFile(GL gl, string path)
         {
+            // List conaining every line of the given obj file.
             List<string> lines = new List<string>();
-            string line;
 
-            // Read the file line by line and save each into the lines list
+            // Save each line of the obj file into a list for further iterating. 
             System.IO.StreamReader file = new System.IO.StreamReader(path);
+            string line;
             while ((line = file.ReadLine()) != null)
-            {
                 lines.Add(line);
-            }
             file.Close();
-            
+
+            // Define variables for the data we will send to the VAO at the end.
+            List<float> uvData = new List<float>();
             List<float> vertices = new List<float>();
             List<uint> indices = new List<uint>();
-            List<Vector2> rawObjuvData = new List<Vector2>();
+
 
             // Load raw uv coordinates in the order they are present in the .obj file
             // This is important, because the .obj file referes to these in the faces, 
-            // while I need them to be in a list, simmilar to the indicess.
+            // while we need them to be in a list.
+            List<Vector2> rawObjuvData = new List<Vector2>();
             foreach (string l in lines.Where(x => x.Substring(0, 2) == "vt"))
             {
                 string[] formated = l.Substring(3).Split(" ");
                 rawObjuvData.Add(new Vector2(float.Parse(formated[0], CultureInfo.InvariantCulture), float.Parse(formated[1], CultureInfo.InvariantCulture)));
             }
 
-            // Load vertex positions
+            // Load raw vertex positions. The raw vertex positions are the vertices as they are present in the obj file.
+            // We need this list for easier and faster access, when we create our own vertex list.
+            List<float> rawObjVertices = new List<float>();
             foreach (string l in lines.Where(x => x.Substring(0, 2) == "v "))
             {
                 string[] formated = l.Substring(2).Split(" ");
-                vertices.Add(float.Parse(formated[0], CultureInfo.InvariantCulture));
-                vertices.Add(float.Parse(formated[1], CultureInfo.InvariantCulture));
-                vertices.Add(float.Parse(formated[2], CultureInfo.InvariantCulture));
+                rawObjVertices.Add(float.Parse(formated[0], CultureInfo.InvariantCulture));
+                rawObjVertices.Add(float.Parse(formated[1], CultureInfo.InvariantCulture));
+                rawObjVertices.Add(float.Parse(formated[2], CultureInfo.InvariantCulture));
             }
 
-            // Array of uv coordinates for each vertex. Length is the ammound of vertices times two, because each coordinate is a vec2
-            float[] uvData = new float[(vertices.Count / 3) * 2];
 
-            // Load indices and uvs
+            // Process the data to fit the format in which we hand it to the VertexArrayObject.
+            // One main functionality of this is removing shared verices:
+            //      Imagine a cube. In an obj file, each corer is one verice. This vertice is shared by multiple triangles.
+            //      This means, that one verice can have multiple normals and uvs, which is not possible with this current implementaion.
+            //      Therefor this code creates a new verices list, where these shared vertices are cloned, so that each only has 1 uv and normal.
+            uint vertexIndex = 0;
             foreach (string l in lines.Where(x => x.Substring(0, 2) == "f "))
             {
+                // Split the string into its three sections (one for each vert of the current face/triangle)
                 string[] formated = l.Substring(2).Split(" ");
 
                 if (formated.Length != 3)
                     Console.WriteLine("Warning! The renderer only supports triangles at this point! Triangulate your mesh!");
 
-                uint indice;
-
                 // Iterate through the pairs of three, which are a triangle. 
                 // Then save the indices and uv data in the respective array
                 for (int i = 0; i < 3; i++)
                 {
-                    indice = uint.Parse(formated[i].Split("/")[0]) - 1;
-                    indices.Add(indice);
-                    uvData[(int)((indice) * 2)] = rawObjuvData[int.Parse(formated[i].Split("/")[1]) - 1].X;
-                    uvData[(int)((indice) * 2) + 1] = rawObjuvData[int.Parse(formated[i].Split("/")[1]) - 1].Y;
+                    // Add the refered to vertex to the new list
+                    uint rawIndice = (uint.Parse(formated[i].Split("/")[0])-1)*3;
+                    vertices.AddRange(new float[3]{ rawObjVertices[(int)rawIndice], rawObjVertices[(int)rawIndice + 1], rawObjVertices[(int)rawIndice + 2] });
+                    
+                    // Add the index refering to this new vertice
+                    indices.Add(vertexIndex);
+
+                    // Add UV Data
+                    uvData.Add(rawObjuvData[int.Parse(formated[i].Split("/")[1]) - 1].X);
+                    uvData.Add(rawObjuvData[int.Parse(formated[i].Split("/")[1]) - 1].Y);
+
+                    vertexIndex++;
                 }
             }
 
