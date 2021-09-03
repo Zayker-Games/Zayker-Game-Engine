@@ -58,12 +58,13 @@ namespace ZEngine.Rendering
             Bind(); 
         }
 
-        public unsafe void Draw(Shader shader, Camera camera, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
+        public unsafe void Draw(Material material, Camera camera, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
         {
             //Bind the geometry and shader.
             _gl.BindVertexArray(_handle); // We already bound this ealier
 
-            shader.Use();
+            // Use material
+            material.Use();
 
             // Generate transform matrices
             var model = Matrix4x4.CreateTranslation(positionInWorldspace) *
@@ -76,9 +77,9 @@ namespace ZEngine.Rendering
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
 
             // Set matrices for transform
-            shader.SetUniform("uModel", model);
-            shader.SetUniform("uView", view);
-            shader.SetUniform("uProjection", projection);
+            material.shader.SetUniform("uModel", model);
+            material.shader.SetUniform("uView", view);
+            material.shader.SetUniform("uProjection", projection);
 
             // Set uvs
             if(uvData.Length > 0) { 

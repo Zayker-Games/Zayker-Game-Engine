@@ -57,24 +57,36 @@ namespace ZEngine
             Input.Input.OnKeyDown += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↓" + arg2); };
             Input.Input.OnKeyUp += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↑" + arg2); };
 
+            // Create everything needed to render the island mesh
             Rendering.VertexArrayObject testVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
+            Rendering.Texture testTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/EngineMascotPalette.png"));
+            Rendering.Material testMaterial = new Rendering.Material(mainWindow.GetShader("default"), testTexture);
+            Rendering.RenderRequest testRenderRequest = new Rendering.RenderRequest(
+                testVao, 
+                testMaterial, 
+                new System.Numerics.Vector3(0f, 0f, 0f),
+                new System.Numerics.Vector3(0f, 0f, 0f),
+                new System.Numerics.Vector3(1f, 1f, 1f)
+                );
 
             Console.WriteLine("Engine initialized. Entering main loop...");
             while (true)
             {
+                testRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
+
                 if (mainWindow != null)
                 {
                     if (mainWindow.window.IsClosing)
                         mainWindow = null;
                     else
-                        mainWindow.AddToRenderQue(testVao);
+                        mainWindow.AddToRenderQue(testRenderRequest);
                 }
 
                 OnUpdate.Invoke(0.1f); // TODO: Actuall dt
 
             }
 
-            testVao.Dispose();
+            testRenderRequest.vao.Dispose();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace ZEngine.Rendering
         public Silk.NET.OpenGL.GL Gl;
         Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 
-        private List<VertexArrayObject> vaoRenderQue = new List<VertexArrayObject>();
+        private List<RenderRequest> renderQue = new List<RenderRequest>();
 
         /// <summary>
         /// Rather or not this window is ready to be removed from the Renderer.windows list. 
@@ -24,8 +24,6 @@ namespace ZEngine.Rendering
         public bool _markedForDestruction = false;
 
         private Camera camera;
-
-        Texture testTexture;
 
         //Vertex data, uploaded to the VBO.
         private static readonly float[] VerticesA =
@@ -89,7 +87,6 @@ namespace ZEngine.Rendering
                 input.Keyboards[i].KeyUp += Input.Input.InvokeKeyUpEvent;
             }
 
-            testTexture = new Texture(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/EngineMascotPalette.png"));
         }
 
         private unsafe void OnRender(double obj)
@@ -106,16 +103,12 @@ namespace ZEngine.Rendering
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
             camera.fov = 45f;
 
-            //Bind a texture and and set the uTexture0 to use texture0.
-            testTexture.Bind(Silk.NET.OpenGL.TextureUnit.Texture0);
-            shaders["default"].SetUniform("uTexture0", 0);
-
-            foreach (VertexArrayObject vao in vaoRenderQue)
+            foreach (RenderRequest renderRequest in renderQue)
             {
-                vao.Draw(shaders["default"], camera, new Vector3(0f, 0f, 0f), new Vector3(0f, (float)window.Time * 100f, 0f), new Vector3(1f, 1f, 1f));
+                renderRequest.vao.Draw(renderRequest.material, camera, renderRequest.positionInWorldspace, renderRequest.eulerAnglesInWorldspace, renderRequest.scaleInWorldspace);
             }
 
-            vaoRenderQue.Clear();
+            renderQue.Clear();
 
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.
         }
@@ -127,7 +120,7 @@ namespace ZEngine.Rendering
 
         private void OnClose()
         {
-            vaoRenderQue.Clear();
+            renderQue.Clear();
             foreach (Shader shader in shaders.Values)
             {
                 shader.Delete();
@@ -139,14 +132,14 @@ namespace ZEngine.Rendering
             Gl.Viewport(window.Size);
         }
 
-        public void AddToRenderQue(VertexArrayObject vao)
+        public void AddToRenderQue(RenderRequest renderRequest)
         {
             if (!window.IsClosing)
             {
-                vaoRenderQue.Add(vao);
+                renderQue.Add(renderRequest);
             } else
             {
-                Console.WriteLine("Warning! You are trying to add a VAO to a closing window!");
+                Console.WriteLine("Warning! You are trying to add a RenderRequest to a closing window!");
             }
         }
 
@@ -156,6 +149,11 @@ namespace ZEngine.Rendering
         public void Close()
         {
             window.Close();
+        }
+
+        public Shader GetShader(string name)
+        {
+            return shaders[name];
         }
     }
 }

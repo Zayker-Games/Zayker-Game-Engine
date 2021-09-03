@@ -8,7 +8,7 @@ using System.Text;
 
 namespace ZEngine.Rendering
 {
-    class Texture
+    public class Texture
     {
         private GL _gl;
         private uint _handle;
