@@ -24,7 +24,7 @@ namespace ZEngine.Rendering
             base.OnEnable();
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(double deltaTime)
         {
             base.Update(deltaTime);
 

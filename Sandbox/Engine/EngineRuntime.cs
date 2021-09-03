@@ -10,7 +10,7 @@ namespace ZEngine.Core
     public static class EngineRuntime
     {
         // The games main update loop event 
-        public delegate void Update(float deltaTime);
+        public delegate void Update(double deltaTime);
         public static event Update OnUpdate;
 
         private static void Main(string[] args)
@@ -32,9 +32,15 @@ namespace ZEngine.Core
 
             Game.Start();
 
+            System.Diagnostics.Stopwatch deltaTimeStopwatch = new System.Diagnostics.Stopwatch();
+            deltaTimeStopwatch.Start();
+
             while (true)
             {
-                OnUpdate.Invoke(0.1f); // TODO: Actuall dt
+                double dt = deltaTimeStopwatch.Elapsed.TotalSeconds;
+                deltaTimeStopwatch.Restart();
+
+                OnUpdate.Invoke(dt);
             }
         }
     }

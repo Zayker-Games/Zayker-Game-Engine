@@ -11,7 +11,7 @@ namespace ZEngine
         //public static string modulesDirectory;
         public static string coreDirectory;
 
-        public delegate void Update(float deltaTime);
+        public delegate void Update(double deltaTime);
         public static event Update OnUpdate;
 
         private static void Main(string[] args)
@@ -70,6 +70,11 @@ namespace ZEngine
                 );
 
             Console.WriteLine("Engine initialized. Entering main loop...");
+
+            // DeltaTime Stopwatch
+            System.Diagnostics.Stopwatch deltaTimeStopwatch = new System.Diagnostics.Stopwatch();
+            deltaTimeStopwatch.Start();
+
             while (true)
             {
                 testRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
@@ -82,7 +87,10 @@ namespace ZEngine
                         mainWindow.AddToRenderQue(testRenderRequest);
                 }
 
-                OnUpdate.Invoke(0.1f); // TODO: Actuall dt
+                double dt = deltaTimeStopwatch.Elapsed.TotalSeconds;
+                deltaTimeStopwatch.Restart();
+
+                OnUpdate.Invoke(dt);
 
             }
 

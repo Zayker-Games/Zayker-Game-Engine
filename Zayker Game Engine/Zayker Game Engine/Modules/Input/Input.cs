@@ -28,7 +28,7 @@ namespace ZEngine.Input
             base.OnDisable();
         }
 
-        public override void Update(float deltaTime)
+        public override void Update(double deltaTime)
         {
             base.Update(deltaTime);
         }

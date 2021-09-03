@@ -12,7 +12,7 @@ public static class Game
 
     }
 
-    public static void Update(float deltaTime)
+    public static void Update(double deltaTime)
     {
 
     }

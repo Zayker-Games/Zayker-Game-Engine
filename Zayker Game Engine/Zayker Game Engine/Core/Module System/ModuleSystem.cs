@@ -36,7 +36,7 @@ namespace ZEngine.Core
             }
         }
 
-        public static void Update(float deltaTime)
+        public static void Update(double deltaTime)
         {
             foreach (Module module in modules)
             {

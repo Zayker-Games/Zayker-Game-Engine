@@ -31,10 +31,10 @@ public static class Game
             );
     }
 
-    public static void Update(float deltaTime)
+    public static void Update(double deltaTime)
     {
         // Rotate the renderRequest object
-        renderRequest.eulerAnglesInWorldspace.Y += deltaTime * 5f;
+        renderRequest.eulerAnglesInWorldspace.Y += (float)(deltaTime * 360 / 5);
 
         // Send the request we created to the renderer of our window every frame
         window.AddToRenderQue(renderRequest);
