@@ -66,20 +66,29 @@ namespace ZEngine.Rendering
             // Use material
             material.Use();
 
-            // Generate transform matrices
-            var model = Matrix4x4.CreateTranslation(positionInWorldspace) *
-                       (Matrix4x4.CreateRotationZ(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Z)) * 
-                        Matrix4x4.CreateRotationY(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Y)) * 
-                        Matrix4x4.CreateRotationX(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.X)) *
-                        Matrix4x4.CreateScale(scaleInWorldspace)
-                        );
-            var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
 
-            // Set matrices for transform
+            // Create model matrices
+            Matrix4x4 translation = Matrix4x4.CreateTranslation(positionInWorldspace);
+            Matrix4x4 rotation = Matrix4x4.CreateRotationZ(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Z)) *
+                                 Matrix4x4.CreateRotationY(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Y)) *
+                                 Matrix4x4.CreateRotationX(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.X));
+            Matrix4x4 scale = Matrix4x4.CreateScale(scaleInWorldspace);
+            // Combine translation, rotation and scale
+            Matrix4x4 model = scale * rotation * translation;
+
+            // Send to the shader
             material.shader.SetUniform("uModel", model);
-            material.shader.SetUniform("uView", view);
-            material.shader.SetUniform("uProjection", projection);
+
+            // If the shader is not screenspace, send perspective
+            if (!material.shader.screenspace)
+            {
+                var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
+                var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
+
+                // Set matrices for transform
+                material.shader.SetUniform("uView", view);
+                material.shader.SetUniform("uProjection", projection);
+            }
 
             // Set uvs
             if(uvData.Length > 0) { 
@@ -105,7 +114,7 @@ namespace ZEngine.Rendering
             }
 
             //Draw the geometry.
-            _gl.DrawElements(Silk.NET.OpenGL.GLEnum.Triangles, (uint)indicesCound, Silk.NET.OpenGL.GLEnum.UnsignedInt, (void*)0);
+            _gl.DrawElements(GLEnum.Triangles, (uint)indicesCound, GLEnum.UnsignedInt, (void*)0);
         }
 
         public void Bind()

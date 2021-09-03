@@ -58,15 +58,27 @@ namespace ZEngine
             Input.Input.OnKeyUp += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↑" + arg2); };
 
             // Create everything needed to render the island mesh
-            Rendering.VertexArrayObject testVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
-            Rendering.Texture testTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/EngineMascotPalette.png"));
-            Rendering.Material testMaterial = new Rendering.Material(mainWindow.GetShader("default"), testTexture);
-            Rendering.RenderRequest testRenderRequest = new Rendering.RenderRequest(
-                testVao, 
-                testMaterial, 
+            Rendering.VertexArrayObject islandVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
+            Rendering.Texture islandTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/EngineMascotPalette.png"));
+            Rendering.Material islandMaterial = new Rendering.Material(mainWindow.GetShader("standard_lit"), islandTexture);
+            Rendering.RenderRequest islandRenderRequest = new Rendering.RenderRequest(
+                islandVao, 
+                islandMaterial, 
                 new System.Numerics.Vector3(0f, 0f, 0f),
                 new System.Numerics.Vector3(0f, 0f, 0f),
                 new System.Numerics.Vector3(1f, 1f, 1f)
+                );
+
+            // Create everything needed to render a screenspace quad
+            Rendering.VertexArrayObject screenSpaceQuadVao = Rendering.Primitives.Plane(mainWindow.Gl);
+            Rendering.Texture uvTestTexture = new Rendering.Texture(mainWindow.Gl, renderer.GetDirectory() + @"BuiltInTextures/uvTest.png");
+            Rendering.Material screenSpaceMaterial = new Rendering.Material(mainWindow.GetShader("screenspace"), uvTestTexture);
+            Rendering.RenderRequest screenSpaceRenderRequest = new Rendering.RenderRequest(
+                screenSpaceQuadVao,
+                screenSpaceMaterial,
+                new System.Numerics.Vector3(0f, 0f, 0f),
+                new System.Numerics.Vector3(0f, 0f, 0f),
+                new System.Numerics.Vector3(0.5f, 1f, 1f)
                 );
 
             Console.WriteLine("Engine initialized. Entering main loop...");
@@ -77,14 +89,27 @@ namespace ZEngine
 
             while (true)
             {
-                testRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
+                // Animate the island object
+                islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
+                islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
+                islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
+
+                // Scale and position the screenspace object to always take up 50% of the screen width and be alligned to the top right corner
+                screenSpaceRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f, (float)mainWindow.window.Size.X / (float)mainWindow.window.Size.Y, 1f);
+                screenSpaceRenderRequest.positionInWorldspace.X = 1f - ((screenSpaceRenderRequest.scaleInWorldspace.X) / 2f);
+                screenSpaceRenderRequest.positionInWorldspace.Y = 1f - ((screenSpaceRenderRequest.scaleInWorldspace.Y) / 2f);
 
                 if (mainWindow != null)
                 {
                     if (mainWindow.window.IsClosing)
+                    {
                         mainWindow = null;
+                    }
                     else
-                        mainWindow.AddToRenderQue(testRenderRequest);
+                    {
+                        mainWindow.AddToRenderQue(islandRenderRequest);
+                        mainWindow.AddToRenderQue(screenSpaceRenderRequest);
+                    }
                 }
 
                 double dt = deltaTimeStopwatch.Elapsed.TotalSeconds;
@@ -94,7 +119,7 @@ namespace ZEngine
 
             }
 
-            testRenderRequest.vao.Dispose();
+            islandRenderRequest.vao.Dispose();
         }
     }
 }

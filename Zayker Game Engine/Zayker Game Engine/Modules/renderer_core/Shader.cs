@@ -12,6 +12,11 @@ namespace ZEngine.Rendering
         private GL _gl;
 
         /// <summary>
+        /// Rather or not the shader uses the three projection matrices (Model, View, Perspective)
+        /// </summary>
+        public bool screenspace = false;
+
+        /// <summary>
         /// Deletes the program from the OpenGl instance.
         /// </summary>
         public void Delete()

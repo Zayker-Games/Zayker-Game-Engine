@@ -25,32 +25,6 @@ namespace ZEngine.Rendering
 
         private Camera camera;
 
-        //Vertex data, uploaded to the VBO.
-        private static readonly float[] VerticesA =
-        {
-            //X    Y      Z
-             0.5f,  0.9f, 0.5f,
-             0.5f,  0.1f, 0.5f,
-            -0.5f,  0.1f, 0.5f,
-            -0.5f,  0.9f, 0.5f
-        };
-        private static readonly float[] VerticesB =
-        {
-            //X    Y      Z
-             0.5f, -0.1f, 0.0f,
-             0.5f, -0.9f, 0.0f,
-            -0.5f, -0.9f, 0.0f,
-            -0.5f, -0.1f, 0.0f
-        };
-
-        //Index data, uploaded to the EBO.
-        private static readonly uint[] Indices =
-        {
-            0, 1, 3,
-            1, 2, 3
-        };
-
-
         public Window()
         {
             var options = WindowOptions.Default;
@@ -74,8 +48,7 @@ namespace ZEngine.Rendering
             //Getting the opengl api for drawing to the screen.
             Gl = Silk.NET.OpenGL.GL.GetApi(window);
 
-            shaders.Add("default", Shader.FromFiles(Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.vert"),
-                                              System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/BuiltInShader.frag")));
+            LoadStandardShaders();
 
             camera = new Camera();
 
@@ -87,6 +60,20 @@ namespace ZEngine.Rendering
                 input.Keyboards[i].KeyUp += Input.Input.InvokeKeyUpEvent;
             }
 
+        }
+
+        private void LoadStandardShaders()
+        {
+            shaders.Add("standard_lit", Shader.FromFiles(
+                Gl,
+                System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/StandardLit.vert"),
+                System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/StandardLit.frag")));
+
+            shaders.Add("screenspace", Shader.FromFiles(
+                Gl,
+                System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/Screenspace.vert"),
+                System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/Screenspace.frag")));
+            GetShader("screenspace").screenspace = true;
         }
 
         private unsafe void OnRender(double obj)
@@ -115,7 +102,7 @@ namespace ZEngine.Rendering
 
         private void OnUpdate(double obj)
         {
-            //vaoRenderQue.Add(VaoB);
+            
         }
 
         private void OnClose()
