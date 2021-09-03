@@ -45,10 +45,9 @@ namespace ZEngine
             Rendering.RendererCore renderer = (Rendering.RendererCore)(Core.ModuleSystem.GetModuleById("renderer_core"));
 
             // Create testing window
-            renderer.CreateWindow();
+            Rendering.Window mainWindow = Rendering.RendererCore.CreateWindow();
 
             // Test saving/loading system
-            //Core.Project_System.ProjectSystem.SaveProject(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game\");
             Core.ProjectSystem.LoadProject(@"D:\C# Projects\Zayker-Game-Engine\Sandbox\");
 
             Core.ProjectSystem.ImportCoreToProject();
@@ -58,14 +57,24 @@ namespace ZEngine
             Input.Input.OnKeyDown += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↓" + arg2); };
             Input.Input.OnKeyUp += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↑" + arg2); };
 
-            // Test build module
-            //Core.Build_System.BuildSystem.BuildFolder(@"D:\C# Projects\Zayker-Game-Engine\Zayker Game Engine\Demo Game");
+            Rendering.VertexArrayObject testVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
 
             Console.WriteLine("Engine initialized. Entering main loop...");
             while (true)
             {
+                if (mainWindow != null)
+                {
+                    if (mainWindow.window.IsClosing)
+                        mainWindow = null;
+                    else
+                        mainWindow.AddToRenderQue(testVao);
+                }
+
                 OnUpdate.Invoke(0.1f); // TODO: Actuall dt
+
             }
+
+            testVao.Dispose();
         }
     }
 }
