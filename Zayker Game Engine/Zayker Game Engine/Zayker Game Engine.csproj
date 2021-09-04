@@ -33,6 +33,7 @@
     <None Remove="Modules\renderer_core\BuiltInShaders\StandardLit.vert" />
     <None Remove="Modules\renderer_core\BuiltInTextures\EngineMascotPalette.png" />
     <None Remove="Modules\renderer_core\BuiltInTextures\uvTest.png" />
+    <None Remove="Modules\renderer_core\BuiltInTextures\white.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +46,7 @@
     <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\StandardLit.vert" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInTextures\EngineMascotPalette.png" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInTextures\uvTest.png" />
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInTextures\white.png" />
   </ItemGroup>
 
   <ItemGroup>

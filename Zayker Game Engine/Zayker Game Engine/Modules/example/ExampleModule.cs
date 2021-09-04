@@ -4,9 +4,9 @@ using System.Text;
 
 namespace ZEngine.ExampleModule
 {
-    class ExampleModule : Core.Module
+    class Example : Core.Module
     {
-        public ExampleModule ()
+        public Example ()
         {
             // The id must match the modules folder name!
             this.id = "example";

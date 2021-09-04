@@ -40,6 +40,7 @@ namespace ZEngine
             Core.ModuleSystem.EnableModule("input");
             Core.ModuleSystem.EnableModule("renderer_core");
             Core.ModuleSystem.EnableModule("ecs");
+            Core.ModuleSystem.EnableModule("debugger");
 
             // Get reference to renderer module
             Rendering.RendererCore renderer = (Rendering.RendererCore)(Core.ModuleSystem.GetModuleById("renderer_core"));
@@ -78,8 +79,10 @@ namespace ZEngine
                 screenSpaceMaterial,
                 new System.Numerics.Vector3(0f, 0f, 0f),
                 new System.Numerics.Vector3(0f, 0f, 0f),
-                new System.Numerics.Vector3(0.5f, 1f, 1f)
+                new System.Numerics.Vector3(1f, 1f, 1f)
                 );
+
+            Debugging.Debugger.AddDebuggingUiEntity(new Debugging.Container(mainWindow));
 
             Console.WriteLine("Engine initialized. Entering main loop...");
 
