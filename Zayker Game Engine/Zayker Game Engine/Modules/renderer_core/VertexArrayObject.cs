@@ -58,15 +58,12 @@ namespace ZEngine.Rendering
             Bind(); 
         }
 
-        public unsafe void Draw(Material material, Camera camera, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
+        public unsafe void Draw(Material material, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
         {
             //Bind the geometry and shader.
             _gl.BindVertexArray(_handle); // We already bound this ealier
 
-            // Use material
-            material.Use();
-
-
+            
             // Create model matrices
             Matrix4x4 translation = Matrix4x4.CreateTranslation(positionInWorldspace);
             Matrix4x4 rotation = Matrix4x4.CreateRotationZ(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Z)) *
@@ -75,31 +72,20 @@ namespace ZEngine.Rendering
             Matrix4x4 scale = Matrix4x4.CreateScale(scaleInWorldspace);
             // Combine translation, rotation and scale
             Matrix4x4 model = scale * rotation * translation;
-
+            
             // Send to the shader
             material.shader.SetUniform("uModel", model);
 
-            // If the shader is not screenspace, send perspective
-            if (!material.shader.screenspace)
-            {
-                var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
-                var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
-
-                // Set matrices for transform
-                material.shader.SetUniform("uView", view);
-                material.shader.SetUniform("uProjection", projection);
-            }
-
             // Set uvs
-            if(uvData.Length > 0) { 
-                uint uvBuffer;
+            uint uvBuffer = 0;
+            if (uvData.Length > 0) { 
                 _gl.GenBuffers(1, &uvBuffer);
                 _gl.BindBuffer(BufferTargetARB.ArrayBuffer, uvBuffer);
+                
                 fixed (void* d = uvData)
                 {
                     _gl.BufferData(BufferTargetARB.ArrayBuffer, (uint)(sizeof(float) * uvData.Length), d, GLEnum.StaticDraw);
                 }
-
                 _gl.BindBuffer(BufferTargetARB.ArrayBuffer, uvBuffer);
                 _gl.VertexAttribPointer(
                     1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
@@ -110,11 +96,17 @@ namespace ZEngine.Rendering
                     (void*)0                          // array buffer offset
                 );
 
+                
                 _gl.EnableVertexAttribArray(1);
+
             }
 
             //Draw the geometry.
             _gl.DrawElements(GLEnum.Triangles, (uint)indicesCound, GLEnum.UnsignedInt, (void*)0);
+
+            // Dispose of uv buffer
+            if(uvData.Length > 0)
+                _gl.DeleteBuffer(uvBuffer);
         }
 
         public void Bind()

@@ -21,6 +21,7 @@ namespace ZEngine.Debugging
 
     public class FpsViewer : Container
     {
+        private float averageDeltaTime = 0.1f;
         public FpsViewer()
         {
             id = new Random().Next();
@@ -28,8 +29,9 @@ namespace ZEngine.Debugging
 
         public override void Update(float dt)
         {
+            averageDeltaTime = Core.Math.Lerp(averageDeltaTime, dt, 0.1f);
             ImGui.Begin("FPS##" + id);
-            ImGui.Text("60FPS");
+            ImGui.Text(MathF.Round(1f / averageDeltaTime) + " FPS");
             ImGui.End();
         }
     }

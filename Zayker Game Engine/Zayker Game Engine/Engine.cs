@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace ZEngine
@@ -62,16 +63,20 @@ namespace ZEngine
             Rendering.VertexArrayObject islandVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
             Rendering.Texture islandTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/EngineMascotPalette.png"));
             Rendering.Material islandMaterial = new Rendering.Material(mainWindow.GetShader("standard_lit"), islandTexture);
-            Rendering.RenderRequest islandRenderRequest = new Rendering.RenderRequest(
-                islandVao, 
-                islandMaterial, 
+            
+            List<Rendering.RenderRequest> islandRenderRequests = new List<Rendering.RenderRequest>();
+            for (int i = 0; i < 100*100; i++)
+            {
+                islandRenderRequests.Add(new Rendering.RenderRequest(
+                islandVao,
+                islandMaterial,
                 new System.Numerics.Vector3(0f, 0f, 0f),
                 new System.Numerics.Vector3(0f, 0f, 0f),
-                new System.Numerics.Vector3(1f, 1f, 1f)
-                );
+                new System.Numerics.Vector3(0.05f, 0.05f, 0.05f)
+                ));
+            }
 
             Debugging.DebuggerGuiInstance debuggerGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
-            debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
             debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
 
             Console.WriteLine("Engine initialized. Entering main loop...");
@@ -82,11 +87,6 @@ namespace ZEngine
 
             while (true)
             {
-                // Animate the island object
-                islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
-                islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
-                islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
-
                 // This check should not be needed. I will move some of this into the window class later. 
                 if (mainWindow != null)
                 {
@@ -96,7 +96,21 @@ namespace ZEngine
                     }
                     else
                     {
-                        mainWindow.AddToRenderQue(islandRenderRequest);
+                        for (int i = 0; i < 10000; i++)
+                        {
+                            float x = ((float)i % 100f) * 0.1f - 5f;
+                            float z = (((float)i / 100f) % 100f) * 0.1f - 5f;
+                            x *= 2f;
+                            z *= 2f;
+                            // Animate the island object
+                            islandRenderRequests[i].positionInWorldspace.X = x;
+                            islandRenderRequests[i].positionInWorldspace.Z = z;
+                            //islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
+                            //islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
+                            //islandRenderRequest.eulerAnglesInWorldspace.Y = (float)mainWindow.window.Time + 1000f;
+
+                            mainWindow.AddToRenderQue(islandRenderRequests[i]);
+                        }
                     }
                 }
 

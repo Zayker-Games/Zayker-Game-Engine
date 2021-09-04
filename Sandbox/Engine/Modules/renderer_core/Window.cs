@@ -3,6 +3,7 @@ using Silk.NET.Windowing;
 using System;
 using System.Numerics;
 using Silk.NET.Input;
+using System.Linq;
 
 namespace ZEngine.Rendering
 {
@@ -91,9 +92,31 @@ namespace ZEngine.Rendering
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
             camera.fov = 45f;
 
+            // This enables us to minimize the Material.Use() calls
+            Material usedMaterial = null;
+            renderQue.OrderBy(r => r.material);
+
+            // Precalculate the view and projection matrices, since they stay the same for all objects
+            var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
+
             foreach (RenderRequest renderRequest in renderQue)
             {
-                renderRequest.vao.Draw(renderRequest.material, camera, renderRequest.positionInWorldspace, renderRequest.eulerAnglesInWorldspace, renderRequest.scaleInWorldspace);
+                if(usedMaterial != renderRequest.material)
+                {
+                    // Load material
+                    usedMaterial = renderRequest.material;
+                    renderRequest.material.Use();
+
+                    // If the shader is not screenspace, send perspective
+                    if (!renderRequest.material.shader.screenspace)
+                    {
+                        // Set view and projection matrices
+                        renderRequest.material.shader.SetUniform("uView", view);
+                        renderRequest.material.shader.SetUniform("uProjection", projection);
+                    }
+                }
+                renderRequest.vao.Draw(renderRequest.material, renderRequest.positionInWorldspace, renderRequest.eulerAnglesInWorldspace, renderRequest.scaleInWorldspace);
             }
 
             foreach (Silk.NET.OpenGL.Extensions.ImGui.ImGuiController guiController in guiRenderQue)
@@ -160,6 +183,11 @@ namespace ZEngine.Rendering
         public Shader GetShader(string name)
         {
             return shaders[name];
+        }
+    
+        public void SetFullscreen(bool fullscreen)
+        {
+            window.WindowState = fullscreen ? WindowState.Fullscreen : WindowState.Normal;
         }
     }
 }

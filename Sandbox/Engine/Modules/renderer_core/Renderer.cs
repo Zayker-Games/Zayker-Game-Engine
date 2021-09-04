@@ -34,16 +34,13 @@ namespace ZEngine.Rendering
                 {
                     window.window.DoUpdate();
                     window.window.DoEvents();
-                    window.window.DoRender();
+                    window.window.DoRender(); 
                 } else
                 {
                     Console.WriteLine("Closing window " + window.window.Title);
                     window.Gl.Dispose();
                     window.window.Dispose();
 
-                    //window.window.DoUpdate();
-                    //window.window.DoEvents();
-                    //window.window.DoRender();
                     window._markedForDestruction = true;
                 }
             }
