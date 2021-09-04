@@ -116,6 +116,7 @@ namespace ZEngine.Rendering
                         renderRequest.material.shader.SetUniform("uProjection", projection);
                     }
                 }
+
                 renderRequest.vao.Draw(renderRequest.material, renderRequest.positionInWorldspace, renderRequest.eulerAnglesInWorldspace, renderRequest.scaleInWorldspace);
             }
 

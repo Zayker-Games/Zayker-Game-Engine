@@ -20,9 +20,15 @@ namespace ZEngine.Rendering
 
         public float[] uvData;
 
+        uint uvBuffer = 0;
+
         public unsafe VertexArrayObject(GL gl, float[] vertices, uint[] indices, float[] uvData)
         {
             _gl = gl;
+
+            uint tmpUvBuffer = 0;
+            _gl.GenBuffers(1, &tmpUvBuffer); // Can we just do this once and reuse this buffer?
+            uvBuffer = tmpUvBuffer;
 
             indicesCound = indices.Length;
             this.uvData = uvData;
@@ -76,17 +82,16 @@ namespace ZEngine.Rendering
             // Send to the shader
             material.shader.SetUniform("uModel", model);
 
-            // Set uvs
-            uint uvBuffer = 0;
+            // Set uvs if there is any uv data
+            // uint uvBuffer = 0;
             if (uvData.Length > 0) { 
-                _gl.GenBuffers(1, &uvBuffer);
                 _gl.BindBuffer(BufferTargetARB.ArrayBuffer, uvBuffer);
                 
                 fixed (void* d = uvData)
                 {
                     _gl.BufferData(BufferTargetARB.ArrayBuffer, (uint)(sizeof(float) * uvData.Length), d, GLEnum.StaticDraw);
                 }
-                _gl.BindBuffer(BufferTargetARB.ArrayBuffer, uvBuffer);
+
                 _gl.VertexAttribPointer(
                     1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
                     2,                                // size
@@ -96,17 +101,11 @@ namespace ZEngine.Rendering
                     (void*)0                          // array buffer offset
                 );
 
-                
                 _gl.EnableVertexAttribArray(1);
-
             }
 
             //Draw the geometry.
             _gl.DrawElements(GLEnum.Triangles, (uint)indicesCound, GLEnum.UnsignedInt, (void*)0);
-
-            // Dispose of uv buffer
-            if(uvData.Length > 0)
-                _gl.DeleteBuffer(uvBuffer);
         }
 
         public void Bind()
@@ -119,6 +118,7 @@ namespace ZEngine.Rendering
             _gl.DeleteBuffer(vao);
             _gl.DeleteBuffer(ebo);
             _gl.DeleteVertexArray(_handle);
+            _gl.DeleteBuffer(uvBuffer);
         }
     }
 
