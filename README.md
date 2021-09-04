@@ -29,3 +29,10 @@ List of the ids of all included modules.
 ### AlwaysReimportModules
 If this is true, every time the project is opened, all modules are reimported. This makes sure, that all modules in your project are up to date.
 In case you want to edit a modules sourcecode, you must disable this option. Otherwise all changes will be lost. 
+
+## Renderer
+The renderer currently only supports unlit .obj files. This will be expanded in the future.
+
+### Screenspace
+Currently the screenspace coordinates go from (-1, -1) (bottom left) to (1,1) (top right). This might change to (0,0) -> (1,1).
+This means a screenspace object of the size (1,1) takes up a quater of the screen, which might be unintuitive. 
