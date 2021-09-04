@@ -25,7 +25,7 @@ namespace ZEngine.Debugging
 
         protected bool IsMouseOver()
         {
-            return Silk.NET.OpenGL.Extensions.ImGui;
+            return false;
         }
     }
 }
