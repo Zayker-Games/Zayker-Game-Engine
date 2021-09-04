@@ -6,7 +6,7 @@ namespace ZEngine.Debugging
 {
     class Debugger : Core.Module
     {
-        private static List<UIEntity> uiEntities = new List<UIEntity>();
+        private static Dictionary<Rendering.Window, DebuggerGuiInstance> debuggerGuiInstances = new Dictionary<Rendering.Window, DebuggerGuiInstance>();
 
         /// <summary>
         /// We reuse the render request for every debug ui object.
@@ -31,15 +31,21 @@ namespace ZEngine.Debugging
         {
             base.Update(deltaTime);
 
-            foreach (UIEntity uIEntity in uiEntities)
+            foreach (DebuggerGuiInstance guiInstance in debuggerGuiInstances.Values)
             {
-                uIEntity.Draw();
+                guiInstance.Draw((float)deltaTime);
             }
         }
 
-        public static void AddDebuggingUiEntity(UIEntity uiEntity)
+        /// <summary>
+        /// Returns the ImGuiInstance for a given instance
+        /// </summary>
+        public static DebuggerGuiInstance GetDebuggerGuiInstance(Rendering.Window window)
         {
-            uiEntities.Add(uiEntity);
+            if (!debuggerGuiInstances.ContainsKey(window))
+                debuggerGuiInstances.Add(window, new DebuggerGuiInstance(window));
+
+            return debuggerGuiInstances[window];
         }
     }
 }

@@ -16,6 +16,7 @@ namespace ZEngine.Rendering
         Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 
         private List<RenderRequest> renderQue = new List<RenderRequest>();
+        private List<Silk.NET.OpenGL.Extensions.ImGui.ImGuiController> guiRenderQue = new List<Silk.NET.OpenGL.Extensions.ImGui.ImGuiController>();
 
         /// <summary>
         /// Rather or not this window is ready to be removed from the Renderer.windows list. 
@@ -95,7 +96,13 @@ namespace ZEngine.Rendering
                 renderRequest.vao.Draw(renderRequest.material, camera, renderRequest.positionInWorldspace, renderRequest.eulerAnglesInWorldspace, renderRequest.scaleInWorldspace);
             }
 
+            foreach (Silk.NET.OpenGL.Extensions.ImGui.ImGuiController guiController in guiRenderQue)
+            {
+                guiController.Render();
+            }
+
             renderQue.Clear();
+            guiRenderQue.Clear();
 
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.
         }
@@ -125,6 +132,18 @@ namespace ZEngine.Rendering
             {
                 renderQue.Add(renderRequest);
             } else
+            {
+                Console.WriteLine("Warning! You are trying to add a RenderRequest to a closing window!");
+            }
+        }
+
+        public void AddToGuiRenderQue(Silk.NET.OpenGL.Extensions.ImGui.ImGuiController requestedController)
+        {
+            if (!window.IsClosing)
+            {
+                guiRenderQue.Add(requestedController);
+            }
+            else
             {
                 Console.WriteLine("Warning! You are trying to add a RenderRequest to a closing window!");
             }

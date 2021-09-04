@@ -1,37 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ImGuiNET;
 
 namespace ZEngine.Debugging
 {
-    public class Container : UIEntity
+    /// <summary>
+    /// Base class for a debugger container. Derive from this and override the update method to draw your own (ImGui) debugging container.
+    /// To draw this, add it to the list of an DebuggerGuiInstance.
+    /// </summary>
+    public abstract class Container
     {
-        public Container(Rendering.Window window)
-        {
-            this.window = window;
+        /// <summary>
+        /// Each container has a custom id. This is needed to have multiple instances of the same container work at the same time. 
+        /// </summary>
+        protected int id = 0;
 
-            // Create the render request
-            renderRequest = new Rendering.RenderRequest(
-                Rendering.Primitives.Plane(window.Gl),
-                new Rendering.Material(
-                    window.GetShader("screenspace"), 
-                    new Rendering.Texture(
-                        window.Gl, 
-                        Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory() + "BuiltInTextures/white.png")
-                    ), 
-                new System.Numerics.Vector3(), 
-                new System.Numerics.Vector3(), 
-                new System.Numerics.Vector3(1f, 1f, 1f));
+        public abstract void Update(float dt);
+    }
+
+    public class FpsViewer : Container
+    {
+        public FpsViewer()
+        {
+            id = new Random().Next();
         }
 
-        public override void Draw()
+        public override void Update(float dt)
         {
-            base.Draw();
-
-            // Update positioning
-
-            // Draw the object onto the screen
-            window.AddToRenderQue(renderRequest);
+            ImGui.Begin("FPS##" + id);
+            ImGui.Text("60FPS");
+            ImGui.End();
         }
     }
 }

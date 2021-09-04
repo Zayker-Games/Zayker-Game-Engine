@@ -70,19 +70,11 @@ namespace ZEngine
                 new System.Numerics.Vector3(1f, 1f, 1f)
                 );
 
-            // Create everything needed to render a screenspace quad
-            Rendering.VertexArrayObject screenSpaceQuadVao = Rendering.Primitives.Plane(mainWindow.Gl);
-            Rendering.Texture uvTestTexture = new Rendering.Texture(mainWindow.Gl, renderer.GetDirectory() + @"BuiltInTextures/uvTest.png");
-            Rendering.Material screenSpaceMaterial = new Rendering.Material(mainWindow.GetShader("screenspace"), uvTestTexture);
-            Rendering.RenderRequest screenSpaceRenderRequest = new Rendering.RenderRequest(
-                screenSpaceQuadVao,
-                screenSpaceMaterial,
-                new System.Numerics.Vector3(0f, 0f, 0f),
-                new System.Numerics.Vector3(0f, 0f, 0f),
-                new System.Numerics.Vector3(1f, 1f, 1f)
-                );
+            Debugging.DebuggerGuiInstance debuggerGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
+            debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
+            debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
 
-            Debugging.Debugger.AddDebuggingUiEntity(new Debugging.Container(mainWindow));
+            //mainWindow.window.WindowState = Silk.NET.Windowing.WindowState.Fullscreen;
 
             Console.WriteLine("Engine initialized. Entering main loop...");
 
@@ -97,11 +89,7 @@ namespace ZEngine
                 islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
                 islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
 
-                // Scale and position the screenspace object to always take up 50% of the screen width and be alligned to the top right corner
-                screenSpaceRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f, (float)mainWindow.window.Size.X / (float)mainWindow.window.Size.Y, 1f);
-                screenSpaceRenderRequest.positionInWorldspace.X = 1f - ((screenSpaceRenderRequest.scaleInWorldspace.X) / 2f);
-                screenSpaceRenderRequest.positionInWorldspace.Y = 1f - ((screenSpaceRenderRequest.scaleInWorldspace.Y) / 2f);
-
+                // This check should not be needed. I will move some of this into the window class later. 
                 if (mainWindow != null)
                 {
                     if (mainWindow.window.IsClosing)
@@ -111,18 +99,16 @@ namespace ZEngine
                     else
                     {
                         mainWindow.AddToRenderQue(islandRenderRequest);
-                        mainWindow.AddToRenderQue(screenSpaceRenderRequest);
                     }
                 }
 
+                // Calculate the delta time
                 double dt = deltaTimeStopwatch.Elapsed.TotalSeconds;
                 deltaTimeStopwatch.Restart();
 
+                // Invoke the update event
                 OnUpdate.Invoke(dt);
-
             }
-
-            islandRenderRequest.vao.Dispose();
         }
     }
 }
