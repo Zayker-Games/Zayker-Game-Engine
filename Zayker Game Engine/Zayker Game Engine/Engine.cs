@@ -74,8 +74,6 @@ namespace ZEngine
             debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
             debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
 
-            //mainWindow.window.WindowState = Silk.NET.Windowing.WindowState.Fullscreen;
-
             Console.WriteLine("Engine initialized. Entering main loop...");
 
             // DeltaTime Stopwatch

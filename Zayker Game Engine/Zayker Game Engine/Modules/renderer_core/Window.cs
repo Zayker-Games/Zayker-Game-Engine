@@ -161,5 +161,10 @@ namespace ZEngine.Rendering
         {
             return shaders[name];
         }
+    
+        public void SetFullscreen(bool fullscreen)
+        {
+            window.WindowState = fullscreen ? WindowState.Fullscreen : WindowState.Normal;
+        }
     }
 }
