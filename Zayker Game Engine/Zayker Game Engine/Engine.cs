@@ -6,32 +6,33 @@ namespace ZEngine
 {
     class Engine
     {
-        /// <summary>
-        /// Directory to the "Modules"-Folder. This is inside the engine folder for the editor and inside the project folder for the game. 
-        /// </summary>
-        //public static string modulesDirectory;
         public static string coreDirectory;
+
+        public static SaveData data;
 
         public delegate void Update(double deltaTime);
         public static event Update OnUpdate;
 
         private static void Main(string[] args)
         {
-            // Get modulesDirectory
+            Console.WriteLine("Engine starting...");
+
+            // Load engine data. If there is no data, create default data.
+            data = Data.DataHandler.Load<SaveData>(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "savedata.json"));
+            if (data == null)
+                data = new SaveData();
+
+            // Get core directory
             if (false && System.IO.Directory.GetCurrentDirectory().Contains("netcoreapp3.1"))
             {
                 // If we are building the engine, use the working directory
-                //modulesDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Modules\";
                 coreDirectory = System.IO.Directory.GetCurrentDirectory().Substring(0, System.IO.Directory.GetCurrentDirectory().LastIndexOf(@"bin\")) + @"Core\";
             }
             else
             {
                 // If we are not, use the current directory (Not tested!)
-                //modulesDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Modules\";
                 coreDirectory = System.IO.Directory.GetCurrentDirectory() + @"\Engine\Core\";
             }
-
-            Console.WriteLine("Engine starting...");
 
             // Add event for update loop
             OnUpdate += Core.ModuleSystem.Update;
@@ -46,52 +47,46 @@ namespace ZEngine
             // Get reference to renderer module
             Rendering.RendererCore renderer = (Rendering.RendererCore)(Core.ModuleSystem.GetModuleById("renderer_core"));
 
-            // Create testing window
+            // Create main window
             Rendering.Window mainWindow = Rendering.RendererCore.CreateWindow();
 
-            // Test saving/loading system
-            Core.ProjectSystem.LoadProject(@"D:\C# Projects\Zayker-Game-Engine\Sandbox\");
-
-            Core.ProjectSystem.ImportCoreToProject();
-            Core.ProjectSystem.ReimportAllModulesToProject();
-
-            // Test input module
-            Input.Input.OnKeyDown += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↓" + arg2); };
-            Input.Input.OnKeyUp += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↑" + arg2); };
-
             // Create everything needed to render the island mesh
-            //Rendering.VertexArrayObject islandVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
-            Rendering.VertexArrayObject islandVao = Rendering.Primitives.Plane(mainWindow.Gl);
-            Rendering.Texture islandTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/uvTest.png"));
-            Rendering.Material islandMaterial = new Rendering.Material(mainWindow.GetShader("standard_lit"), islandTexture);
-            islandMaterial.transparent = true;
+            Rendering.VertexArrayObject testingVao = Rendering.Primitives.Plane(mainWindow.Gl);
+            Rendering.Texture textingTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/uvTest.png"));
+            Rendering.Material textingMaterial = new Rendering.Material(mainWindow.GetShader("standard_lit"), textingTexture);
+            textingMaterial.transparent = true;
 
             Rendering.RenderRequest islandRenderRequest = (new Rendering.RenderRequest(
-                islandVao,
-                islandMaterial,
+                testingVao,
+                textingMaterial,
                 new System.Numerics.Vector3(0f, 0f, 0f),
                 new System.Numerics.Vector3(0f, 0f, 0f),
                 new System.Numerics.Vector3(0.05f, 0.05f, 0.05f)
                 ));
 
-            Debugging.DebuggerGuiInstance debuggerGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
-            debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
-            debuggerGuiInstance.AddContainer(new Core.ProjectSystemUi());
-            Console.WriteLine("Engine initialized. Entering main loop...");
+            // Create the gui instance for the engines main window and add ui
+            Debugging.DebuggerGuiInstance engineGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
+            engineGuiInstance.AddContainer(new Debugging.FpsViewer());
+            engineGuiInstance.AddContainer(new Core.ProjectSystemUi());
 
             // DeltaTime Stopwatch
             System.Diagnostics.Stopwatch deltaTimeStopwatch = new System.Diagnostics.Stopwatch();
             deltaTimeStopwatch.Start();
 
+            Console.WriteLine("Engine initialized. Entering main loop...");
+
             while (true)
             {
                 // Exit the program loop if the main window was closed
                 if (mainWindow == null || mainWindow.window.IsClosing)
-                    return;
+                    break;
+
+                if (Core.ProjectSystem.currentProjectSettings.name != "")
+                    mainWindow.window.Title = "Z-Engine - " + Core.ProjectSystem.currentProjectSettings.name;
+                else
+                    mainWindow.window.Title = "Z-Engine - No Project Loaded";
 
                 // Animate and render the island object
-                islandRenderRequest.positionInWorldspace.X = 0;
-                islandRenderRequest.positionInWorldspace.Z = 0;
                 islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
                 islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
                 islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
@@ -105,6 +100,17 @@ namespace ZEngine
                 // Invoke the update event
                 OnUpdate.Invoke(dt);
             }
+
+            // Save engine data to a file, so we can load it when the engine is reopened
+            Data.DataHandler.Save(data, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "savedata.json"));
+        }
+
+        /// <summary>
+        /// All user specific data of the engine like settings.
+        /// </summary>
+        public class SaveData
+        {
+            public List<string> recentlyLoadedProjects = new List<string>();
         }
     }
 }

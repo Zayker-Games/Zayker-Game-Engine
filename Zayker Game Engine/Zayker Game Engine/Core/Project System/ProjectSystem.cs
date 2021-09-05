@@ -38,7 +38,15 @@ namespace ZEngine.Core
                 return;
             }
 
+            // Set the current working project directory
             currentProjectPath = projectPath;
+
+            // Save the path to the recently loaded list
+            if(!Engine.data.recentlyLoadedProjects.Contains(projectPath))
+                Engine.data.recentlyLoadedProjects.Add(projectPath);
+
+            while (Engine.data.recentlyLoadedProjects.Count > 5)
+                Engine.data.recentlyLoadedProjects.RemoveAt(0);
 
             // Read project.meta
             string projectMetaPath;
@@ -46,7 +54,8 @@ namespace ZEngine.Core
                 projectMetaPath = Path.Combine(projectPath, "project.meta");
             else
                 projectMetaPath = projectPath;
-            ProjectSettings projectSettings = JsonConvert.DeserializeObject<ProjectSettings>(File.ReadAllText(projectMetaPath));
+
+            ProjectSettings projectSettings = Data.DataHandler.Load<ProjectSettings>(projectMetaPath);
             
             currentProjectSettings = projectSettings;
 
@@ -84,6 +93,14 @@ namespace ZEngine.Core
         // Copies module to target directory (UNDOES ALL CHANGES TO SOURCE!)
         public static void ReimportAllModulesToProject()
         {
+            if(String.IsNullOrEmpty(currentProjectSettings.name))
+            {
+                Console.WriteLine("Cant import modules if no project is loaded!");
+                return;
+            }
+
+            Console.WriteLine("Reimporting all included modules to project...");
+
             if (Directory.Exists(GetProjectModulesPath()))
                 Directory.Delete(GetProjectModulesPath(), true);
             if (!Directory.Exists(GetProjectModulesPath()))
@@ -97,6 +114,14 @@ namespace ZEngine.Core
 
         public static void ImportCoreToProject()
         {
+            if (String.IsNullOrEmpty(currentProjectSettings.name))
+            {
+                Console.WriteLine("Cant import core if no project is loaded!");
+                return;
+            }
+
+            Console.WriteLine("Importing Engine-Core to project...");
+
             if (Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
                 Directory.Delete(Path.Combine(GetProjectEngineSourcePath(), "Module System"), true);
             if (!Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
@@ -110,7 +135,6 @@ namespace ZEngine.Core
 
         static void ImportModuleToProject(string moduleId)
         {
-            
             DirectoryCopy(ModuleSystem.GetModuleById(moduleId).GetDirectory(), Path.Combine(GetProjectModulesPath(), moduleId));
         }
 
@@ -178,26 +202,58 @@ namespace ZEngine.Core
             base.Init();
         }
 
+        private bool showProjectLoadScreen = false;
+        private string pathToLoadInput = "";
         public override void Update(float dt)
         {
+            // Draw top bar
             if (ImGui.BeginMainMenuBar())
             {
-                if (ImGui.BeginMenu("File"))
+                if (ImGui.BeginMenu("Project"))
                 {
-                    if (ImGui.MenuItem("Load...")) {
-                        Console.WriteLine("Please enter the full path to your project.meta file:");
-                        ProjectSystem.LoadProject(Console.ReadLine()); 
+                    if (ImGui.MenuItem("Open")) {
+                        showProjectLoadScreen = true;
                     }
-                    ImGui.EndMenu();
-                }
+                    if (ImGui.BeginMenu("Open Recent"))
+                    {
+                        foreach (string path in Engine.data.recentlyLoadedProjects)
+                        {
+                            if(ImGui.MenuItem(path))
+                            {
+                                ProjectSystem.LoadProject(path);
+                            }
+                        }
+                        ImGui.EndMenu();
+                    }
+                    if (ImGui.MenuItem("Reimport Everything", !String.IsNullOrEmpty(ProjectSystem.currentProjectSettings.name)))
+                    {
+                        Core.ProjectSystem.ImportCoreToProject();
+                        ProjectSystem.ReimportAllModulesToProject();
+                    }
 
-                if (ImGui.BeginMenu("Testing"))
-                {
-                    if (ImGui.MenuItem("Load...")) { }
+
                     ImGui.EndMenu();
                 }
 
                 ImGui.EndMainMenuBar();
+            }
+
+            if(showProjectLoadScreen)
+            {
+                ImGui.Begin("Load##" + id, ImGuiWindowFlags.AlwaysAutoResize);
+
+                ImGui.InputText("Path", ref pathToLoadInput, 500);
+                if(ImGui.Button("Open Project")) 
+                { 
+                    if(pathToLoadInput != "")
+                    {
+                        ProjectSystem.LoadProject(pathToLoadInput);
+                        showProjectLoadScreen = false;
+                        pathToLoadInput = "";
+                    }
+                }
+
+                ImGui.End();
             }
         }
     }

@@ -35,7 +35,7 @@ namespace ZEngine.Debugging
         public override void Update(float dt)
         {
             averageDeltaTime = Core.Math.Lerp(averageDeltaTime, dt, 0.1f);
-            ImGui.Begin("FPS##" + id);
+            ImGui.Begin("FPS##" + id, ImGuiWindowFlags.AlwaysAutoResize);
             ImGui.Text(MathF.Round(1f / averageDeltaTime) + " FPS");
             ImGui.End();
         }
