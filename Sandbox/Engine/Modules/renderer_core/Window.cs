@@ -50,8 +50,14 @@ namespace ZEngine.Rendering
             //Getting the opengl api for drawing to the screen.
             Gl = Silk.NET.OpenGL.GL.GetApi(window);
 
+            // Enable transparency in openGl
+            Gl.Enable(Silk.NET.OpenGL.EnableCap.Blend);
+            Gl.BlendFunc(Silk.NET.OpenGL.BlendingFactor.SrcAlpha, Silk.NET.OpenGL.BlendingFactor.OneMinusSrcAlpha);
+
+            // Load the builtin shaders
             LoadStandardShaders();
 
+            // Create a camera for this window
             camera = new Camera();
 
             // Here we add the callbacks to the input module (if it is enabled)
@@ -92,32 +98,56 @@ namespace ZEngine.Rendering
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
             camera.fov = 45f;
 
-            // This enables us to minimize the Material.Use() calls
-            Material usedMaterial = null;
-            renderQue.OrderBy(r => r.material);
-
             // Precalculate the view and projection matrices, since they stay the same for all objects
             var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
             var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
 
-            foreach (RenderRequest renderRequest in renderQue)
+            // Gather all opaque objects and sort them by material for minimum Material.Use() calls
+            List<RenderRequest> opaqueRenderQue = renderQue.Where(r => !r.material.transparent).ToList();
+            opaqueRenderQue.OrderBy(r => r.material);
+            Material usedMaterial = null;
+
+            // Render opaque objects first
+            foreach (RenderRequest opaqueRenderRequest in opaqueRenderQue)
             {
-                if(usedMaterial != renderRequest.material)
+                if(usedMaterial != opaqueRenderRequest.material)
                 {
                     // Load material
-                    usedMaterial = renderRequest.material;
-                    renderRequest.material.Use();
+                    usedMaterial = opaqueRenderRequest.material;
+                    opaqueRenderRequest.material.Use();
 
                     // If the shader is not screenspace, send perspective
-                    if (!renderRequest.material.shader.screenspace)
+                    if (!opaqueRenderRequest.material.shader.screenspace)
                     {
                         // Set view and projection matrices
-                        renderRequest.material.shader.SetUniform("uView", view);
-                        renderRequest.material.shader.SetUniform("uProjection", projection);
+                        opaqueRenderRequest.material.shader.SetUniform("uView", view);
+                        opaqueRenderRequest.material.shader.SetUniform("uProjection", projection);
                     }
                 }
+                opaqueRenderRequest.vao.Draw(opaqueRenderRequest.material, opaqueRenderRequest.positionInWorldspace, opaqueRenderRequest.eulerAnglesInWorldspace, opaqueRenderRequest.scaleInWorldspace);
+            }
 
-                renderRequest.vao.Draw(renderRequest.material, renderRequest.positionInWorldspace, renderRequest.eulerAnglesInWorldspace, renderRequest.scaleInWorldspace);
+            // Gather all transparent objects and order them by distance to the camera
+            List<RenderRequest> transparentRenderQue = renderQue.Where(r => r.material.transparent).ToList();
+            transparentRenderQue.OrderBy(r => (r.positionInWorldspace - camera.position).Length());
+
+            foreach (RenderRequest transparentRenderRequest in transparentRenderQue)
+            {
+                if (usedMaterial != transparentRenderRequest.material)
+                {
+                    // Load material
+                    usedMaterial = transparentRenderRequest.material;
+                    transparentRenderRequest.material.Use();
+
+                    // If the shader is not screenspace, send perspective
+                    if (!transparentRenderRequest.material.shader.screenspace)
+                    {
+                        // Set view and projection matrices
+                        transparentRenderRequest.material.shader.SetUniform("uView", view);
+                        transparentRenderRequest.material.shader.SetUniform("uProjection", projection);
+                    }
+                }
+                transparentRenderRequest.vao.Draw(transparentRenderRequest.material, transparentRenderRequest.positionInWorldspace, transparentRenderRequest.eulerAnglesInWorldspace, transparentRenderRequest.scaleInWorldspace);
             }
 
             foreach (Silk.NET.OpenGL.Extensions.ImGui.ImGuiController guiController in guiRenderQue)
@@ -126,6 +156,8 @@ namespace ZEngine.Rendering
             }
 
             renderQue.Clear();
+            opaqueRenderQue.Clear();
+            transparentRenderQue.Clear();
             guiRenderQue.Clear();
 
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.

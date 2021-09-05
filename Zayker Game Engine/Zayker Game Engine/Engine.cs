@@ -60,21 +60,19 @@ namespace ZEngine
             Input.Input.OnKeyUp += delegate (Silk.NET.Input.IKeyboard arg1, Silk.NET.Input.Key arg2, int arg3) { Console.WriteLine("↑" + arg2); };
 
             // Create everything needed to render the island mesh
-            Rendering.VertexArrayObject islandVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
-            Rendering.Texture islandTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/EngineMascotPalette.png"));
+            //Rendering.VertexArrayObject islandVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuildInMeshes/EngineMascot.obj"));
+            Rendering.VertexArrayObject islandVao = Rendering.Primitives.Plane(mainWindow.Gl);
+            Rendering.Texture islandTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/uvTest.png"));
             Rendering.Material islandMaterial = new Rendering.Material(mainWindow.GetShader("standard_lit"), islandTexture);
-            
-            List<Rendering.RenderRequest> islandRenderRequests = new List<Rendering.RenderRequest>();
-            for (int i = 0; i < 100*100; i++)
-            {
-                islandRenderRequests.Add(new Rendering.RenderRequest(
+            islandMaterial.transparent = true;
+
+            Rendering.RenderRequest islandRenderRequest = (new Rendering.RenderRequest(
                 islandVao,
                 islandMaterial,
                 new System.Numerics.Vector3(0f, 0f, 0f),
                 new System.Numerics.Vector3(0f, 0f, 0f),
                 new System.Numerics.Vector3(0.05f, 0.05f, 0.05f)
                 ));
-            }
 
             Debugging.DebuggerGuiInstance debuggerGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
             debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
@@ -96,21 +94,14 @@ namespace ZEngine
                     }
                     else
                     {
-                        for (int i = 0; i < 10000; i++)
-                        {
-                            float x = ((float)i % 100f) * 0.1f - 5f;
-                            float z = (((float)i / 100f) % 100f) * 0.1f - 5f;
-                            x *= 2f;
-                            z *= 2f;
-                            // Animate the island object
-                            islandRenderRequests[i].positionInWorldspace.X = x;
-                            islandRenderRequests[i].positionInWorldspace.Z = z;
-                            //islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
-                            //islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
-                            //islandRenderRequest.eulerAnglesInWorldspace.Y = (float)mainWindow.window.Time + 1000f;
+                        // Animate the island object
+                        islandRenderRequest.positionInWorldspace.X = 0;
+                        islandRenderRequest.positionInWorldspace.Z = 0;
+                        islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
+                        islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
+                        islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
 
-                            mainWindow.AddToRenderQue(islandRenderRequests[i]);
-                        }
+                        mainWindow.AddToRenderQue(islandRenderRequest);
                     }
                 }
 

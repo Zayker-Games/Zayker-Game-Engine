@@ -8,6 +8,7 @@ namespace ZEngine.Rendering
     {
         public Shader shader;
         public Texture texture_diffuse;
+        public bool transparent = false;
 
         public Material (Shader shader, Texture texture_diffuse)
         {
