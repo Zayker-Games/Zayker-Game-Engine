@@ -182,14 +182,19 @@ namespace ZEngine.Rendering
             Gl.Viewport(window.Size);
         }
 
-        public void AddToRenderQue(RenderRequest renderRequest)
+        /// <summary>
+        /// Send a request to this window, to render the given request in the next frame. 
+        /// </summary>
+        public bool AddToRenderQue(RenderRequest renderRequest)
         {
             if (!window.IsClosing)
             {
                 renderQue.Add(renderRequest);
+                return true;
             } else
             {
                 Console.WriteLine("Warning! You are trying to add a RenderRequest to a closing window!");
+                return false;
             }
         }
 

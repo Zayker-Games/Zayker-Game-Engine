@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using ImGuiNET;
 using Newtonsoft.Json;
 
 namespace ZEngine.Core
@@ -14,12 +16,41 @@ namespace ZEngine.Core
 
         public static void LoadProject(string projectPath)
         {
+            // Return if the given path does not exits
+            if ((Path.GetExtension(projectPath) == "" && !Directory.Exists(projectPath)) ||
+                (Path.GetExtension(projectPath) != "" && !File.Exists(projectPath)))
+            {
+                Console.WriteLine("Failed to load project! Directory or file does not exist!");
+                return;
+            }
+
+            // Return if the path leads to a folder that does not conain a project.meta file
+            if (Path.GetExtension(projectPath) == "" && !Directory.GetFiles(projectPath).Where(s => s.Contains("project.meta")).Any())
+            {
+                Console.WriteLine("Failed to load project! Directory is not a project!");
+                return;
+            }
+
+            // Return is the path leads to a file but it's not a project.meta file
+            if (Path.GetExtension(projectPath) != "" && Path.GetFileName(projectPath) != "project.meta")
+            {
+                Console.WriteLine("Failed to load project! Path does not lead to a project.meta file!");
+                return;
+            }
+
             currentProjectPath = projectPath;
 
             // Read project.meta
-            ProjectSettings projectSettings = JsonConvert.DeserializeObject<ProjectSettings>(System.IO.File.ReadAllText(projectPath + "project.meta"));
+            string projectMetaPath;
+            if (Path.GetExtension(projectPath) == "")
+                projectMetaPath = Path.Combine(projectPath, "project.meta");
+            else
+                projectMetaPath = projectPath;
+            ProjectSettings projectSettings = JsonConvert.DeserializeObject<ProjectSettings>(File.ReadAllText(projectMetaPath));
             
             currentProjectSettings = projectSettings;
+
+            Console.WriteLine("Successfully loaded project: " + currentProjectSettings.name);
         }
 
         public static void SaveProject()
@@ -138,5 +169,36 @@ namespace ZEngine.Core
     {
         public string name;
         public List<string> includedModules;
+    }
+
+    public class ProjectSystemUi : Debugging.Container
+    {
+        public ProjectSystemUi()
+        {
+            base.Init();
+        }
+
+        public override void Update(float dt)
+        {
+            if (ImGui.BeginMainMenuBar())
+            {
+                if (ImGui.BeginMenu("File"))
+                {
+                    if (ImGui.MenuItem("Load...")) {
+                        Console.WriteLine("Please enter the full path to your project.meta file:");
+                        ProjectSystem.LoadProject(Console.ReadLine()); 
+                    }
+                    ImGui.EndMenu();
+                }
+
+                if (ImGui.BeginMenu("Testing"))
+                {
+                    if (ImGui.MenuItem("Load...")) { }
+                    ImGui.EndMenu();
+                }
+
+                ImGui.EndMainMenuBar();
+            }
+        }
     }
 }

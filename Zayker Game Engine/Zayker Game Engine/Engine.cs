@@ -76,7 +76,7 @@ namespace ZEngine
 
             Debugging.DebuggerGuiInstance debuggerGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
             debuggerGuiInstance.AddContainer(new Debugging.FpsViewer());
-
+            debuggerGuiInstance.AddContainer(new Core.ProjectSystemUi());
             Console.WriteLine("Engine initialized. Entering main loop...");
 
             // DeltaTime Stopwatch
@@ -85,25 +85,18 @@ namespace ZEngine
 
             while (true)
             {
-                // This check should not be needed. I will move some of this into the window class later. 
-                if (mainWindow != null)
-                {
-                    if (mainWindow.window.IsClosing)
-                    {
-                        mainWindow = null;
-                    }
-                    else
-                    {
-                        // Animate the island object
-                        islandRenderRequest.positionInWorldspace.X = 0;
-                        islandRenderRequest.positionInWorldspace.Z = 0;
-                        islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
-                        islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
-                        islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
+                // Exit the program loop if the main window was closed
+                if (mainWindow == null || mainWindow.window.IsClosing)
+                    return;
 
-                        mainWindow.AddToRenderQue(islandRenderRequest);
-                    }
-                }
+                // Animate and render the island object
+                islandRenderRequest.positionInWorldspace.X = 0;
+                islandRenderRequest.positionInWorldspace.Z = 0;
+                islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
+                islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
+                islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
+
+                mainWindow.AddToRenderQue(islandRenderRequest);
 
                 // Calculate the delta time
                 double dt = deltaTimeStopwatch.Elapsed.TotalSeconds;

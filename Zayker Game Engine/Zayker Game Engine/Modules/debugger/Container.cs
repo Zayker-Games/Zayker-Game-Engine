@@ -16,6 +16,11 @@ namespace ZEngine.Debugging
         /// </summary>
         protected int id = 0;
 
+        protected virtual void Init()
+        {
+            id = new Random().Next();
+        }
+
         public abstract void Update(float dt);
     }
 
@@ -24,7 +29,7 @@ namespace ZEngine.Debugging
         private float averageDeltaTime = 0.1f;
         public FpsViewer()
         {
-            id = new Random().Next();
+            base.Init();
         }
 
         public override void Update(float dt)
