@@ -45,6 +45,7 @@ namespace ZEngine.Core
             if(!Engine.data.recentlyLoadedProjects.Contains(projectPath))
                 Engine.data.recentlyLoadedProjects.Add(projectPath);
 
+            // Limit the "Open Recent" list to a maximum of 5 entries
             while (Engine.data.recentlyLoadedProjects.Count > 5)
                 Engine.data.recentlyLoadedProjects.RemoveAt(0);
 
@@ -72,22 +73,7 @@ namespace ZEngine.Core
         {
             currentProjectPath = projectPath;
 
-            // Create Settings
-            ProjectSettings projectSettings = new ProjectSettings();
-            projectSettings.includedModules = new List<string>();
-
-            // Gather information
-            foreach (Module module in ModuleSystem.modules)
-            {
-                if (module.isEnabled)
-                {
-                    Console.WriteLine(module.id);
-                    projectSettings.includedModules.Add(module.id);
-                }
-            }
-
-            string jsonString = JsonConvert.SerializeObject(projectSettings);
-            System.IO.File.WriteAllText(projectPath + "project.meta", jsonString);
+            Data.DataHandler.Save(currentProjectSettings, Path.Combine(projectPath, "project.meta"));
         }
 
         // Copies module to target directory (UNDOES ALL CHANGES TO SOURCE!)
@@ -193,68 +179,5 @@ namespace ZEngine.Core
     {
         public string name;
         public List<string> includedModules;
-    }
-
-    public class ProjectSystemUi : Debugging.Container
-    {
-        public ProjectSystemUi()
-        {
-            base.Init();
-        }
-
-        private bool showProjectLoadScreen = false;
-        private string pathToLoadInput = "";
-        public override void Update(float dt)
-        {
-            // Draw top bar
-            if (ImGui.BeginMainMenuBar())
-            {
-                if (ImGui.BeginMenu("Project"))
-                {
-                    if (ImGui.MenuItem("Open")) {
-                        showProjectLoadScreen = true;
-                    }
-                    if (ImGui.BeginMenu("Open Recent"))
-                    {
-                        foreach (string path in Engine.data.recentlyLoadedProjects)
-                        {
-                            if(ImGui.MenuItem(path))
-                            {
-                                ProjectSystem.LoadProject(path);
-                            }
-                        }
-                        ImGui.EndMenu();
-                    }
-                    if (ImGui.MenuItem("Reimport Everything", !String.IsNullOrEmpty(ProjectSystem.currentProjectSettings.name)))
-                    {
-                        Core.ProjectSystem.ImportCoreToProject();
-                        ProjectSystem.ReimportAllModulesToProject();
-                    }
-
-
-                    ImGui.EndMenu();
-                }
-
-                ImGui.EndMainMenuBar();
-            }
-
-            if(showProjectLoadScreen)
-            {
-                ImGui.Begin("Load##" + id, ImGuiWindowFlags.AlwaysAutoResize);
-
-                ImGui.InputText("Path", ref pathToLoadInput, 500);
-                if(ImGui.Button("Open Project")) 
-                { 
-                    if(pathToLoadInput != "")
-                    {
-                        ProjectSystem.LoadProject(pathToLoadInput);
-                        showProjectLoadScreen = false;
-                        pathToLoadInput = "";
-                    }
-                }
-
-                ImGui.End();
-            }
-        }
     }
 }

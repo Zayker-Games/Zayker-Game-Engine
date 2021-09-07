@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImGuiNET;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -67,14 +68,15 @@ namespace ZEngine
             // Create the gui instance for the engines main window and add ui
             Debugging.DebuggerGuiInstance engineGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
             engineGuiInstance.AddContainer(new Debugging.FpsViewer());
-            engineGuiInstance.AddContainer(new Core.ProjectSystemUi());
+            engineGuiInstance.AddContainer(new ProjectSystemUi());
+            engineGuiInstance.AddContainer(new ModuleSystemUi());
 
             // DeltaTime Stopwatch
             System.Diagnostics.Stopwatch deltaTimeStopwatch = new System.Diagnostics.Stopwatch();
             deltaTimeStopwatch.Start();
 
             Console.WriteLine("Engine initialized. Entering main loop...");
-
+            Console.WriteLine(ImGui.GetVersion());
             while (true)
             {
                 // Exit the program loop if the main window was closed
@@ -111,6 +113,114 @@ namespace ZEngine
         public class SaveData
         {
             public List<string> recentlyLoadedProjects = new List<string>();
+        }
+    }
+
+    public class ProjectSystemUi : Debugging.Container
+    {
+        public ProjectSystemUi()
+        {
+            base.Init();
+        }
+
+        private bool showProjectLoadScreen = false;
+        private string pathToLoadInput = "";
+        public override void Update(float dt)
+        {
+            // Draw top bar
+            if (ImGui.BeginMainMenuBar())
+            {
+                if (ImGui.BeginMenu("Project"))
+                {
+                    if (ImGui.MenuItem("Open"))
+                    {
+                        showProjectLoadScreen = true;
+                    }
+                    if (ImGui.BeginMenu("Open Recent"))
+                    {
+                        foreach (string path in Engine.data.recentlyLoadedProjects)
+                        {
+                            if (ImGui.MenuItem(path))
+                            {
+                                Core.ProjectSystem.LoadProject(path);
+                            }
+                        }
+                        ImGui.EndMenu();
+                    }
+                    if (ImGui.MenuItem("Save"))
+                    {
+                        Core.ProjectSystem.SaveProject();
+                    }
+                    if (ImGui.MenuItem("Reimport Everything", !String.IsNullOrEmpty(Core.ProjectSystem.currentProjectSettings.name)))
+                    {
+                        Core.ProjectSystem.ImportCoreToProject();
+                        Core.ProjectSystem.ReimportAllModulesToProject();
+                    }
+
+
+                    ImGui.EndMenu();
+                }
+
+                ImGui.EndMainMenuBar();
+            }
+
+            if (showProjectLoadScreen)
+            {
+                ImGui.Begin("Load##" + id, ImGuiWindowFlags.AlwaysAutoResize);
+
+                ImGui.InputText("Path", ref pathToLoadInput, 500);
+                if (ImGui.Button("Open Project"))
+                {
+                    if (pathToLoadInput != "")
+                    {
+                        Core.ProjectSystem.LoadProject(pathToLoadInput);
+                        showProjectLoadScreen = false;
+                        pathToLoadInput = "";
+                    }
+                }
+
+                ImGui.End();
+            }
+        }
+    }
+
+    public class ModuleSystemUi : Debugging.Container
+    {
+        public ModuleSystemUi()
+        {
+            base.Init();
+        }
+
+        public override void Update(float dt)
+        {
+            ImGui.SetNextWindowSizeConstraints(new System.Numerics.Vector2(250, 300), new System.Numerics.Vector2(500, 1000));
+
+            ImGui.Begin("Module Manager##" + id);
+
+            ImGui.TextWrapped("Set which modules to include into the current project. ");
+
+            if (!String.IsNullOrEmpty(Core.ProjectSystem.currentProjectSettings.name))
+            {
+                ImGui.BeginChild("scrolling");
+                foreach (Core.Module module in Core.ModuleSystem.modules)
+                {
+                    bool projectAlreadyIncluded = Core.ProjectSystem.currentProjectSettings.includedModules.Contains(module.id);
+                    if (ImGui.Button("[" + (projectAlreadyIncluded ? "X" : " ") + "] " + module.id))
+                    {
+                        if (!projectAlreadyIncluded)
+                            Core.ProjectSystem.currentProjectSettings.includedModules.Add(module.id);
+                        else
+                            Core.ProjectSystem.currentProjectSettings.includedModules.Remove(module.id);
+                    }
+                }
+                ImGui.EndChild();
+            } else
+            {
+                ImGui.Separator();
+                ImGui.Text("NO PROJECT LOADED!");
+                ImGui.Separator();
+            }
+            ImGui.End();
         }
     }
 }

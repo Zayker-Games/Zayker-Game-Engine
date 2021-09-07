@@ -11,7 +11,6 @@ namespace ZEngine.Core
     {
         public string id;
         public bool isEnabled;
-
         /// <summary>
         /// List of other modules, that this module needs to function. 
         /// </summary>

@@ -17,7 +17,7 @@ namespace ZEngine.Rendering
         Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 
         private List<RenderRequest> renderQue = new List<RenderRequest>();
-        private List<Silk.NET.OpenGL.Extensions.ImGui.ImGuiController> guiRenderQue = new List<Silk.NET.OpenGL.Extensions.ImGui.ImGuiController>();
+        private List<Silk.NET.OpenGL.Extensions.ImGui.ImGuiController> imGuiRenderQue = new List<Silk.NET.OpenGL.Extensions.ImGui.ImGuiController>();
 
         /// <summary>
         /// Rather or not this window is ready to be removed from the Renderer.windows list. 
@@ -150,15 +150,20 @@ namespace ZEngine.Rendering
                 transparentRenderRequest.vao.Draw(transparentRenderRequest.material, transparentRenderRequest.positionInWorldspace, transparentRenderRequest.eulerAnglesInWorldspace, transparentRenderRequest.scaleInWorldspace);
             }
 
-            foreach (Silk.NET.OpenGL.Extensions.ImGui.ImGuiController guiController in guiRenderQue)
+            // Render ImGui controllers
+            foreach (Silk.NET.OpenGL.Extensions.ImGui.ImGuiController guiController in imGuiRenderQue)
             {
                 guiController.Render();
             }
 
+            // Update and Render additional Platform Windows
+            //ImGuiNET.ImGui.UpdatePlatformWindows();
+            //ImGuiNET.ImGui.RenderPlatformWindowsDefault();
+
             renderQue.Clear();
             opaqueRenderQue.Clear();
             transparentRenderQue.Clear();
-            guiRenderQue.Clear();
+            imGuiRenderQue.Clear();
 
             Gl.BindVertexArray(0); // Why? I added this and its not needed. Might just be good practice.
         }
@@ -198,11 +203,11 @@ namespace ZEngine.Rendering
             }
         }
 
-        public void AddToGuiRenderQue(Silk.NET.OpenGL.Extensions.ImGui.ImGuiController requestedController)
+        public void AddImGuiRenderQue(Silk.NET.OpenGL.Extensions.ImGui.ImGuiController requestedController)
         {
             if (!window.IsClosing)
             {
-                guiRenderQue.Add(requestedController);
+                imGuiRenderQue.Add(requestedController);
             }
             else
             {
