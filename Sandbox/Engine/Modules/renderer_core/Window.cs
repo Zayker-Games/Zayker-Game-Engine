@@ -27,6 +27,12 @@ namespace ZEngine.Rendering
 
         private Camera camera;
 
+        public enum BuiltInShaders {
+            lit,
+            unlit,
+            screenspace
+        }
+
         public Window()
         {
             var options = WindowOptions.Default;
@@ -72,16 +78,16 @@ namespace ZEngine.Rendering
 
         private void LoadStandardShaders()
         {
-            shaders.Add("standard_lit", Shader.FromFiles(
+            shaders.Add("builtin_lit", Shader.FromFiles(
                 Gl,
-                System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/StandardLit.vert"),
-                System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/StandardLit.frag")));
+                System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/Lit.vert"),
+                System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/Lit.frag")));
 
-            shaders.Add("screenspace", Shader.FromFiles(
+            shaders.Add("builtin_screenspace", Shader.FromFiles(
                 Gl,
                 System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/Screenspace.vert"),
                 System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInShaders/Screenspace.frag")));
-            GetShader("screenspace").screenspace = true;
+            GetBuiltinShader(BuiltInShaders.screenspace).screenspace = true;
         }
 
         private unsafe void OnRender(double obj)
@@ -226,6 +232,18 @@ namespace ZEngine.Rendering
         public Shader GetShader(string name)
         {
             return shaders[name];
+        }
+
+        public Shader GetBuiltinShader(BuiltInShaders shader)
+        {
+            if (shader == BuiltInShaders.lit)
+                return GetShader("builtin_lit");
+            else if (shader == BuiltInShaders.unlit)
+                return GetShader("builtin_unlit");
+            else if (shader == BuiltInShaders.screenspace)
+                return GetShader("builtin_screenspace");
+            else
+                return null;
         }
     
         public void SetFullscreen(bool fullscreen)

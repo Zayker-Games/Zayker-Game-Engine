@@ -15,13 +15,12 @@ public static class Game
 
     public static void Start()
     {
-
         window = ZEngine.Rendering.RendererCore.CreateWindow();
 
         // Load the texture and model. Then combine them into a render request, using a material and the default shader. 
         string rendererCoreDirectory = ZEngine.Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory();
         texture = new ZEngine.Rendering.Texture(window.Gl, rendererCoreDirectory + @"BuiltInTextures/EngineMascotPalette.png");
-        material = new ZEngine.Rendering.Material(window.GetShader("default"), texture);
+        material = new ZEngine.Rendering.Material(window.GetBuiltinShader(ZEngine.Rendering.Window.BuiltInShaders.lit), texture);
         renderRequest = new ZEngine.Rendering.RenderRequest(
             ZEngine.Rendering.ModelLoader.LoadObjFile(window.Gl, rendererCoreDirectory + @"BuildInMeshes/EngineMascot.obj"),
             material, 

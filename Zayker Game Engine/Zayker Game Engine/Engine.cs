@@ -54,7 +54,7 @@ namespace ZEngine
             // Create everything needed to render the island mesh
             Rendering.VertexArrayObject testingVao = Rendering.Primitives.Plane(mainWindow.Gl);
             Rendering.Texture textingTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/uvTest.png"));
-            Rendering.Material textingMaterial = new Rendering.Material(mainWindow.GetShader("standard_lit"), textingTexture);
+            Rendering.Material textingMaterial = new Rendering.Material(mainWindow.GetBuiltinShader(Rendering.Window.BuiltInShaders.lit), textingTexture);
             textingMaterial.transparent = true;
 
             Rendering.RenderRequest islandRenderRequest = (new Rendering.RenderRequest(
@@ -76,7 +76,7 @@ namespace ZEngine
             deltaTimeStopwatch.Start();
 
             Console.WriteLine("Engine initialized. Entering main loop...");
-            Console.WriteLine(ImGui.GetVersion());
+
             while (true)
             {
                 // Exit the program loop if the main window was closed

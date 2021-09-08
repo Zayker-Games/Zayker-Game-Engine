@@ -22,28 +22,28 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Modules\renderer_core\BuildInMeshes\circle.mtl" />
-    <None Remove="Modules\renderer_core\BuildInMeshes\circle.obj" />
-    <None Remove="Modules\renderer_core\BuildInMeshes\cube.mtl" />
-    <None Remove="Modules\renderer_core\BuildInMeshes\cube.obj" />
-    <None Remove="Modules\renderer_core\BuildInMeshes\EngineMascot.obj" />
+    <None Remove="Modules\renderer_core\BuiltInMeshes\circle.mtl" />
+    <None Remove="Modules\renderer_core\BuiltInMeshes\circle.obj" />
+    <None Remove="Modules\renderer_core\BuiltInMeshes\cube.mtl" />
+    <None Remove="Modules\renderer_core\BuiltInMeshes\cube.obj" />
+    <None Remove="Modules\renderer_core\BuiltInMeshes\EngineMascot.obj" />
+    <None Remove="Modules\renderer_core\BuiltInShaders\Lit.frag" />
+    <None Remove="Modules\renderer_core\BuiltInShaders\Lit.vert" />
     <None Remove="Modules\renderer_core\BuiltInShaders\Screenspace.frag" />
     <None Remove="Modules\renderer_core\BuiltInShaders\Screenspace.vert" />
-    <None Remove="Modules\renderer_core\BuiltInShaders\StandardLit.frag" />
-    <None Remove="Modules\renderer_core\BuiltInShaders\StandardLit.vert" />
     <None Remove="Modules\renderer_core\BuiltInTextures\EngineMascotPalette.png" />
     <None Remove="Modules\renderer_core\BuiltInTextures\uvTest.png" />
     <None Remove="Modules\renderer_core\BuiltInTextures\white.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\circle.obj" />
-    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\cube.obj" />
-    <EmbeddedResource Include="Modules\renderer_core\BuildInMeshes\EngineMascot.obj" />
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInMeshes\circle.obj" />
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInMeshes\cube.obj" />
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInMeshes\EngineMascot.obj" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\Screenspace.frag" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\Screenspace.vert" />
-    <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\StandardLit.frag" />
-    <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\StandardLit.vert" />
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\Lit.frag" />
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInShaders\Lit.vert" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInTextures\EngineMascotPalette.png" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInTextures\uvTest.png" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInTextures\white.png" />
