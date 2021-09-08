@@ -11,31 +11,39 @@ public static class Game
 
     static ZEngine.Rendering.Texture texture;
     static ZEngine.Rendering.Material material;
-    static ZEngine.Rendering.RenderRequest renderRequest;
+
+    static ZEngine.ECS.Entity entity;
 
     public static void Start()
     {
         window = ZEngine.Rendering.RendererCore.CreateWindow();
-
+        
         // Load the texture and model. Then combine them into a render request, using a material and the default shader. 
         string rendererCoreDirectory = ZEngine.Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory();
         texture = new ZEngine.Rendering.Texture(window.Gl, rendererCoreDirectory + @"BuiltInTextures/EngineMascotPalette.png");
         material = new ZEngine.Rendering.Material(window.GetBuiltinShader(ZEngine.Rendering.Window.BuiltInShaders.lit), texture);
-        renderRequest = new ZEngine.Rendering.RenderRequest(
-            ZEngine.Rendering.ModelLoader.LoadObjFile(window.Gl, rendererCoreDirectory + @"BuildInMeshes/EngineMascot.obj"),
-            material, 
-            new System.Numerics.Vector3(0f, 0f, 0f),
-            new System.Numerics.Vector3(0f, 0f, 0f),
-            new System.Numerics.Vector3(1f, 1f, 1f)
-            );
+        
+        // Get ecs module reference
+        ZEngine.ECS.EntityComponentSystem ecs = (ZEngine.ECS.EntityComponentSystem)ZEngine.Core.ModuleSystem.GetModuleById("ecs");
+
+        // Create an entity
+        entity = ecs.AddEntity();
+
+        entity.AddComponent<ZEngine.ECS.Components.Transform>();
+
+        // Add a MeshRenderer and set its properties
+        ZEngine.ECS.Components.MeshRenderer renderer = entity.AddComponent<ZEngine.ECS.Components.MeshRenderer>();
+        renderer.SetTargetWindow(window);
+        renderer.SetVao(ZEngine.Rendering.ModelLoader.LoadObjFile(window.Gl, rendererCoreDirectory + @"BuildInMeshes/EngineMascot.obj"));
+        renderer.SetMaterial(material);
+        renderer.SetTexture(texture);
     }
 
     public static void Update(double deltaTime)
     {
-        // Rotate the renderRequest object
-        renderRequest.eulerAnglesInWorldspace.Y += (float)(deltaTime * 360 / 5);
+        ZEngine.ECS.Components.Transform transform = entity.GetComponent<ZEngine.ECS.Components.Transform>();
 
-        // Send the request we created to the renderer of our window every frame
-        window.AddToRenderQue(renderRequest);
+        transform.rotation.Y = (float)window.window.Time * 36f;
+        transform.position.Y = MathF.Sin((float)window.window.Time) * 0.25f;
     }
 }

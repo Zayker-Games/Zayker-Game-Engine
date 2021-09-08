@@ -40,12 +40,12 @@ namespace ZEngine
             // Add event for update loop
             OnUpdate += Core.ModuleSystem.Update;
 
-            // Enable modules
+            // Enable all modules
             Core.ModuleSystem.Initialize();
-            Core.ModuleSystem.EnableModule("input");
-            Core.ModuleSystem.EnableModule("renderer_core");
-            Core.ModuleSystem.EnableModule("ecs");
-            Core.ModuleSystem.EnableModule("debugger");
+            foreach (Core.Module module in Core.ModuleSystem.modules)
+            {
+                Core.ModuleSystem.EnableModule(module.id);
+            }
 
             // Get reference to renderer module
             Rendering.RendererCore renderer = (Rendering.RendererCore)(Core.ModuleSystem.GetModuleById("renderer_core"));

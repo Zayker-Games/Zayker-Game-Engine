@@ -17,6 +17,13 @@ namespace ZEngine.Rendering
         public Vector3 eulerAnglesInWorldspace;
         public Vector3 scaleInWorldspace;
 
+        public RenderRequest()
+        {
+            this.positionInWorldspace = new Vector3(0f);
+            this.eulerAnglesInWorldspace = new Vector3(0f);
+            this.scaleInWorldspace = new Vector3(1f, 1f, 1f);
+        }
+
         public RenderRequest(VertexArrayObject vao, Material material, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
         {
             this.vao = vao;
@@ -25,6 +32,17 @@ namespace ZEngine.Rendering
             this.positionInWorldspace = positionInWorldspace;
             this.eulerAnglesInWorldspace = eulerAnglesInWorldspace;
             this.scaleInWorldspace = scaleInWorldspace;
+        }
+
+        public bool IsValid()
+        {
+            if (vao == null)
+                return false;
+
+            if (material == null)
+                return false;
+
+            return true;
         }
     }
 }
