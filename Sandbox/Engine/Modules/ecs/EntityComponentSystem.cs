@@ -21,6 +21,11 @@ namespace ZEngine.ECS
             return e;
         }
 
+        public List<Entity> GetEntities()
+        {
+            return entities;
+        }
+
         public override void Update(double deltaTime)
         {
             base.Update(deltaTime);

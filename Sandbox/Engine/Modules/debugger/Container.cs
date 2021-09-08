@@ -19,10 +19,14 @@ namespace ZEngine.Debugging
         public string name = "unnamed";
 
         public bool opened = false;
+        public bool temporary = false;
 
-        protected virtual void Init()
+        protected DebuggerGuiInstance debugger;
+
+        protected virtual void Init(DebuggerGuiInstance debugger)
         {
             id = new Random().Next();
+            this.debugger = debugger;
         }
 
         public abstract void Update(float dt);

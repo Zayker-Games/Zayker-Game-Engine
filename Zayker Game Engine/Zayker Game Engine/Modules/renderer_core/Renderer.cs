@@ -48,9 +48,10 @@ namespace ZEngine.Rendering
             windows = windows.Where(w => !w._markedForDestruction).ToList();
         }
 
-        public static Window CreateWindow()
+        public static Window CreateWindow(string title = "Game")
         {
             Window window = new Window();
+            window.SetTitle(title);
             windows.Add(window);
             return window;
         }

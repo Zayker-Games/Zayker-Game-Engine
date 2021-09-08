@@ -250,5 +250,10 @@ namespace ZEngine.Rendering
         {
             window.WindowState = fullscreen ? WindowState.Fullscreen : WindowState.Normal;
         }
+
+        public void SetTitle(string title)
+        {
+            window.Title = title;
+        }
     }
 }

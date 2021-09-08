@@ -69,9 +69,9 @@ namespace ZEngine
 
             // Create the gui instance for the engines main window and add ui
             engineGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
-            engineGuiInstance.AddContainer(new Debugging.StatsContainer());
-            engineGuiInstance.AddContainer(new ProjectSystemUi());
-            engineGuiInstance.AddContainer(new ModuleSystemUi());
+            engineGuiInstance.AddContainer(new Debugging.StatsContainer(engineGuiInstance));
+            engineGuiInstance.AddContainer(new ProjectSystemUi(engineGuiInstance));
+            engineGuiInstance.AddContainer(new ModuleSystemUi(engineGuiInstance));
 
             // DeltaTime Stopwatch
             System.Diagnostics.Stopwatch deltaTimeStopwatch = new System.Diagnostics.Stopwatch();
@@ -121,9 +121,9 @@ namespace ZEngine
     // To be renamed!
     public class ProjectSystemUi : Debugging.Container
     {
-        public ProjectSystemUi()
+        public ProjectSystemUi(Debugging.DebuggerGuiInstance debugger)
         {
-            base.Init();
+            base.Init(debugger);
             name = "Project System";
         }
 
@@ -203,9 +203,9 @@ namespace ZEngine
 
     public class ModuleSystemUi : Debugging.Container
     {
-        public ModuleSystemUi()
+        public ModuleSystemUi(Debugging.DebuggerGuiInstance debugger)
         {
-            base.Init();
+            base.Init(debugger);
             name = "Module Manager";
         }
 

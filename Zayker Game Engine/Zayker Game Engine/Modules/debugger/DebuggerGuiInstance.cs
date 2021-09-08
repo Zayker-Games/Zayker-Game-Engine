@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Silk.NET.Input;
 using Silk.NET.OpenGL.Extensions.ImGui;
@@ -47,10 +48,12 @@ namespace ZEngine.Debugging
         {
             controller.Update((float)dt);
 
-            foreach (Container c in containers)
+            foreach (Container c in containers.ToList())
             {
                 c.Update(dt);
             }
+
+            containers = containers.Where(c => (!c.temporary || (c.temporary && c.opened))).ToList();
 
             window.AddImGuiRenderQue(controller);
         }

@@ -8,6 +8,7 @@ using System.Text;
 public static class Game
 {
     static ZEngine.Rendering.Window window;
+    static ZEngine.Debugging.DebuggerGuiInstance debugger;
 
     static ZEngine.Rendering.Texture texture;
     static ZEngine.Rendering.Material material;
@@ -16,8 +17,9 @@ public static class Game
 
     public static void Start()
     {
-        window = ZEngine.Rendering.RendererCore.CreateWindow();
-        
+        window = ZEngine.Rendering.RendererCore.CreateWindow("Sandbox");
+        debugger = ZEngine.Debugging.Debugger.GetDebuggerGuiInstance(window);
+
         // Load the texture and model. Then combine them into a render request, using a material and the default shader. 
         string rendererCoreDirectory = ZEngine.Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory();
         texture = new ZEngine.Rendering.Texture(window.Gl, rendererCoreDirectory + @"BuiltInTextures/EngineMascotPalette.png");
@@ -25,6 +27,14 @@ public static class Game
         
         // Get ecs module reference
         ZEngine.ECS.EntityComponentSystem ecs = (ZEngine.ECS.EntityComponentSystem)ZEngine.Core.ModuleSystem.GetModuleById("ecs");
+
+        // Register Debuggers
+        ZEngine.Debugging.StatsContainer stats = new ZEngine.Debugging.StatsContainer(debugger);
+        stats.opened = true;
+        debugger.AddContainer(stats);
+        ZEngine.Debugging.EcsInspector ecsInspector = new ZEngine.Debugging.EcsInspector(debugger);
+        ecsInspector.opened = true;
+        debugger.AddContainer(ecsInspector);
 
         // Create an entity
         entity = ecs.AddEntity();
@@ -41,6 +51,7 @@ public static class Game
 
     public static void Update(double deltaTime)
     {
+
         ZEngine.ECS.Components.Transform transform = entity.GetComponent<ZEngine.ECS.Components.Transform>();
 
         transform.rotation.Y = (float)window.window.Time * 36f;
