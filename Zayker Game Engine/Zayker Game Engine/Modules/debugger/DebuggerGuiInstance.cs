@@ -35,6 +35,11 @@ namespace ZEngine.Debugging
             containers.Add(container);
         }
 
+        public List<Container> GetContainers()
+        {
+            return containers;
+        }
+
         /// <summary>
         /// Add this container and all its containers to the render que.
         /// </summary>

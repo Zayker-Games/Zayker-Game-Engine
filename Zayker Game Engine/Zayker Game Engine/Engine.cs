@@ -14,6 +14,8 @@ namespace ZEngine
         public delegate void Update(double deltaTime);
         public static event Update OnUpdate;
 
+        public static Debugging.DebuggerGuiInstance engineGuiInstance;
+
         private static void Main(string[] args)
         {
             Console.WriteLine("Engine starting...");
@@ -66,8 +68,8 @@ namespace ZEngine
                 ));
 
             // Create the gui instance for the engines main window and add ui
-            Debugging.DebuggerGuiInstance engineGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
-            engineGuiInstance.AddContainer(new Debugging.FpsViewer());
+            engineGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
+            engineGuiInstance.AddContainer(new Debugging.StatsContainer());
             engineGuiInstance.AddContainer(new ProjectSystemUi());
             engineGuiInstance.AddContainer(new ModuleSystemUi());
 
@@ -116,11 +118,13 @@ namespace ZEngine
         }
     }
 
+    // To be renamed!
     public class ProjectSystemUi : Debugging.Container
     {
         public ProjectSystemUi()
         {
             base.Init();
+            name = "Project System";
         }
 
         private bool showProjectLoadScreen = false;
@@ -161,6 +165,19 @@ namespace ZEngine
                     ImGui.EndMenu();
                 }
 
+                if(ImGui.BeginMenu("Tools"))
+                {
+                    foreach (Debugging.Container c in Engine.engineGuiInstance.GetContainers())
+                    {
+                        if (ImGui.MenuItem(c.name + " - " + c.id))
+                        {
+                            c.opened = !c.opened;
+                        }
+                    }
+
+                    ImGui.EndMenu();
+                }
+
                 ImGui.EndMainMenuBar();
             }
 
@@ -189,38 +206,43 @@ namespace ZEngine
         public ModuleSystemUi()
         {
             base.Init();
+            name = "Module Manager";
         }
 
         public override void Update(float dt)
         {
             ImGui.SetNextWindowSizeConstraints(new System.Numerics.Vector2(250, 300), new System.Numerics.Vector2(500, 1000));
 
-            ImGui.Begin("Module Manager##" + id);
-
-            ImGui.TextWrapped("Set which modules to include into the current project. ");
-
-            if (!String.IsNullOrEmpty(Core.ProjectSystem.currentProjectSettings.name))
+            if (opened)
             {
-                ImGui.BeginChild("scrolling");
-                foreach (Core.Module module in Core.ModuleSystem.modules)
+                ImGui.Begin("Module Manager##" + id, ref opened);
+
+                ImGui.TextWrapped("Set which modules to include into the current project. ");
+
+                if (!String.IsNullOrEmpty(Core.ProjectSystem.currentProjectSettings.name))
                 {
-                    bool projectAlreadyIncluded = Core.ProjectSystem.currentProjectSettings.includedModules.Contains(module.id);
-                    if (ImGui.Button("[" + (projectAlreadyIncluded ? "X" : " ") + "] " + module.id))
+                    ImGui.BeginChild("scrolling");
+                    foreach (Core.Module module in Core.ModuleSystem.modules)
                     {
-                        if (!projectAlreadyIncluded)
-                            Core.ProjectSystem.currentProjectSettings.includedModules.Add(module.id);
-                        else
-                            Core.ProjectSystem.currentProjectSettings.includedModules.Remove(module.id);
+                        bool projectAlreadyIncluded = Core.ProjectSystem.currentProjectSettings.includedModules.Contains(module.id);
+                        if (ImGui.Button("[" + (projectAlreadyIncluded ? "X" : " ") + "] " + module.id))
+                        {
+                            if (!projectAlreadyIncluded)
+                                Core.ProjectSystem.currentProjectSettings.includedModules.Add(module.id);
+                            else
+                                Core.ProjectSystem.currentProjectSettings.includedModules.Remove(module.id);
+                        }
                     }
+                    ImGui.EndChild();
                 }
-                ImGui.EndChild();
-            } else
-            {
-                ImGui.Separator();
-                ImGui.Text("NO PROJECT LOADED!");
-                ImGui.Separator();
+                else
+                {
+                    ImGui.Separator();
+                    ImGui.Text("NO PROJECT LOADED!");
+                    ImGui.Separator();
+                }
+                ImGui.End();
             }
-            ImGui.End();
         }
     }
 }

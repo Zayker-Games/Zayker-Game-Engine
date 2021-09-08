@@ -14,7 +14,11 @@ namespace ZEngine.Debugging
         /// <summary>
         /// Each container has a custom id. This is needed to have multiple instances of the same container work at the same time. 
         /// </summary>
-        protected int id = 0;
+        public int id = 0;
+
+        public string name = "unnamed";
+
+        public bool opened = false;
 
         protected virtual void Init()
         {
@@ -22,22 +26,5 @@ namespace ZEngine.Debugging
         }
 
         public abstract void Update(float dt);
-    }
-
-    public class FpsViewer : Container
-    {
-        private float averageDeltaTime = 0.1f;
-        public FpsViewer()
-        {
-            base.Init();
-        }
-
-        public override void Update(float dt)
-        {
-            averageDeltaTime = Core.Math.Lerp(averageDeltaTime, dt, 0.1f);
-            ImGui.Begin("FPS##" + id, ImGuiWindowFlags.AlwaysAutoResize);
-            ImGui.Text(MathF.Round(1f / averageDeltaTime) + " FPS");
-            ImGui.End();
-        }
     }
 }
