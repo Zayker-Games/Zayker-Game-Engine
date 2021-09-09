@@ -51,6 +51,7 @@ namespace ZEngine.Rendering
         public static Window CreateWindow(string title = "Game")
         {
             Window window = new Window();
+            window.window.WindowState = WindowState.Maximized;
             window.SetTitle(title);
             windows.Add(window);
             return window;

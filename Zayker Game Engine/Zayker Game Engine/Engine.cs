@@ -72,6 +72,7 @@ namespace ZEngine
             engineGuiInstance.AddContainer(new Debugging.StatsContainer(engineGuiInstance));
             engineGuiInstance.AddContainer(new ProjectSystemUi(engineGuiInstance));
             engineGuiInstance.AddContainer(new ModuleSystemUi(engineGuiInstance));
+            engineGuiInstance.AddContainer(new Debugging.Console(engineGuiInstance));
 
             // DeltaTime Stopwatch
             System.Diagnostics.Stopwatch deltaTimeStopwatch = new System.Diagnostics.Stopwatch();
