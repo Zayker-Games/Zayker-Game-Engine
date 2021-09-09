@@ -21,7 +21,7 @@ public static class Game
         debugger = ZEngine.Debugging.Debugger.GetDebuggerGuiInstance(window);
 
         // Load the texture and model. Then combine them into a render request, using a material and the default shader. 
-        string rendererCoreDirectory = ZEngine.Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory();
+        string rendererCoreDirectory = ZEngine.Core.ModuleSystem.GetModule<ZEngine.Rendering.RendererCore>().GetDirectory();
         texture = new ZEngine.Rendering.Texture(window.Gl, rendererCoreDirectory + @"BuiltInTextures/EngineMascotPalette.png");
         material = new ZEngine.Rendering.Material(window.GetBuiltinShader(ZEngine.Rendering.Window.BuiltInShaders.lit), texture);
         

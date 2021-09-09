@@ -43,6 +43,18 @@ namespace ZEngine.Core
             }
         }
 
+        public static T GetModule<T>() where T : Module
+        {
+            foreach (Module engineModule in modules)
+            {
+                if (engineModule.GetType() == typeof(T))
+                {
+                    return (T)engineModule;
+                }
+            }
+            return null;
+        }
+
         public static Module GetModuleById(string moduleId)
         {
             foreach (Module engineModule in modules)
