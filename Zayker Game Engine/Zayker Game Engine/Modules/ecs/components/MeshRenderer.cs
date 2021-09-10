@@ -52,5 +52,12 @@ namespace ZEngine.ECS.Components
         {
             targetWindow = window;
         }
+
+        public override void DrawInspector()
+        {
+            ImGuiNET.ImGui.LabelText("Window: ", targetWindow.window.Title);
+            ImGuiNET.ImGui.LabelText("Material: ", renderRequest.material.ToString());
+            ImGuiNET.ImGui.LabelText("Texture: ", renderRequest.material.texture_diffuse.path);
+        }
     }
 }

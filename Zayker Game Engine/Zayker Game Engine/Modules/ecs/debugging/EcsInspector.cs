@@ -48,7 +48,12 @@ namespace ZEngine.Debugging
             ImGui.Begin("Entity Inspector: " + entity.name + "##" + id, ref opened);
 
             ImGui.BeginChild("scrolling");
-            ImGui.InputFloat3("Position", ref entity.GetComponent<ECS.Components.Transform>().position);
+
+            foreach (ECS.Component component in entity.GetComponents())
+            {
+                component.DrawInspector();
+                ImGui.Separator();
+            }
 
             ImGui.EndChild();
             ImGui.End();

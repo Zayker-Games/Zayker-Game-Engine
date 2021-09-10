@@ -33,7 +33,7 @@ namespace ZEngine.Data
         {
             string jsonString = JsonConvert.SerializeObject(obj);
             File.WriteAllText(path, jsonString);
-            Debugging.Console.WriteToMain("Saved " + obj.ToString() + " to " + path + ".", path);
+            Debugging.Console.WriteToMain("Saved " + obj.ToString() + " to:", path);
         }
 
         public static T Load<T>(string path)

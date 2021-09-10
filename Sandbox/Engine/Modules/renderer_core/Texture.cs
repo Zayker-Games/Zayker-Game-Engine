@@ -13,9 +13,13 @@ namespace ZEngine.Rendering
         private GL _gl;
         private uint _handle;
 
+        public string path;
+
         public unsafe Texture(GL gl, string path)
         {
             this._gl = gl;
+
+            this.path = path;
 
             // Load the image using ImageSharp from the given path
             Image<Rgba32> image = (Image<Rgba32>)Image.Load(path);

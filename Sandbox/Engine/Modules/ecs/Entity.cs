@@ -41,5 +41,9 @@ namespace ZEngine.ECS
             return null;
         }
 
+        public List<Component> GetComponents()
+        {
+            return _components;
+        }
     }
 }

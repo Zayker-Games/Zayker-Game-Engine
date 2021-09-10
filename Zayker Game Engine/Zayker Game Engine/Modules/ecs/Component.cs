@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ZEngine.ECS
 {
-    class Component
+    abstract class Component
     {
         public Entity entity;
 
@@ -17,5 +17,7 @@ namespace ZEngine.ECS
         {
 
         }
+
+        public abstract void DrawInspector();
     }
 }
