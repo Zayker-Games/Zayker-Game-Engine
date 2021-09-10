@@ -38,9 +38,13 @@ namespace ZEngine.Debugging
 
         bool scrollToBottom = false;
 
-        public Console (GuiInstance debugger)
+        public Console (GuiInstance debugger, int id = int.MinValue)
         {
-            base.Init(debugger);
+            if (id == int.MinValue)
+                base.Init(debugger);
+            else
+                base.Init(debugger, id);
+
             name = "Console";
             opened = true;
         }

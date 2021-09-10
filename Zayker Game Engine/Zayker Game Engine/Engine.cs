@@ -69,17 +69,19 @@ namespace ZEngine
             // Create the gui instance for the engines main window and add ui
             engineGuiInstance = Debugging.DebuggingModule.GetDebuggerGuiInstance(mainWindow);
             engineGuiInstance.AddContainer(new Debugging.StatsContainer(engineGuiInstance));
-            engineGuiInstance.AddContainer(new EngineUi(engineGuiInstance));
+            engineGuiInstance.AddContainer(new EngineUi(engineGuiInstance, 0));
             engineGuiInstance.AddContainer(new ModuleSystemUi(engineGuiInstance));
 
             // Create a console and set it to be the main console
-            Debugging.Console console = new Debugging.Console(engineGuiInstance);
+            Debugging.Console console = new Debugging.Console(engineGuiInstance, 0);
             engineGuiInstance.AddContainer(console);
             Debugging.Console.main = console;
 
             // DeltaTime Stopwatch
             System.Diagnostics.Stopwatch deltaTimeStopwatch = new System.Diagnostics.Stopwatch();
             deltaTimeStopwatch.Start();
+
+            ImGui.LoadIniSettingsFromDisk("engineGuiLayout.ini");
 
             Debugging.Console.WriteToMain("Engine initialized.", "Entering main loop...");
 
@@ -111,6 +113,7 @@ namespace ZEngine
 
             // Save engine data to a file, so we can load it when the engine is reopened
             Data.DataModule.Save(data, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "savedata.json"));
+            ImGui.SaveIniSettingsToDisk("engineGuiLayout.ini");
         }
 
         /// <summary>
@@ -127,15 +130,19 @@ namespace ZEngine
     /// </summary>
     public class EngineUi : Debugging.Container
     {
-        public EngineUi(Debugging.GuiInstance debugger)
+        public EngineUi(Debugging.GuiInstance debugger, int id = int.MinValue)
         {
-            base.Init(debugger);
+            if (id == int.MinValue)
+                base.Init(debugger);
+            else
+                base.Init(debugger, id);
+
             name = "Engine";
         }
 
         private bool showProjectLoadScreen = false;
         private string pathToLoadInput = "";
-
+        
         uint dockspace_id = ImGui.GetID("MyDockspace");
 
         public override void Update(float dt)
@@ -159,7 +166,7 @@ namespace ZEngine
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0f, 0f));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
-            ImGui.Begin("DockSpace Demo", window_flags);
+            ImGui.Begin("Main Dockspac##" + id, window_flags);
             ImGui.PopStyleVar(4);
 
             // Create the actuall dockspace

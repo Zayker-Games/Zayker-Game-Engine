@@ -23,9 +23,22 @@ namespace ZEngine.Debugging
 
         protected GuiInstance debugger;
 
-        protected virtual void Init(GuiInstance debugger)
+        /// <summary>
+        /// Initialize this container with a random id.
+        /// </summary>
+        protected void Init(GuiInstance debugger)
         {
-            id = new Random().Next();
+            Init(debugger, new Random().Next());
+        }
+
+        /// <summary>
+        /// Initialize this container with the given id. This is usefull when wanting to save the layout between sessions. 
+        /// </summary>
+        /// <param name="debugger"></param>
+        /// <param name="id"></param>
+        protected void Init(GuiInstance debugger, int id)
+        {
+            this.id = id;
             this.debugger = debugger;
         }
 
