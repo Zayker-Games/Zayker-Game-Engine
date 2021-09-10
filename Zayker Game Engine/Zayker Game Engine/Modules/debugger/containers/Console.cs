@@ -104,22 +104,27 @@ namespace ZEngine.Debugging
                     ImGui.SetScrollY(100000.0f);
                     scrollToBottom = false;
                 }
-
                 ImGui.EndChild();
+
                 ImGui.Separator();
 
-                // Handle input field
-                ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.CallbackCompletion | ImGuiInputTextFlags.CallbackHistory;
-                byte[] inputBuffer = new byte[100];
-                if(ImGui.InputText("", inputBuffer, (uint)Buffer.ByteLength(inputBuffer), input_text_flags))
+                // Create and handle input field
+                ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags.EnterReturnsTrue;
+                ImGui.SetNextItemWidth(ImGui.GetWindowSize().X - 30);
+                string inputString = "";
+                if (ImGui.InputText("##ConsoleInput" + id, ref inputString, 100, input_text_flags))
                 {
-                    HandleCommand(Encoding.Default.GetString(inputBuffer));
+                    HandleCommand(inputString);
+                    ImGui.SetKeyboardFocusHere(0); // Set focus back to this input, so the user can type another command
                 }
 
                 ImGui.End();
             }
         }
 
+        /// <summary>
+        /// Tries to write a log message to the main console. If there is no main console, logs the message into the System-Console.
+        /// </summary>
         public static void WriteToMain(string message, string description, LogLevel logLevel = LogLevel.message)
         {
             if (main != null)

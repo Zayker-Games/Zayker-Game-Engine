@@ -12,7 +12,7 @@ namespace ZEngine.Debugging
     /// </summary>
     public class GuiInstance
     {
-        Rendering.Window window;
+        public Rendering.Window window;
         ImGuiController controller = null;
         IInputContext inputContext = null;
 

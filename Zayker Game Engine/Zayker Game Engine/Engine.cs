@@ -69,8 +69,10 @@ namespace ZEngine
             // Create the gui instance for the engines main window and add ui
             engineGuiInstance = Debugging.DebuggingModule.GetDebuggerGuiInstance(mainWindow);
             engineGuiInstance.AddContainer(new Debugging.StatsContainer(engineGuiInstance));
-            engineGuiInstance.AddContainer(new ProjectSystemUi(engineGuiInstance));
+            engineGuiInstance.AddContainer(new EngineUi(engineGuiInstance));
             engineGuiInstance.AddContainer(new ModuleSystemUi(engineGuiInstance));
+
+            // Create a console and set it to be the main console
             Debugging.Console console = new Debugging.Console(engineGuiInstance);
             engineGuiInstance.AddContainer(console);
             Debugging.Console.main = console;
@@ -120,19 +122,52 @@ namespace ZEngine
         }
     }
 
-    // To be renamed!
-    public class ProjectSystemUi : Debugging.Container
+    /// <summary>
+    /// Container handeling most of the engines ui.
+    /// </summary>
+    public class EngineUi : Debugging.Container
     {
-        public ProjectSystemUi(Debugging.GuiInstance debugger)
+        public EngineUi(Debugging.GuiInstance debugger)
         {
             base.Init(debugger);
-            name = "Project System";
+            name = "Engine";
         }
 
         private bool showProjectLoadScreen = false;
         private string pathToLoadInput = "";
+
+        uint dockspace_id = ImGui.GetID("MyDockspace");
+
         public override void Update(float dt)
         {
+            // Enable docking
+            ImGui.GetIO().ConfigFlags = ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.NavEnableKeyboard;
+
+            // Main Dockspace of the engines ui
+            ImGuiViewportPtr viewport = ImGui.GetMainViewport();
+            ImGui.SetNextWindowPos(viewport.GetWorkPos());
+            ImGui.SetNextWindowContentSize(viewport.GetWorkSize());
+            ImGui.SetNextWindowViewport(viewport.ID);
+            ImGui.SetNextWindowBgAlpha(0f);
+
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags.NoDocking;
+            window_flags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove;
+            window_flags |= ImGuiWindowFlags.NoBringToFrontOnFocus | ImGuiWindowFlags.NoNavFocus;
+
+            // Set StyleVars for dockspace, create the dockspace window and then pop the 4 set style vars
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0f, 0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
+            ImGui.Begin("DockSpace Demo", window_flags);
+            ImGui.PopStyleVar(4);
+
+            // Create the actuall dockspace
+            ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags.PassthruCentralNode;
+            ImGui.DockSpace(dockspace_id, new System.Numerics.Vector2(0.0f, 0.0f), dockspace_flags);
+
+            ImGui.End();
+
             // Draw top bar
             if (ImGui.BeginMainMenuBar())
             {
@@ -167,7 +202,7 @@ namespace ZEngine
                     ImGui.EndMenu();
                 }
 
-                if(ImGui.BeginMenu("Tools"))
+                if (ImGui.BeginMenu("Tools"))
                 {
                     foreach (Debugging.Container c in Engine.engineGuiInstance.GetContainers())
                     {
@@ -179,13 +214,14 @@ namespace ZEngine
 
                     ImGui.EndMenu();
                 }
-
                 ImGui.EndMainMenuBar();
             }
 
+            // Shows the loading screen to load a projec ty path
             if (showProjectLoadScreen)
             {
-                ImGui.Begin("Load##" + id, ImGuiWindowFlags.AlwaysAutoResize);
+                ImGui.SetNextWindowSizeConstraints(new System.Numerics.Vector2(400, 100), new System.Numerics.Vector2(1000, 100));
+                ImGui.Begin("Load##" + id, ref showProjectLoadScreen, ImGuiWindowFlags.AlwaysAutoResize);
 
                 ImGui.InputText("Path", ref pathToLoadInput, 500);
                 if (ImGui.Button("Open Project"))
