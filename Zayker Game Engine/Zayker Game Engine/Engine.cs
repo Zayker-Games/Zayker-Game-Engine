@@ -220,10 +220,13 @@ namespace ZEngine
             // Shows the loading screen to load a projec ty path
             if (showProjectLoadScreen)
             {
-                ImGui.SetNextWindowSizeConstraints(new System.Numerics.Vector2(400, 100), new System.Numerics.Vector2(1000, 100));
+                ImGui.SetNextWindowSizeConstraints(new System.Numerics.Vector2(400, 50), new System.Numerics.Vector2(1000, 100));
                 ImGui.Begin("Load##" + id, ref showProjectLoadScreen, ImGuiWindowFlags.AlwaysAutoResize);
 
-                ImGui.InputText("Path", ref pathToLoadInput, 500);
+                ImGui.SetNextItemWidth(ImGui.GetWindowContentRegionWidth() * 0.75f);
+                ImGui.InputText("##LoadProjectPathInput" + id, ref pathToLoadInput, 500);
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(ImGui.GetWindowContentRegionWidth() * 0.25f);
                 if (ImGui.Button("Open Project"))
                 {
                     if (pathToLoadInput != "")

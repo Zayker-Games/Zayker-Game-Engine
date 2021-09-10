@@ -70,7 +70,7 @@ namespace ZEngine.Debugging
                 currentVisibilityLevelString = currentVisibilityLevelString.Remove(1, 1);
 
                 // Show visibility-level selector
-                if (ImGui.BeginCombo("##" + id, currentVisibilityLevelString))
+                if (ImGui.BeginCombo("##visibilityDropdown" + id, currentVisibilityLevelString))
                 {
                     if (ImGui.Selectable("Messages")) { currentVisibilityLevel = LogLevel.message; }
                     if (ImGui.Selectable("Warnings")) { currentVisibilityLevel = LogLevel.warning; }
@@ -81,7 +81,7 @@ namespace ZEngine.Debugging
                 ImGui.Separator();
 
                 // Display messages
-                ImGui.BeginChild("scrolling", ImGui.GetWindowSize() - new Vector2(10f, 90f));
+                ImGui.BeginChild("scrolling" + id, ImGui.GetWindowSize() - new Vector2(10f, 90f));
                 foreach (ConsoleMessage message in messages)
                 {
                     if (message.logLevel >= currentVisibilityLevel)
@@ -110,7 +110,7 @@ namespace ZEngine.Debugging
 
                 // Create and handle input field
                 ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags.EnterReturnsTrue;
-                ImGui.SetNextItemWidth(ImGui.GetWindowSize().X - 30);
+                ImGui.SetNextItemWidth(ImGui.GetWindowContentRegionWidth());
                 string inputString = "";
                 if (ImGui.InputText("##ConsoleInput" + id, ref inputString, 100, input_text_flags))
                 {
