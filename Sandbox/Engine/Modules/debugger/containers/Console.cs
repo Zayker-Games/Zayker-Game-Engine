@@ -38,9 +38,13 @@ namespace ZEngine.Debugging
 
         bool scrollToBottom = false;
 
-        public Console (GuiInstance debugger)
+        public Console (GuiInstance debugger, int id = int.MinValue)
         {
-            base.Init(debugger);
+            if (id == int.MinValue)
+                base.Init(debugger);
+            else
+                base.Init(debugger, id);
+
             name = "Console";
             opened = true;
         }
@@ -70,7 +74,7 @@ namespace ZEngine.Debugging
                 currentVisibilityLevelString = currentVisibilityLevelString.Remove(1, 1);
 
                 // Show visibility-level selector
-                if (ImGui.BeginCombo("##" + id, currentVisibilityLevelString))
+                if (ImGui.BeginCombo("##visibilityDropdown" + id, currentVisibilityLevelString))
                 {
                     if (ImGui.Selectable("Messages")) { currentVisibilityLevel = LogLevel.message; }
                     if (ImGui.Selectable("Warnings")) { currentVisibilityLevel = LogLevel.warning; }
@@ -81,7 +85,7 @@ namespace ZEngine.Debugging
                 ImGui.Separator();
 
                 // Display messages
-                ImGui.BeginChild("scrolling", ImGui.GetWindowSize() - new Vector2(10f, 90f));
+                ImGui.BeginChild("scrolling" + id, ImGui.GetWindowSize() - new Vector2(10f, 90f));
                 foreach (ConsoleMessage message in messages)
                 {
                     if (message.logLevel >= currentVisibilityLevel)
@@ -104,22 +108,27 @@ namespace ZEngine.Debugging
                     ImGui.SetScrollY(100000.0f);
                     scrollToBottom = false;
                 }
-
                 ImGui.EndChild();
+
                 ImGui.Separator();
 
-                // Handle input field
-                ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags.EnterReturnsTrue | ImGuiInputTextFlags.CallbackCompletion | ImGuiInputTextFlags.CallbackHistory;
-                byte[] inputBuffer = new byte[100];
-                if(ImGui.InputText("", inputBuffer, (uint)Buffer.ByteLength(inputBuffer), input_text_flags))
+                // Create and handle input field
+                ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags.EnterReturnsTrue;
+                ImGui.SetNextItemWidth(ImGui.GetWindowContentRegionWidth());
+                string inputString = "";
+                if (ImGui.InputText("##ConsoleInput" + id, ref inputString, 100, input_text_flags))
                 {
-                    HandleCommand(Encoding.Default.GetString(inputBuffer));
+                    HandleCommand(inputString);
+                    ImGui.SetKeyboardFocusHere(0); // Set focus back to this input, so the user can type another command
                 }
 
                 ImGui.End();
             }
         }
 
+        /// <summary>
+        /// Tries to write a log message to the main console. If there is no main console, logs the message into the System-Console.
+        /// </summary>
         public static void WriteToMain(string message, string description, LogLevel logLevel = LogLevel.message)
         {
             if (main != null)
