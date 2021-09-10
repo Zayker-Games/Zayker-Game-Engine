@@ -10,7 +10,7 @@ namespace ZEngine.ECS.Components
         {
             base.Update(deltaTime);
 
-            Console.WriteLine("The Logger on " + entity.name + " says hey!");
+            Debugging.Console.WriteToMain("The Logger on " + entity.name + " says hey!", "");
         }
     }
 }

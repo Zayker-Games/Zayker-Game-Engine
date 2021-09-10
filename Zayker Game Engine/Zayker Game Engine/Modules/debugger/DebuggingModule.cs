@@ -4,15 +4,15 @@ using System.Text;
 
 namespace ZEngine.Debugging
 {
-    class Debugger : Core.Module
+    class DebuggingModule : Core.Module
     {
-        private static Dictionary<Rendering.Window, DebuggerGuiInstance> debuggerGuiInstances = new Dictionary<Rendering.Window, DebuggerGuiInstance>();
+        private static Dictionary<Rendering.Window, GuiInstance> debuggerGuiInstances = new Dictionary<Rendering.Window, GuiInstance>();
 
         /// <summary>
         /// We reuse the render request for every debug ui object.
         /// </summary>
 
-        public Debugger ()
+        public DebuggingModule ()
         {
             this.id = "debugger";
         }
@@ -31,19 +31,20 @@ namespace ZEngine.Debugging
         {
             base.Update(deltaTime);
 
-            foreach (DebuggerGuiInstance guiInstance in debuggerGuiInstances.Values)
+            foreach (GuiInstance guiInstance in debuggerGuiInstances.Values)
             {
                 guiInstance.Draw((float)deltaTime);
             }
         }
 
         /// <summary>
-        /// Returns the ImGuiInstance for a given instance
+        /// Returns the ImGuiInstance for a given window. 
+        /// Creates an instance if there is none for the given window.
         /// </summary>
-        public static DebuggerGuiInstance GetDebuggerGuiInstance(Rendering.Window window)
+        public static GuiInstance GetDebuggerGuiInstance(Rendering.Window window)
         {
             if (!debuggerGuiInstances.ContainsKey(window))
-                debuggerGuiInstances.Add(window, new DebuggerGuiInstance(window));
+                debuggerGuiInstances.Add(window, new GuiInstance(window));
 
             return debuggerGuiInstances[window];
         }

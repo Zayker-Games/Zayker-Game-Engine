@@ -1,5 +1,4 @@
 ﻿using ImGuiNET;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -14,14 +13,14 @@ namespace ZEngine
         public delegate void Update(double deltaTime);
         public static event Update OnUpdate;
 
-        public static Debugging.DebuggerGuiInstance engineGuiInstance;
+        public static Debugging.GuiInstance engineGuiInstance;
 
         private static void Main(string[] args)
         {
-            Console.WriteLine("Engine starting...");
+            Debugging.Console.WriteToMain("Engine starting...", "");
 
             // Load engine data. If there is no data, create default data.
-            data = Data.DataHandler.Load<SaveData>(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "savedata.json"));
+            data = Data.DataModule.Load<SaveData>(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "savedata.json"));
             if (data == null)
                 data = new SaveData();
 
@@ -48,14 +47,14 @@ namespace ZEngine
             }
 
             // Get reference to renderer module
-            Rendering.RendererCore renderer = (Rendering.RendererCore)(Core.ModuleSystem.GetModuleById("renderer_core"));
+            Rendering.RenderingModule renderer = Core.ModuleSystem.GetModule<Rendering.RenderingModule>();
 
             // Create main window
-            Rendering.Window mainWindow = Rendering.RendererCore.CreateWindow();
+            Rendering.Window mainWindow = Rendering.RenderingModule.CreateWindow();
 
             // Create everything needed to render the island mesh
             Rendering.VertexArrayObject testingVao = Rendering.Primitives.Plane(mainWindow.Gl);
-            Rendering.Texture textingTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModuleById("renderer_core").GetDirectory(), "BuiltInTextures/uvTest.png"));
+            Rendering.Texture textingTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModule<Rendering.RenderingModule>().GetDirectory(), "BuiltInTextures/uvTest.png"));
             Rendering.Material textingMaterial = new Rendering.Material(mainWindow.GetBuiltinShader(Rendering.Window.BuiltInShaders.lit), textingTexture);
             textingMaterial.transparent = true;
 
@@ -68,17 +67,19 @@ namespace ZEngine
                 ));
 
             // Create the gui instance for the engines main window and add ui
-            engineGuiInstance = Debugging.Debugger.GetDebuggerGuiInstance(mainWindow);
+            engineGuiInstance = Debugging.DebuggingModule.GetDebuggerGuiInstance(mainWindow);
             engineGuiInstance.AddContainer(new Debugging.StatsContainer(engineGuiInstance));
             engineGuiInstance.AddContainer(new ProjectSystemUi(engineGuiInstance));
             engineGuiInstance.AddContainer(new ModuleSystemUi(engineGuiInstance));
-            engineGuiInstance.AddContainer(new Debugging.Console(engineGuiInstance));
+            Debugging.Console console = new Debugging.Console(engineGuiInstance);
+            engineGuiInstance.AddContainer(console);
+            Debugging.Console.main = console;
 
             // DeltaTime Stopwatch
             System.Diagnostics.Stopwatch deltaTimeStopwatch = new System.Diagnostics.Stopwatch();
             deltaTimeStopwatch.Start();
 
-            Console.WriteLine("Engine initialized. Entering main loop...");
+            Debugging.Console.WriteToMain("Engine initialized.", "Entering main loop...");
 
             while (true)
             {
@@ -92,8 +93,8 @@ namespace ZEngine
                     mainWindow.window.Title = "Z-Engine - No Project Loaded";
 
                 // Animate and render the island object
-                islandRenderRequest.positionInWorldspace.Y = MathF.Sin((float)mainWindow.window.Time) * 0.1f;
-                islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (MathF.Sin((float)mainWindow.window.Time) * 0.1f));
+                islandRenderRequest.positionInWorldspace.Y = System.MathF.Sin((float)mainWindow.window.Time) * 0.1f;
+                islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (System.MathF.Sin((float)mainWindow.window.Time) * 0.1f));
                 islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
 
                 mainWindow.AddToRenderQue(islandRenderRequest);
@@ -107,7 +108,7 @@ namespace ZEngine
             }
 
             // Save engine data to a file, so we can load it when the engine is reopened
-            Data.DataHandler.Save(data, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "savedata.json"));
+            Data.DataModule.Save(data, System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "savedata.json"));
         }
 
         /// <summary>
@@ -122,7 +123,7 @@ namespace ZEngine
     // To be renamed!
     public class ProjectSystemUi : Debugging.Container
     {
-        public ProjectSystemUi(Debugging.DebuggerGuiInstance debugger)
+        public ProjectSystemUi(Debugging.GuiInstance debugger)
         {
             base.Init(debugger);
             name = "Project System";
@@ -156,7 +157,7 @@ namespace ZEngine
                     {
                         Core.ProjectSystem.SaveProject();
                     }
-                    if (ImGui.MenuItem("Reimport Everything", !String.IsNullOrEmpty(Core.ProjectSystem.currentProjectSettings.name)))
+                    if (ImGui.MenuItem("Reimport Everything", !System.String.IsNullOrEmpty(Core.ProjectSystem.currentProjectSettings.name)))
                     {
                         Core.ProjectSystem.ImportCoreToProject();
                         Core.ProjectSystem.ReimportAllModulesToProject();
@@ -204,7 +205,7 @@ namespace ZEngine
 
     public class ModuleSystemUi : Debugging.Container
     {
-        public ModuleSystemUi(Debugging.DebuggerGuiInstance debugger)
+        public ModuleSystemUi(Debugging.GuiInstance debugger)
         {
             base.Init(debugger);
             name = "Module Manager";
@@ -220,7 +221,7 @@ namespace ZEngine
 
                 ImGui.TextWrapped("Set which modules to include into the current project. ");
 
-                if (!String.IsNullOrEmpty(Core.ProjectSystem.currentProjectSettings.name))
+                if (!System.String.IsNullOrEmpty(Core.ProjectSystem.currentProjectSettings.name))
                 {
                     ImGui.BeginChild("scrolling");
                     foreach (Core.Module module in Core.ModuleSystem.modules)

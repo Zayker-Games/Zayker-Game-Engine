@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ZEngine.ExampleModule
+namespace ZEngine.Examples
 {
-    class Example : Core.Module
+    class ExampleModule : Core.Module
     {
-        public Example ()
+        public ExampleModule ()
         {
             // The id must match the modules folder name!
             this.id = "example";

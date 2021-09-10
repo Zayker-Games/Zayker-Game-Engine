@@ -20,21 +20,21 @@ namespace ZEngine.Core
             if ((Path.GetExtension(projectPath) == "" && !Directory.Exists(projectPath)) ||
                 (Path.GetExtension(projectPath) != "" && !File.Exists(projectPath)))
             {
-                Console.WriteLine("Failed to load project! Directory or file does not exist!");
+                Debugging.Console.WriteToMain("Failed to load project!", "Directory or file does not exist!", Debugging.Console.LogLevel.error);
                 return;
             }
 
             // Return if the path leads to a folder that does not conain a project.meta file
             if (Path.GetExtension(projectPath) == "" && !Directory.GetFiles(projectPath).Where(s => s.Contains("project.meta")).Any())
             {
-                Console.WriteLine("Failed to load project! Directory is not a project!");
+                Debugging.Console.WriteToMain("Failed to load project!", "Directory is not a project!", Debugging.Console.LogLevel.error);
                 return;
             }
 
             // Return is the path leads to a file but it's not a project.meta file
             if (Path.GetExtension(projectPath) != "" && Path.GetFileName(projectPath) != "project.meta")
             {
-                Console.WriteLine("Failed to load project! Path does not lead to a project.meta file!");
+                Debugging.Console.WriteToMain("Failed to load project!", "Path does not lead to a project.meta file!", Debugging.Console.LogLevel.error);
                 return;
             }
 
@@ -56,11 +56,11 @@ namespace ZEngine.Core
             else
                 projectMetaPath = projectPath;
 
-            ProjectSettings projectSettings = Data.DataHandler.Load<ProjectSettings>(projectMetaPath);
+            ProjectSettings projectSettings = Data.DataModule.Load<ProjectSettings>(projectMetaPath);
             
             currentProjectSettings = projectSettings;
 
-            Console.WriteLine("Successfully loaded project: " + currentProjectSettings.name);
+            Debugging.Console.WriteToMain("Successfully loaded project: " + currentProjectSettings.name, "");
         }
 
         public static void SaveProject()
@@ -73,7 +73,7 @@ namespace ZEngine.Core
         {
             currentProjectPath = projectPath;
 
-            Data.DataHandler.Save(currentProjectSettings, Path.Combine(projectPath, "project.meta"));
+            Data.DataModule.Save(currentProjectSettings, Path.Combine(projectPath, "project.meta"));
         }
 
         // Copies module to target directory (UNDOES ALL CHANGES TO SOURCE!)
@@ -81,11 +81,11 @@ namespace ZEngine.Core
         {
             if(String.IsNullOrEmpty(currentProjectSettings.name))
             {
-                Console.WriteLine("Cant import modules if no project is loaded!");
+                Debugging.Console.WriteToMain("Cant import modules if no project is loaded!", "", Debugging.Console.LogLevel.error);
                 return;
             }
 
-            Console.WriteLine("Reimporting all included modules to project...");
+            Debugging.Console.WriteToMain("Reimporting all included modules to project...", "");
 
             if (Directory.Exists(GetProjectModulesPath()))
                 Directory.Delete(GetProjectModulesPath(), true);
@@ -102,11 +102,11 @@ namespace ZEngine.Core
         {
             if (String.IsNullOrEmpty(currentProjectSettings.name))
             {
-                Console.WriteLine("Cant import core if no project is loaded!");
+                Debugging.Console.WriteToMain("Cant import core if no project is loaded!", "", Debugging.Console.LogLevel.error);
                 return;
             }
 
-            Console.WriteLine("Importing Engine-Core to project...");
+            Debugging.Console.WriteToMain("Importing Engine-Core to project...", "");
 
             if (Directory.Exists(Path.Combine(GetProjectEngineSourcePath(), "Module System")))
                 Directory.Delete(Path.Combine(GetProjectEngineSourcePath(), "Module System"), true);

@@ -9,6 +9,23 @@ namespace ZEngine.Debugging
 {
     class Console : Container
     {
+        /// <summary>
+        /// The primary console, used by the engine to output messages. 
+        /// </summary>
+        public static Console main
+        {
+            get
+            {
+                return _main;
+            }
+            set
+            {
+                _main = value;
+                _main.Write("This is now the main console!", "Engine related messages will now be displayed here.", LogLevel.message);
+            }
+        }
+        private static Console _main;
+
         public enum LogLevel
         {
             message,
@@ -21,7 +38,7 @@ namespace ZEngine.Debugging
 
         bool scrollToBottom = false;
 
-        public Console (DebuggerGuiInstance debugger)
+        public Console (GuiInstance debugger)
         {
             base.Init(debugger);
             name = "Console";
@@ -103,7 +120,20 @@ namespace ZEngine.Debugging
             }
         }
 
-        public void WriteToConsole(string message, string description, LogLevel logLevel = LogLevel.message)
+        public static void WriteToMain(string message, string description, LogLevel logLevel = LogLevel.message)
+        {
+            if (main != null)
+            {
+                main.Write(message, description, logLevel);
+            }
+            else
+            {
+                System.Console.WriteLine("[Warning]: Tried writing to the main console, but none was found!");
+                System.Console.WriteLine("        -> " + message);
+            }
+        }
+
+        public void Write(string message, string description, LogLevel logLevel = LogLevel.message)
         {
             messages.Add(new ConsoleMessage(message, description, logLevel));
             scrollToBottom = true;
@@ -135,19 +165,19 @@ namespace ZEngine.Debugging
 
             // Execute commands
             if (command == "message" || command == "print" || command == "log")
-                WriteToConsole(String.Join(" ", args), "Message send using log command.", LogLevel.message);
+                Write(String.Join(" ", args), "Message send using log command.", LogLevel.message);
 
             if (command == "warning" || command == "warn")
-                WriteToConsole(String.Join(" ", args), "Warning send using log command.", LogLevel.warning);
+                Write(String.Join(" ", args), "Warning send using log command.", LogLevel.warning);
 
             if (command == "error")
-                WriteToConsole(String.Join(" ", args), "Error send using log command.", LogLevel.error);
+                Write(String.Join(" ", args), "Error send using log command.", LogLevel.error);
 
             if (command == "cls" || command == "clear")
                 messages.Clear();
 
             if(command == "help")
-                WriteToConsole("Help", "This is still work in progress. ", LogLevel.message);
+                Write("Help", "This is still work in progress. ", LogLevel.message);
         }
 
         public class ConsoleMessage

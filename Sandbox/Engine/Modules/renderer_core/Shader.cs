@@ -73,7 +73,7 @@ namespace ZEngine.Rendering
             string infoLog = Gl.GetShaderInfoLog(vertexShader);
             if (!string.IsNullOrWhiteSpace(infoLog))
             {
-                Console.WriteLine($"Error compiling vertex shader {infoLog}");
+                Debugging.Console.WriteToMain("Error compiling vertex shader!", infoLog, Debugging.Console.LogLevel.error);
             }
 
             //Creating a fragment shader.
@@ -85,7 +85,7 @@ namespace ZEngine.Rendering
             infoLog = Gl.GetShaderInfoLog(fragmentShader);
             if (!string.IsNullOrWhiteSpace(infoLog))
             {
-                Console.WriteLine($"Error compiling fragment shader {infoLog}");
+                Debugging.Console.WriteToMain("Error compiling fragment shader!", infoLog, Debugging.Console.LogLevel.error);
             }
 
             //Combining the shaders under one shader program.
@@ -98,7 +98,7 @@ namespace ZEngine.Rendering
             string shader = Gl.GetProgramInfoLog(newShader._handle);
             if (!string.IsNullOrWhiteSpace(shader))
             {
-                Console.WriteLine($"Error linking shader {infoLog}");
+                Debugging.Console.WriteToMain("Error linking shader!", infoLog, Debugging.Console.LogLevel.error);
             }
 
             //Delete the no longer useful individual shaders;

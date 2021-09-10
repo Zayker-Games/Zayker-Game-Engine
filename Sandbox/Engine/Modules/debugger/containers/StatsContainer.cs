@@ -8,7 +8,7 @@ namespace ZEngine.Debugging
     class StatsContainer : Container
     {
         private float averageDeltaTime = 0.1f;
-        public StatsContainer(DebuggerGuiInstance debugger)
+        public StatsContainer(GuiInstance debugger)
         {
             base.Init(debugger);
             name = "Debug Info";

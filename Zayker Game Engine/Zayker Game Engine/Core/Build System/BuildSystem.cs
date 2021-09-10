@@ -45,7 +45,7 @@ namespace ZEngine.Core
             public Compiler(string projectPath)
             {
                 string[] sourceCodePaths = System.IO.Directory.GetFiles(projectPath, "*.cs", SearchOption.AllDirectories);
-                Console.WriteLine("Found " + sourceCodePaths.Length + " files to compile.");
+                ZEngine.Debugging.Console.WriteToMain("Found " + sourceCodePaths.Length + " files to compile.", "");
                 var syntaxTrees = ParseSyntaxTrees(sourceCodePaths);
                 _compilation = CSharpCompilation.Create("Build.exe", syntaxTrees, GetMetadataReference(), GetCompilationOptions());
             }

@@ -7,14 +7,14 @@ using System.Linq;
 
 namespace ZEngine.Rendering
 {
-    class RendererCore : Core.Module
+    class RenderingModule : Core.Module
     {
         /// <summary>
         /// List of all windows. 
         /// </summary>
         public static List<Window> windows = new List<Window>();
 
-        public RendererCore()
+        public RenderingModule()
         {
             this.id = "renderer_core";
         }
@@ -37,7 +37,7 @@ namespace ZEngine.Rendering
                     window.window.DoRender(); 
                 } else
                 {
-                    Console.WriteLine("Closing window " + window.window.Title);
+                    Debugging.Console.WriteToMain("Closing window " + window.window.Title, "");
                     window.Gl.Dispose();
                     window.window.Dispose();
 
@@ -47,6 +47,7 @@ namespace ZEngine.Rendering
 
             windows = windows.Where(w => !w._markedForDestruction).ToList();
         }
+
 
         public static Window CreateWindow(string title = "Game")
         {

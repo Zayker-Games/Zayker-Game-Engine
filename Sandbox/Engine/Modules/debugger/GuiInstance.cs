@@ -8,9 +8,9 @@ using Silk.NET.OpenGL.Extensions.ImGui;
 namespace ZEngine.Debugging
 {
     /// <summary>
-    /// Each window that has some debug information to be displayed, has its own DebuggerInstance
+    /// Each window that has some debug information to be displayed, has its own GuiInstance
     /// </summary>
-    public class DebuggerGuiInstance
+    public class GuiInstance
     {
         Rendering.Window window;
         ImGuiController controller = null;
@@ -18,7 +18,7 @@ namespace ZEngine.Debugging
 
         private List<Container> containers = new List<Container>();
 
-        public DebuggerGuiInstance(Rendering.Window window)
+        public GuiInstance(Rendering.Window window)
         {
             this.window = window;
 

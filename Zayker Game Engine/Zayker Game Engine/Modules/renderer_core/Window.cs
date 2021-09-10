@@ -70,8 +70,8 @@ namespace ZEngine.Rendering
             IInputContext input = window.CreateInput();
             for (int i = 0; i < input.Keyboards.Count; i++)
             {
-                input.Keyboards[i].KeyDown += Input.Input.InvokeKeyDownEvent;
-                input.Keyboards[i].KeyUp += Input.Input.InvokeKeyUpEvent;
+                input.Keyboards[i].KeyDown += Input.InputModule.InvokeKeyDownEvent;
+                input.Keyboards[i].KeyUp += Input.InputModule.InvokeKeyUpEvent;
             }
 
         }
@@ -204,7 +204,7 @@ namespace ZEngine.Rendering
                 return true;
             } else
             {
-                Console.WriteLine("Warning! You are trying to add a RenderRequest to a closing window!");
+                Debugging.Console.WriteToMain("You are trying to add a RenderRequest to a closing window!", "", Debugging.Console.LogLevel.warning);
                 return false;
             }
         }
@@ -217,7 +217,7 @@ namespace ZEngine.Rendering
             }
             else
             {
-                Console.WriteLine("Warning! You are trying to add a RenderRequest to a closing window!");
+                Debugging.Console.WriteToMain("You are trying to add a RenderRequest to a closing window!", "", Debugging.Console.LogLevel.warning);
             }
         }
 

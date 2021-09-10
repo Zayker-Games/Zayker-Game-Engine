@@ -4,11 +4,11 @@ using System.Text;
 
 namespace ZEngine.ECS
 {
-    class EntityComponentSystem : Core.Module
+    class ECSModule : Core.Module
     {
         private List<Entity> entities;
 
-        public EntityComponentSystem()
+        public ECSModule()
         {
             this.id = "ecs";
             this.entities = new List<Entity>();

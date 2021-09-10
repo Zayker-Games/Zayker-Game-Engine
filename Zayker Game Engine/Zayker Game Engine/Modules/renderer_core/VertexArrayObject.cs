@@ -179,7 +179,7 @@ namespace ZEngine.Rendering
                 string[] formated = l.Substring(2).Split(" ");
 
                 if (formated.Length != 3)
-                    Console.WriteLine("Warning! The renderer only supports triangles at this point! Triangulate your mesh!");
+                    Debugging.Console.WriteToMain("The renderer only supports triangles at this point!", "Triangulate your mesh!", Debugging.Console.LogLevel.warning);
 
                 // Iterate through the three verts of a triangle.
                 // Then save the data that is refered to into its list. 

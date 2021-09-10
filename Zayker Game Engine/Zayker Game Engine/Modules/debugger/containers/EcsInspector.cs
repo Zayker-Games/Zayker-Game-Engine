@@ -7,7 +7,7 @@ namespace ZEngine.Debugging
 {
     class EcsInspector : Container
     {
-        public EcsInspector(DebuggerGuiInstance debugger)
+        public EcsInspector(GuiInstance debugger)
         {
             base.Init(debugger);
         }
@@ -17,7 +17,7 @@ namespace ZEngine.Debugging
             ImGui.Begin("ECS Inspector##" + id);
 
             ImGui.BeginChild("scrolling");
-            foreach (ECS.Entity entity in ((ECS.EntityComponentSystem)Core.ModuleSystem.GetModuleById("ecs")).GetEntities())
+            foreach (ECS.Entity entity in ((ECS.ECSModule)Core.ModuleSystem.GetModuleById("ecs")).GetEntities())
             {
                 if(ImGui.Button(entity.name))
                 {
@@ -36,7 +36,7 @@ namespace ZEngine.Debugging
     {
         public ZEngine.ECS.Entity entity;
 
-        public EntityInspector(DebuggerGuiInstance debugger)
+        public EntityInspector(GuiInstance debugger)
         {
             base.Init(debugger);
             temporary = true;

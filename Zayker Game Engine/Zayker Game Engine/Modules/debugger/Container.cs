@@ -21,9 +21,9 @@ namespace ZEngine.Debugging
         public bool opened = false;
         public bool temporary = false;
 
-        protected DebuggerGuiInstance debugger;
+        protected GuiInstance debugger;
 
-        protected virtual void Init(DebuggerGuiInstance debugger)
+        protected virtual void Init(GuiInstance debugger)
         {
             id = new Random().Next();
             this.debugger = debugger;

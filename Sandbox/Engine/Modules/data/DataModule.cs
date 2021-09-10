@@ -6,9 +6,9 @@ using System.Text;
 
 namespace ZEngine.Data
 {
-    class DataHandler : Core.Module
+    class DataModule : Core.Module
     {
-        public DataHandler()
+        public DataModule()
         {
             // The id must match the modules folder name!
             this.id = "data";
@@ -33,7 +33,7 @@ namespace ZEngine.Data
         {
             string jsonString = JsonConvert.SerializeObject(obj);
             File.WriteAllText(path, jsonString);
-            Console.WriteLine("Saved " + obj.ToString() + " to " + path + ".");
+            Debugging.Console.WriteToMain("Saved " + obj.ToString() + " to " + path + ".", path);
         }
 
         public static T Load<T>(string path)

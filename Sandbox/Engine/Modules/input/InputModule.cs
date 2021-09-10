@@ -5,7 +5,7 @@ using System.Text;
 
 namespace ZEngine.Input
 {
-    class Input : Core.Module
+    class InputModule : Core.Module
     {
         public delegate void KeyUpEvent(IKeyboard arg1, Key arg2, int arg3);
         public delegate void KeyDownEvent(IKeyboard arg1, Key arg2, int arg3);
@@ -13,7 +13,7 @@ namespace ZEngine.Input
         public static event KeyUpEvent OnKeyUp;
         public static event KeyDownEvent OnKeyDown;
 
-        public Input()
+        public InputModule()
         {
             this.id = "input";
         }

@@ -8,7 +8,7 @@ using System.Text;
 public static class Game
 {
     static ZEngine.Rendering.Window window;
-    static ZEngine.Debugging.DebuggerGuiInstance debugger;
+    static ZEngine.Debugging.GuiInstance debugger;
 
     static ZEngine.Rendering.Texture texture;
     static ZEngine.Rendering.Material material;
@@ -17,16 +17,16 @@ public static class Game
 
     public static void Start()
     {
-        window = ZEngine.Rendering.RendererCore.CreateWindow("Sandbox");
-        debugger = ZEngine.Debugging.Debugger.GetDebuggerGuiInstance(window);
+        window = ZEngine.Rendering.RenderingModule.CreateWindow("Sandbox");
+        debugger = ZEngine.Debugging.DebuggingModule.GetDebuggerGuiInstance(window);
 
         // Load the texture and model. Then combine them into a render request, using a material and the default shader. 
-        string rendererCoreDirectory = ZEngine.Core.ModuleSystem.GetModule<ZEngine.Rendering.RendererCore>().GetDirectory();
+        string rendererCoreDirectory = ZEngine.Core.ModuleSystem.GetModule<ZEngine.Rendering.RenderingModule>().GetDirectory();
         texture = new ZEngine.Rendering.Texture(window.Gl, rendererCoreDirectory + @"BuiltInTextures/EngineMascotPalette.png");
         material = new ZEngine.Rendering.Material(window.GetBuiltinShader(ZEngine.Rendering.Window.BuiltInShaders.lit), texture);
         
         // Get ecs module reference
-        ZEngine.ECS.EntityComponentSystem ecs = (ZEngine.ECS.EntityComponentSystem)ZEngine.Core.ModuleSystem.GetModuleById("ecs");
+        ZEngine.ECS.ECSModule ecsModule = (ZEngine.ECS.ECSModule)ZEngine.Core.ModuleSystem.GetModuleById("ecs");
 
         // Register Debuggers
         ZEngine.Debugging.StatsContainer stats = new ZEngine.Debugging.StatsContainer(debugger);
@@ -37,7 +37,7 @@ public static class Game
         debugger.AddContainer(ecsInspector);
 
         // Create an entity
-        entity = ecs.AddEntity();
+        entity = ecsModule.AddEntity();
 
         entity.AddComponent<ZEngine.ECS.Components.Transform>();
 
