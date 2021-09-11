@@ -13,6 +13,8 @@ namespace ZEngine.Input
         public static event KeyUpEvent OnKeyUp;
         public static event KeyDownEvent OnKeyDown;
 
+        private static Dictionary<Silk.NET.Input.Key, bool> isKeyDown = new Dictionary<Key, bool>();
+
         public InputModule()
         {
             this.id = "input";
@@ -21,6 +23,8 @@ namespace ZEngine.Input
         public override void OnEnable()
         {
             base.OnEnable();
+            OnKeyUp += UpdateKeyState_up;
+            OnKeyDown += UpdateKeyState_down;
         }
 
         public override void OnDisable()
@@ -43,6 +47,33 @@ namespace ZEngine.Input
         {
             if(OnKeyUp != null)
                 OnKeyUp.Invoke(arg1, arg2, arg3);
+        }
+
+        /// <summary>
+        /// Returns rather or not the given key is being hold down. 
+        /// </summary>
+        public static bool IsKeyDown(Key key)
+        {
+            if (isKeyDown.ContainsKey(key))
+                return isKeyDown[key];
+            else 
+                return false;
+        }
+
+        private static void UpdateKeyState_up(IKeyboard arg1, Key arg2, int arg3)
+        {
+            if (isKeyDown.ContainsKey(arg2))
+                isKeyDown[arg2] = false;
+            else
+                isKeyDown.Add(arg2, false);
+        }
+
+        private static void UpdateKeyState_down(IKeyboard arg1, Key arg2, int arg3)
+        {
+            if (isKeyDown.ContainsKey(arg2))
+                isKeyDown[arg2] = true;
+            else
+                isKeyDown.Add(arg2, true);
         }
     }
 }

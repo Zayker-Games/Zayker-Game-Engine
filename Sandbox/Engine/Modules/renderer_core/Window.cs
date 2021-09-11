@@ -198,7 +198,7 @@ namespace ZEngine.Rendering
         /// </summary>
         public bool AddToRenderQue(RenderRequest renderRequest)
         {
-            if (!window.IsClosing)
+            if (window != null && !window.IsClosing)
             {
                 renderQue.Add(renderRequest);
                 return true;
@@ -211,7 +211,7 @@ namespace ZEngine.Rendering
 
         public void AddImGuiRenderQue(Silk.NET.OpenGL.Extensions.ImGui.ImGuiController requestedController)
         {
-            if (!window.IsClosing)
+            if (window != null && !window.IsClosing)
             {
                 imGuiRenderQue.Add(requestedController);
             }

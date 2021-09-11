@@ -58,6 +58,23 @@ public static class Game
         // Get a reference to the transform component on the entity
         ZEngine.ECS.Components.Transform transform = entity.GetComponent<ZEngine.ECS.Components.Transform>();
 
+        float zInput = 0f;
+        if (ZEngine.Input.InputModule.IsKeyDown(Silk.NET.Input.Key.W))
+            zInput = -1f;
+        else if (ZEngine.Input.InputModule.IsKeyDown(Silk.NET.Input.Key.S))
+            zInput = 1f;
+
+        float xInput = 0f;
+        if (ZEngine.Input.InputModule.IsKeyDown(Silk.NET.Input.Key.A))
+            xInput = -1f;
+        else if (ZEngine.Input.InputModule.IsKeyDown(Silk.NET.Input.Key.D))
+            xInput = 1f;
+
+        float speed = 5f;
+
+        transform.position.X += xInput * (float)deltaTime * speed;
+        transform.position.Z += zInput * (float)deltaTime * speed;
+
         // Animate the position and rotation of the renderer entity
         transform.rotation.Y = (float)window.window.Time * 36f;
         transform.position.Y = MathF.Sin((float)window.window.Time) * 0.25f;
