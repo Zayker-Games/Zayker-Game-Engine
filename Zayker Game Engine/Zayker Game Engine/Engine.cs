@@ -85,6 +85,11 @@ namespace ZEngine
 
             Debugging.Console.WriteToMain("Engine initialized.", "Entering main loop...");
 
+            Core.Math.Quaternion q = Core.Math.Quaternion.FromEulerAngles(new Core.Math.Vector(3650f, 110f, -54f));
+            Core.Math.Vector v = q.GetEulerAngles();
+            Debugging.Console.WriteToMain(q.ToString(), "");
+            Debugging.Console.WriteToMain(v.ToString(), "");
+
             while (true)
             {
                 // Exit the program loop if the main window was closed
