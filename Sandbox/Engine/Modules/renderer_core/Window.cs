@@ -25,7 +25,7 @@ namespace ZEngine.Rendering
         /// </summary>
         public bool _markedForDestruction = false;
 
-        private Camera camera;
+        public Camera camera;
 
         public enum BuiltInShaders {
             lit,
@@ -73,6 +73,10 @@ namespace ZEngine.Rendering
                 input.Keyboards[i].KeyDown += Input.InputModule.InvokeKeyDownEvent;
                 input.Keyboards[i].KeyUp += Input.InputModule.InvokeKeyUpEvent;
             }
+            for (int i = 0; i < input.Mice.Count; i++)
+            {
+                input.Mice[i].MouseMove += Input.InputModule.InvokeMouseMoveEvent;
+            }
 
         }
 
@@ -97,12 +101,7 @@ namespace ZEngine.Rendering
             Gl.ClearColor(System.Drawing.Color.Cyan);
             Gl.Clear((uint)(Silk.NET.OpenGL.ClearBufferMask.ColorBufferBit | Silk.NET.OpenGL.ClearBufferMask.DepthBufferBit));
 
-            camera.position.X = 0.0f;
-            camera.position.Y = 2.5f;
-            camera.position.Z = 5.0f;
-            camera.forwards = Vector3.Normalize(new Vector3(0f, -0.5f, -1f));
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
-            camera.fov = 45f;
 
             // Precalculate the view and projection matrices, since they stay the same for all objects
             var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);

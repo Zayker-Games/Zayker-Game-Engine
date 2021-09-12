@@ -43,7 +43,8 @@ public static class Game
         entity = ecsModule.AddEntity();
 
         // Add a transform to this entity
-        entity.AddComponent<ZEngine.ECS.Components.Transform>();
+        entity.AddComponent<ZEngine.ECS.Components.Transform>().scale = new System.Numerics.Vector3(3f, 3f, 3f);
+
 
         // Add a MeshRenderer to the entity and set its properties
         ZEngine.ECS.Components.MeshRenderer renderer = entity.AddComponent<ZEngine.ECS.Components.MeshRenderer>();
@@ -51,13 +52,19 @@ public static class Game
         renderer.SetVao(ZEngine.Rendering.ModelLoader.LoadObjFile(window.Gl, rendererCoreDirectory + @"BuildInMeshes/EngineMascot.obj"));
         renderer.SetMaterial(material);
         renderer.SetTexture(texture);
+
+        // Setup camera
+        ZEngine.Rendering.Camera camera = window.camera;
+        camera.position.X = 0.0f;
+        camera.position.Y = 1.0f;
+        camera.position.Z = 0.0f;
+        camera.forwards = System.Numerics.Vector3.Normalize(new System.Numerics.Vector3(0f, -0.5f, -1f));
+        camera.fov = 45f;
     }
 
     public static void Update(double deltaTime)
     {
-        // Get a reference to the transform component on the entity
-        ZEngine.ECS.Components.Transform transform = entity.GetComponent<ZEngine.ECS.Components.Transform>();
-
+        // Move player with WASD
         float zInput = 0f;
         if (ZEngine.Input.InputModule.IsKeyDown(Silk.NET.Input.Key.W))
             zInput = -1f;
@@ -71,12 +78,17 @@ public static class Game
             xInput = 1f;
 
         float speed = 5f;
+        window.camera.position.X += xInput * (float)deltaTime * speed;
+        window.camera.position.Z += zInput * (float)deltaTime * speed;
 
-        transform.position.X += xInput * (float)deltaTime * speed;
-        transform.position.Z += zInput * (float)deltaTime * speed;
 
-        // Animate the position and rotation of the renderer entity
-        transform.rotation.Y = (float)window.window.Time * 36f;
-        transform.position.Y = MathF.Sin((float)window.window.Time) * 0.25f;
+        // Rotate camera
+        float mouseX = ZEngine.Input.InputModule.GetMousePos().X / window.window.Size.X;
+        mouseX *= 2f * MathF.PI;
+        ZEngine.Debugging.Console.WriteToMain(mouseX.ToString(), "");
+
+        window.camera.forwards = new System.Numerics.Vector3(2f * MathF.Sin(-mouseX) - 1f, 0f, 2f * MathF.Cos(-mouseX) - 1f);
+
+
     }
 }
