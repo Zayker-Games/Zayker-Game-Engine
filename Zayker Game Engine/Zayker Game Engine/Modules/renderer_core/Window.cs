@@ -104,8 +104,8 @@ namespace ZEngine.Rendering
             camera.aspectRatio = ((float)window.Size.X) / ((float)window.Size.Y);
 
             // Precalculate the view and projection matrices, since they stay the same for all objects
-            var view = Matrix4x4.CreateLookAt(camera.position, camera.position + camera.forwards, camera.up);
-            var projection = Matrix4x4.CreatePerspectiveFieldOfView(Core.Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
+            var view = Matrix4x4.CreateLookAt((System.Numerics.Vector3)camera.position, (System.Numerics.Vector3)(camera.position - camera.forwards), (System.Numerics.Vector3)camera.up);
+            var projection = Matrix4x4.CreatePerspectiveFieldOfView(Math.DegreesToRadians(camera.fov), camera.aspectRatio, 0.1f, 100.0f);
 
             // Gather all opaque objects and sort them by material for minimum Material.Use() calls
             List<RenderRequest> opaqueRenderQue = renderQue.Where(r => !r.material.transparent).ToList();
@@ -134,7 +134,7 @@ namespace ZEngine.Rendering
 
             // Gather all transparent objects and order them by distance to the camera
             List<RenderRequest> transparentRenderQue = renderQue.Where(r => r.material.transparent).ToList();
-            transparentRenderQue.OrderBy(r => (r.positionInWorldspace - camera.position).Length());
+            transparentRenderQue.OrderBy(r => (r.positionInWorldspace - camera.position).magnitude);
 
             foreach (RenderRequest transparentRenderRequest in transparentRenderQue)
             {

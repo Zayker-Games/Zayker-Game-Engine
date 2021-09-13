@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ZEngine.Core
+namespace ZEngine
 {
     public static class Math
     {
@@ -37,6 +37,7 @@ namespace ZEngine.Core
             public float y;
             public float z;
 
+            // Constructors
             public Vector() { x = 0; y = 0; z = 0; }
 
             public Vector(float x, float y)
@@ -52,6 +53,24 @@ namespace ZEngine.Core
                 this.z = z;
             }
             
+            // Methods
+            public float magnitude
+            {
+                get
+                {
+                    return MathF.Sqrt(
+                    ((x == 0) ? 0f : MathF.Pow(x, 2f)) +
+                    ((y == 0) ? 0f : MathF.Pow(y, 2f)) +
+                    ((z == 0) ? 0f : MathF.Pow(z, 2f))
+                    );
+                }
+            }
+
+            public static Vector Forwards { get { return new Vector(0f, 0f, 1f); } }
+            public static Vector Right { get { return new Vector(1f, 0f, 0f); } }
+            public static Vector Up { get { return new Vector(0f, 1f, 0f); } }
+            public static Vector Zero { get { return new Vector(0f, 0f, 0f); } }
+
             // Vector-Vector operator overloads:
             public static Vector operator +(Vector a, Vector b)
             {
@@ -82,6 +101,11 @@ namespace ZEngine.Core
             {
                 return "(" + x + ", " + y + ", " + z + ")";
             }
+
+            // Conversion overrides
+            public static explicit operator System.Numerics.Vector3(Math.Vector v) { return new System.Numerics.Vector3(v.x, v.y, v.z); }
+
+            public static explicit operator Vector(System.Numerics.Vector3 v) { return new Vector(v.X, v.Y, v.Z); }
         }
 
         public class Quaternion

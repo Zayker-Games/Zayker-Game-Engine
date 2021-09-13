@@ -13,18 +13,18 @@ namespace ZEngine.Rendering
         public VertexArrayObject vao;
         public Material material;
 
-        public Vector3 positionInWorldspace;
-        public Vector3 eulerAnglesInWorldspace;
-        public Vector3 scaleInWorldspace;
+        public Math.Vector positionInWorldspace;
+        public Math.Vector eulerAnglesInWorldspace;
+        public Math.Vector scaleInWorldspace;
 
         public RenderRequest()
         {
-            this.positionInWorldspace = new Vector3(0f);
-            this.eulerAnglesInWorldspace = new Vector3(0f);
-            this.scaleInWorldspace = new Vector3(1f, 1f, 1f);
+            this.positionInWorldspace = new Math.Vector(0f, 0f, 0f);
+            this.eulerAnglesInWorldspace = new Math.Vector(0f, 0f, 0f);
+            this.scaleInWorldspace = new Math.Vector(1f, 1f, 1f);
         }
 
-        public RenderRequest(VertexArrayObject vao, Material material, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
+        public RenderRequest(VertexArrayObject vao, Material material, Math.Vector positionInWorldspace, Math.Vector eulerAnglesInWorldspace, Math.Vector scaleInWorldspace)
         {
             this.vao = vao;
             this.material = material;

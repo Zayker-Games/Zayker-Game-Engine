@@ -26,7 +26,7 @@ namespace ZEngine.ECS.Components
             if(t != null)
             {
                 renderRequest.positionInWorldspace = t.position;
-                renderRequest.eulerAnglesInWorldspace = t.rotation;
+                renderRequest.eulerAnglesInWorldspace = t.localEulerAngles;
                 renderRequest.scaleInWorldspace = t.scale;
             }
 

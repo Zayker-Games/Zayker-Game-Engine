@@ -22,6 +22,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Modules\renderer_core\BuiltInMeshes\axisTest.obj" />
     <None Remove="Modules\renderer_core\BuiltInMeshes\circle.mtl" />
     <None Remove="Modules\renderer_core\BuiltInMeshes\circle.obj" />
     <None Remove="Modules\renderer_core\BuiltInMeshes\cube.mtl" />
@@ -37,6 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Modules\renderer_core\BuiltInMeshes\axisTest.obj" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInMeshes\circle.obj" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInMeshes\cube.obj" />
     <EmbeddedResource Include="Modules\renderer_core\BuiltInMeshes\EngineMascot.obj" />

@@ -53,17 +53,17 @@ namespace ZEngine
             Rendering.Window mainWindow = Rendering.RenderingModule.CreateWindow();
 
             // Create everything needed to render the island mesh
-            Rendering.VertexArrayObject testingVao = Rendering.Primitives.Plane(mainWindow.Gl);
-            Rendering.Texture textingTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModule<Rendering.RenderingModule>().GetDirectory(), "BuiltInTextures/uvTest.png"));
+            Rendering.VertexArrayObject testingVao = Rendering.ModelLoader.LoadObjFile(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModule<Rendering.RenderingModule>().GetDirectory(), "BuiltInMeshes/axisTest.obj"));
+            Rendering.Texture textingTexture = new Rendering.Texture(mainWindow.Gl, System.IO.Path.Combine(Core.ModuleSystem.GetModule<Rendering.RenderingModule>().GetDirectory(), "BuiltInTextures/EngineMascotPalette.png"));
             Rendering.Material textingMaterial = new Rendering.Material(mainWindow.GetBuiltinShader(Rendering.Window.BuiltInShaders.lit), textingTexture);
             textingMaterial.transparent = true;
 
             Rendering.RenderRequest islandRenderRequest = (new Rendering.RenderRequest(
                 testingVao,
                 textingMaterial,
-                new System.Numerics.Vector3(0f, 0f, 0f),
-                new System.Numerics.Vector3(0f, 0f, 0f),
-                new System.Numerics.Vector3(0.05f, 0.05f, 0.05f)
+                new Math.Vector(0f, 0f, 0f),
+                new Math.Vector(0f, 0f, 0f),
+                new Math.Vector(1f, 1f, 1f)
                 ));
 
             // Create the gui instance for the engines main window and add ui
@@ -85,8 +85,8 @@ namespace ZEngine
 
             Debugging.Console.WriteToMain("Engine initialized.", "Entering main loop...");
 
-            Core.Math.Quaternion q = Core.Math.Quaternion.FromEulerAngles(new Core.Math.Vector(3650f, 110f, -54f));
-            Core.Math.Vector v = q.GetEulerAngles();
+            Math.Quaternion q = Math.Quaternion.FromEulerAngles(new Math.Vector(3650f, 110f, -54f));
+            Math.Vector v = q.GetEulerAngles();
             Debugging.Console.WriteToMain(q.ToString(), "");
             Debugging.Console.WriteToMain(v.ToString(), "");
 
@@ -101,10 +101,10 @@ namespace ZEngine
                 else
                     mainWindow.window.Title = "Z-Engine - No Project Loaded";
 
-                // Animate and render the island object
-                islandRenderRequest.positionInWorldspace.Y = System.MathF.Sin((float)mainWindow.window.Time) * 0.1f;
-                islandRenderRequest.scaleInWorldspace = new System.Numerics.Vector3(1f) * (1f + (System.MathF.Sin((float)mainWindow.window.Time) * 0.1f));
-                islandRenderRequest.eulerAnglesInWorldspace.Y += 0.5f;
+                mainWindow.camera.position = new Math.Vector(0f, 0.1f, 3f);
+                mainWindow.camera.up = Math.Vector.Up;
+                mainWindow.camera.forwards = Math.Vector.Forwards;
+                mainWindow.camera.position.x = System.MathF.Sin((float)mainWindow.window.Time);
 
                 mainWindow.AddToRenderQue(islandRenderRequest);
 
