@@ -26,9 +26,12 @@ namespace ZEngine
         /// </summary>
         public static float Wrap(float x, float min, float max)
         {
-            if (min > max)
-                return Wrap(x, max, min);
-            return (x >= 0 ? min : max) + (x % (max - min));
+            if (x < min)
+                x = max - (min - x) % (max - min);
+            else
+                x = min + (x - min) % (max - min);
+
+            return x;
         }
 
         public class Vector
@@ -110,22 +113,28 @@ namespace ZEngine
 
         public class Quaternion
         {
-            public float s;
-            public Vector v;
+            public float w;
+            public float i;
+            public float j;
+            public float k;
 
             /// <summary>
             /// Creates an identiy quaternion.
             /// </summary>
             public Quaternion()
             {
-                s = 1f;
-                v = new Vector();
+                w = 1f;
+                i = 0f;
+                j = 0f;
+                k = 0f;
             }
 
             public Quaternion(float w, float i, float j, float k)
             {
-                this.s = w;
-                this.v = new Vector(i, j, k);
+                this.w = w;
+                this.i = i;
+                this.j = j;
+                this.k = k;
             }
 
             /// <summary>
@@ -134,19 +143,19 @@ namespace ZEngine
             /// Based on:
             /// http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
             /// </summary>
-            public static Quaternion FromEulerAngles(Vector eulers)
+            public static Quaternion FromEulerAngles(float x, float y, float z)
             {
                 // Convert the degrees to radians and wrap them in a range of -180° and 180°
-                eulers.x = Math.DegreesToRadians(Wrap(eulers.x, -180f, 180f));
-                eulers.y = Math.DegreesToRadians(Wrap(eulers.y, -180f, 180f));
-                eulers.z = Math.DegreesToRadians(Wrap(eulers.z, -180f, 180f));
+                float heading = Math.DegreesToRadians(Wrap(y, -180f, 180f));
+                float attitude = Math.DegreesToRadians(Wrap(x, -180f, 180f));
+                float bank = Math.DegreesToRadians(Wrap(z, -180f, 180f));
 
-                float C1 = MathF.Cos(eulers.x);
-                float C2 = MathF.Cos(eulers.y);
-                float C3 = MathF.Cos(eulers.z);
-                float S1 = MathF.Sin(eulers.x);
-                float S2 = MathF.Sin(eulers.y);
-                float S3 = MathF.Sin(eulers.z);
+                float C1 = MathF.Cos(heading);
+                float C2 = MathF.Cos(attitude);
+                float C3 = MathF.Cos(bank);
+                float S1 = MathF.Sin(heading);
+                float S2 = MathF.Sin(attitude);
+                float S3 = MathF.Sin(bank);
 
                 float w = MathF.Sqrt(1.0f + C1 * C2 + C1 * C3 - S1 * S2 * S3 + C2 * C3) / 2f;
                 float i = (C2 * S3 + C1 * S3 + S1 * S2 * C3) / (4.0f * w);
@@ -156,26 +165,26 @@ namespace ZEngine
                 return new Quaternion(w, i, j, k);
             }
 
+            public static Quaternion FromEulerAngles(Vector eulers)
+            {
+                return FromEulerAngles(eulers.x, eulers.y, eulers.z);
+            }
+
             /// <summary>
             /// Returns a vector representing this quaternion in euler angles. 
             /// </summary>
             public Vector GetEulerAngles()
             {
-                float qw = s;
-                float qx = v.x;
-                float qy = v.y;
-                float qz = v.z;
+                float heading = MathF.Atan2(2f * j * w - 2f * i * k, 1f - 2f * MathF.Pow(j,2f) - 2f * MathF.Pow(k,2f));
+                float attitude = MathF.Asin(2f * i * j + 2f * k * w);
+                float bank = MathF.Atan2(2f * i * w - 2f * j * k, 1f - 2f * MathF.Pow(i,2f) - 2f * MathF.Pow(k,2f));
 
-                float heading = MathF.Atan2(2f * qy * qw - 2f * qx * qz, 1f - 2f * MathF.Pow(qy,2f) - 2f * MathF.Pow(qz,2f));
-                float attitude = MathF.Asin(2f * qx * qy + 2f * qz * qw);
-                float bank = MathF.Atan2(2f * qx * qw - 2f * qy * qz, 1f - 2f * MathF.Pow(qx,2f) - 2f * MathF.Pow(qz,2f));
-
-                if (qx * qy + qz * qw == 0.5f) { // (north pole)
-                    heading = 2 * MathF.Atan2(qx, qw);
+                if (i * j + k * w == 0.5f) { // (north pole)
+                    heading = 2 * MathF.Atan2(i, w);
                     bank = 0;
                 }
-                if (qx * qy + qz * qw == -0.5f) { // (south pole)
-                    heading = -2 * MathF.Atan2(qx, qw);
+                if (i * j + k * w == -0.5f) { // (south pole)
+                    heading = -2 * MathF.Atan2(i, w);
                     bank = 0;
                 }
 
@@ -191,9 +200,46 @@ namespace ZEngine
                 return null;
             }
 
+            public float magnitude
+            {
+                get
+                {
+                    return MathF.Sqrt(
+                    ((w == 0) ? 0f : MathF.Pow(w, 2f)) +
+                    ((i == 0) ? 0f : MathF.Pow(i, 2f)) +
+                    ((j == 0) ? 0f : MathF.Pow(j, 2f)) +
+                    ((k == 0) ? 0f : MathF.Pow(k, 2f))
+                    );
+                }
+            }
+
             public override string ToString()
             {
-                return "(s:" + s + ", x:" + v.x + ", y:" + v.y + ", z:" + v.z + ")";
+                return "(w:" + w + ", i:" + i + ", j:" + j + ", k:" + k + ")";
+            }
+
+            public static Vector operator *(Quaternion rotation, Vector point)
+            {
+                Quaternion p = new Quaternion(0, point.x, point.y, point.z);
+
+                Quaternion pOut = rotation * p * Conjugate(rotation);
+
+                return new Vector(pOut.i, pOut.j, pOut.k);
+            }
+
+            public static Quaternion operator *(Quaternion a, Quaternion b)
+            {
+                float w = -a.i * b.i - a.j * b.j - a.k * b.k + a.w * b.w;
+                float i = a.i * b.w + a.j * b.k - a.k * b.j + a.w * b.i;
+                float j = -a.i * b.k + a.j * b.w + a.k * b.i + a.w * b.j;
+                float k = a.i * b.j - a.j * b.i + a.k * b.w + a.w * b.k;
+
+                return new Quaternion(w, i, j, k);
+            }
+
+            public static Quaternion Conjugate(Quaternion q)
+            {
+                return new Quaternion(q.w, -q.i, -q.j, -q.k);
             }
         }
     }

@@ -85,10 +85,9 @@ namespace ZEngine
 
             Debugging.Console.WriteToMain("Engine initialized.", "Entering main loop...");
 
-            Math.Quaternion q = Math.Quaternion.FromEulerAngles(new Math.Vector(3650f, 110f, -54f));
-            Math.Vector v = q.GetEulerAngles();
-            Debugging.Console.WriteToMain(q.ToString(), "");
-            Debugging.Console.WriteToMain(v.ToString(), "");
+            Math.Vector v = new Math.Vector(0f, 0f, 1f);
+            Math.Quaternion q = Math.Quaternion.FromEulerAngles(0f, 90f, 0f);
+            Math.Vector rv = q * v;
 
             while (true)
             {
@@ -101,10 +100,10 @@ namespace ZEngine
                 else
                     mainWindow.window.Title = "Z-Engine - No Project Loaded";
 
-                mainWindow.camera.position = new Math.Vector(0f, 0.1f, 3f);
+                mainWindow.camera.position = new Math.Vector(0.1f, 0.1f, 3f);
                 mainWindow.camera.up = Math.Vector.Up;
-                mainWindow.camera.forwards = Math.Vector.Forwards;
-                mainWindow.camera.position.x = System.MathF.Sin((float)mainWindow.window.Time);
+                mainWindow.camera.forwards = Math.Quaternion.FromEulerAngles(0, (float)mainWindow.window.Time * 25f, 0f) * Math.Vector.Forwards;
+                //mainWindow.camera.position.x = System.MathF.Sin((float)mainWindow.window.Time);
 
                 mainWindow.AddToRenderQue(islandRenderRequest);
 
