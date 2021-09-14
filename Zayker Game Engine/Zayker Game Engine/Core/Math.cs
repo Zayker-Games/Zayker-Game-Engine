@@ -69,6 +69,15 @@ namespace ZEngine
                 }
             }
 
+            public Vector normalized
+            {
+                get
+                {
+                    float mag = this.magnitude;
+                    return new Vector(x / mag, y / mag, z / mag);
+                }
+            }
+
             public static Vector Forwards { get { return new Vector(0f, 0f, 1f); } }
             public static Vector Right { get { return new Vector(1f, 0f, 0f); } }
             public static Vector Up { get { return new Vector(0f, 1f, 0f); } }

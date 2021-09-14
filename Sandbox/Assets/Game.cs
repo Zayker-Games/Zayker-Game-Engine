@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -43,7 +42,7 @@ public static class Game
         entity = ecsModule.AddEntity();
 
         // Add a transform to this entity
-        entity.AddComponent<ZEngine.ECS.Components.Transform>().scale = new System.Numerics.Vector3(3f, 3f, 3f);
+        entity.AddComponent<ZEngine.ECS.Components.Transform>().scale = new ZEngine.Math.Vector(3f, 3f, 3f);
 
 
         // Add a MeshRenderer to the entity and set its properties
@@ -55,10 +54,10 @@ public static class Game
 
         // Setup camera
         ZEngine.Rendering.Camera camera = window.camera;
-        camera.position.X = 0.0f;
-        camera.position.Y = 1.0f;
-        camera.position.Z = 0.0f;
-        camera.forwards = System.Numerics.Vector3.Normalize(new System.Numerics.Vector3(0f, -0.5f, -1f));
+        camera.position.x = 0.0f;
+        camera.position.y = 1.0f;
+        camera.position.z = 0.0f;
+        camera.forwards = new ZEngine.Math.Vector(0f, -0.5f, -1f).normalized;
         camera.fov = 45f;
     }
 
@@ -77,17 +76,16 @@ public static class Game
         else if (ZEngine.Input.InputModule.IsKeyDown(Silk.NET.Input.Key.D))
             xInput = 1f;
 
-        float speed = 5f;
-        window.camera.position.X += xInput * (float)deltaTime * speed;
-        window.camera.position.Z += zInput * (float)deltaTime * speed;
-
+        float speed = 0.1f;
+        window.camera.position += window.camera.forwards * zInput * speed;
 
         // Rotate camera
         float mouseX = ZEngine.Input.InputModule.GetMousePos().X / window.window.Size.X;
-        mouseX *= 2f * MathF.PI;
-        ZEngine.Debugging.Console.WriteToMain(mouseX.ToString(), "");
+        mouseX *= 360f;
+        float mouseY = -0.5f + (ZEngine.Input.InputModule.GetMousePos().Y / window.window.Size.Y);
+        mouseY *= 180f;
 
-        window.camera.forwards = new System.Numerics.Vector3(2f * MathF.Sin(-mouseX) - 1f, 0f, 2f * MathF.Cos(-mouseX) - 1f);
+        window.camera.forwards = ZEngine.Math.Quaternion.FromEulerAngles(0, -mouseX, -mouseY) * ZEngine.Math.Vector.Forwards;
 
 
     }

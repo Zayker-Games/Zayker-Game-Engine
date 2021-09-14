@@ -7,13 +7,49 @@ namespace ZEngine.ECS.Components
 {
     class Transform : Component
     {
-        public Vector3 position = new Vector3(0f, 0f, 0f);
-        public Vector3 rotation = new Vector3(0f, 0f, 0f);
-        public Vector3 scale = new Vector3(1f, 1f, 1f);
+        /// <summary>
+        /// Rotation relative to parent. 
+        /// </summary>
+        public Math.Quaternion localRotation
+        {
+            get
+            {
+                return _localRotation;
+            } 
+            set
+            {
+                _localRotation = value;
+                _localEulerAngles = _localRotation.GetEulerAngles();
+            }
+        }
+        private Math.Quaternion _localRotation = new Math.Quaternion();
+
+        /// <summary>
+        /// Euler angles relative to parents. 
+        /// </summary>
+        public Math.Vector localEulerAngles
+        {
+            get
+            {
+                return _localEulerAngles;
+            }
+            set
+            {
+                _localEulerAngles = value;
+                _localRotation = Math.Quaternion.FromEulerAngles(_localEulerAngles);
+            }
+        }
+        private Math.Vector _localEulerAngles = new Math.Vector();
+
+        public Math.Vector position = new Math.Vector(0f, 0f, 0f);
+        public Math.Vector scale = new Math.Vector(1f, 1f, 1f);
 
         public override void DrawInspector()
         {
-            ImGuiNET.ImGui.InputFloat3("Position", ref entity.GetComponent<ECS.Components.Transform>().position);
+            // Here we have to create a temporary variable, which is very stupid. I'll have to change that!
+            Vector3 positionReference = (Vector3)entity.GetComponent<Transform>().position;
+            ImGuiNET.ImGui.InputFloat3("Position", ref positionReference);
+            entity.GetComponent<Transform>().position = (Math.Vector)positionReference;
         }
     }
 }

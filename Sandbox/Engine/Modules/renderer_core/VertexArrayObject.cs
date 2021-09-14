@@ -64,18 +64,18 @@ namespace ZEngine.Rendering
             Bind(); 
         }
 
-        public unsafe void Draw(Material material, Vector3 positionInWorldspace, Vector3 eulerAnglesInWorldspace, Vector3 scaleInWorldspace)
+        public unsafe void Draw(Material material, Math.Vector positionInWorldspace, Math.Vector eulerAnglesInWorldspace, Math.Vector scaleInWorldspace)
         {
             //Bind the geometry and shader.
             _gl.BindVertexArray(_handle); // We already bound this ealier
 
             
             // Create model matrices
-            Matrix4x4 translation = Matrix4x4.CreateTranslation(positionInWorldspace);
-            Matrix4x4 rotation = Matrix4x4.CreateRotationZ(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Z)) *
-                                 Matrix4x4.CreateRotationY(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.Y)) *
-                                 Matrix4x4.CreateRotationX(Core.Math.DegreesToRadians(eulerAnglesInWorldspace.X));
-            Matrix4x4 scale = Matrix4x4.CreateScale(scaleInWorldspace);
+            Matrix4x4 translation = Matrix4x4.CreateTranslation((System.Numerics.Vector3)positionInWorldspace);
+            Matrix4x4 rotation = Matrix4x4.CreateRotationZ(Math.DegreesToRadians(eulerAnglesInWorldspace.z)) *
+                                 Matrix4x4.CreateRotationY(Math.DegreesToRadians(eulerAnglesInWorldspace.y)) *
+                                 Matrix4x4.CreateRotationX(Math.DegreesToRadians(eulerAnglesInWorldspace.x));
+            Matrix4x4 scale = Matrix4x4.CreateScale((System.Numerics.Vector3)scaleInWorldspace);
             // Combine translation, rotation and scale
             Matrix4x4 model = scale * rotation * translation;
             

@@ -16,7 +16,7 @@ namespace ZEngine.Debugging
 
         public override void Update(float dt)
         {
-            averageDeltaTime = Core.Math.Lerp(averageDeltaTime, dt, 0.1f);
+            averageDeltaTime = Math.Lerp(averageDeltaTime, dt, 0.1f);
 
             if (opened)
             {
