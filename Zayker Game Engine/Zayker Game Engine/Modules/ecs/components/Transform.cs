@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using System.Text;
 
 namespace ZEngine.ECS.Components
@@ -41,13 +40,21 @@ namespace ZEngine.ECS.Components
         }
         private Math.Vector _localEulerAngles = new Math.Vector();
 
+        public Math.Vector forward
+        {
+            get
+            {
+                return _localRotation * Math.Vector.Forwards;
+            }
+        }
+
         public Math.Vector position = new Math.Vector(0f, 0f, 0f);
         public Math.Vector scale = new Math.Vector(1f, 1f, 1f);
 
         public override void DrawInspector()
         {
             // Here we have to create a temporary variable, which is very stupid. I'll have to change that!
-            Vector3 positionReference = (Vector3)entity.GetComponent<Transform>().position;
+            System.Numerics.Vector3 positionReference = (System.Numerics.Vector3)entity.GetComponent<Transform>().position;
             ImGuiNET.ImGui.InputFloat3("Position", ref positionReference);
             entity.GetComponent<Transform>().position = (Math.Vector)positionReference;
         }

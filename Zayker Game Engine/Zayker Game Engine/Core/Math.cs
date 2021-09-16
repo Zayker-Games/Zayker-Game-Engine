@@ -34,6 +34,11 @@ namespace ZEngine
             return x;
         }
 
+        public static float Clamp(float x, float min, float max)
+        {
+            return MathF.Min(MathF.Max(x, min), max);
+        }
+
         public class Vector
         {
             public float x;

@@ -13,6 +13,7 @@ namespace ZEngine.Rendering
     public class Window
     {
         public IWindow window;
+        private IInputContext input;
         public Silk.NET.OpenGL.GL Gl;
         Dictionary<string, Shader> shaders = new Dictionary<string, Shader>();
 
@@ -26,6 +27,14 @@ namespace ZEngine.Rendering
         public bool _markedForDestruction = false;
 
         public Camera camera;
+
+        public enum CursorBehavior
+        {
+            normal,
+            confined,
+            wraps
+        }
+        public CursorBehavior cursorBehavior = CursorBehavior.wraps;
 
         public enum BuiltInShaders {
             lit,
@@ -67,7 +76,7 @@ namespace ZEngine.Rendering
             camera = new Camera();
 
             // Here we add the callbacks to the input module (if it is enabled)
-            IInputContext input = window.CreateInput();
+            input = window.CreateInput();
             for (int i = 0; i < input.Keyboards.Count; i++)
             {
                 input.Keyboards[i].KeyDown += Input.InputModule.InvokeKeyDownEvent;
@@ -78,6 +87,21 @@ namespace ZEngine.Rendering
                 input.Mice[i].MouseMove += Input.InputModule.InvokeMouseMoveEvent;
             }
 
+        }
+
+        void UpdateCursorBehaviour()
+        {
+            foreach (Silk.NET.Input.IMouse mouse in input.Mice)
+            {
+                if (cursorBehavior == CursorBehavior.confined)
+                {
+                    mouse.Position = new System.Numerics.Vector2(Math.Clamp(mouse.Position.X, 0f, window.Size.X), Math.Clamp(mouse.Position.Y, 0f, window.Size.Y));
+                }
+                else if (cursorBehavior == CursorBehavior.wraps)
+                {
+                    mouse.Position = new System.Numerics.Vector2(Math.Wrap(mouse.Position.X, 1f, window.Size.X-1f), Math.Wrap(mouse.Position.Y, 1f, window.Size.Y-1f));
+                }
+            }
         }
 
         private void LoadStandardShaders()
@@ -175,7 +199,7 @@ namespace ZEngine.Rendering
 
         private void OnUpdate(double obj)
         {
-            
+            UpdateCursorBehaviour();
         }
 
         private void OnClose()

@@ -100,10 +100,23 @@ namespace ZEngine
                 else
                     mainWindow.window.Title = "Z-Engine - No Project Loaded";
 
-                mainWindow.camera.position = new Math.Vector(0.1f, 0.1f, 3f);
-                mainWindow.camera.up = Math.Vector.Up;
-                mainWindow.camera.forwards = Math.Quaternion.FromEulerAngles(0, (float)mainWindow.window.Time * 25f, 0f) * Math.Vector.Forwards;
-                //mainWindow.camera.position.x = System.MathF.Sin((float)mainWindow.window.Time);
+                // Move player with WASD
+                float zInput = 0f;
+                if (ZEngine.Input.InputModule.IsKeyDown(Silk.NET.Input.Key.W))
+                    zInput = -1f;
+                else if (ZEngine.Input.InputModule.IsKeyDown(Silk.NET.Input.Key.S))
+                    zInput = 1f;
+
+                float speed = 0.1f;
+                mainWindow.camera.position += mainWindow.camera.forwards * zInput * speed;
+
+                // Rotate camera
+                float mouseX = ZEngine.Input.InputModule.GetMousePos().X / mainWindow.window.Size.X;
+                mouseX *= 360f;
+                float mouseY = -0.5f + (ZEngine.Input.InputModule.GetMousePos().Y / mainWindow.window.Size.Y);
+                mouseY *= 180f;
+
+                mainWindow.camera.forwards = ZEngine.Math.Quaternion.FromEulerAngles(0, -mouseX, -mouseY) * ZEngine.Math.Vector.Forwards;
 
                 mainWindow.AddToRenderQue(islandRenderRequest);
 

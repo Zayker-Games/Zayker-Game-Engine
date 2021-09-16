@@ -18,6 +18,7 @@ namespace ZEngine.Input
         private static Dictionary<Silk.NET.Input.Key, bool> isKeyDown = new Dictionary<Key, bool>();
         private static System.Numerics.Vector2 mousePosition = new System.Numerics.Vector2();
 
+
         public InputModule()
         {
             this.id = "input";
@@ -55,6 +56,7 @@ namespace ZEngine.Input
 
         public static void InvokeMouseMoveEvent(IMouse mouse, System.Numerics.Vector2 pos)
         {
+
             if (OnMouseMove != null)
                 OnMouseMove.Invoke(mouse, pos);
         }
