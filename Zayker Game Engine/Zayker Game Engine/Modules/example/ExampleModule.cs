@@ -10,6 +10,7 @@ namespace ZEngine.Examples
         {
             // The id must match the modules folder name!
             this.id = "example";
+            this.dependencies = new List<string>() {  };
         }
 
         public override void OnEnable()

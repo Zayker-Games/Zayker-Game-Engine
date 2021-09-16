@@ -15,6 +15,7 @@ namespace ZEngine.Debugging
         public DebuggingModule ()
         {
             this.id = "debugger";
+            this.dependencies = new List<string>() { "renderer_core" };
         }
 
         public override void OnEnable()

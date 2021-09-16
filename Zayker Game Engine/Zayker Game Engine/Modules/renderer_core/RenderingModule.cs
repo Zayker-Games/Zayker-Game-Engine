@@ -17,6 +17,7 @@ namespace ZEngine.Rendering
         public RenderingModule()
         {
             this.id = "renderer_core";
+            this.dependencies = new List<string>() { };
         }
 
         public override void OnEnable()

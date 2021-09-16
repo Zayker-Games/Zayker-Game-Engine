@@ -127,6 +127,7 @@ namespace ZEngine.Core
         public static void CloseProject()
         {
             currentProjectPath = "";
+            currentProjectSettings = new ProjectSettings();
         }
 
         private static string GetProjectEngineSourcePath()
@@ -171,6 +172,28 @@ namespace ZEngine.Core
                 DirectoryCopy(subdir.FullName, tempPath);
             }
 
+        }
+    
+        public static void AddModuleToProject(Module module)
+        {
+            // Check for dependencies
+            foreach (string dependencyId in module.dependencies)
+            {
+                if (!currentProjectSettings.includedModules.Contains(dependencyId))
+                    return;
+            }
+            currentProjectSettings.includedModules.Add(module.id);
+        }
+
+        public static void RemoveModuleFromProject(Module module)
+        {
+            // Check if any other module included depends on the module the user is trying to remove
+            foreach (string moduleId in currentProjectSettings.includedModules)
+            {
+                if(ModuleSystem.GetModuleById(moduleId).dependencies.Contains(module.id)) 
+                    return;
+            }
+            currentProjectSettings.includedModules.Remove(module.id);
         }
     }
 

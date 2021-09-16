@@ -22,6 +22,7 @@ namespace ZEngine.Input
         public InputModule()
         {
             this.id = "input";
+            this.dependencies = new List<string>() { };
         }
 
         public override void OnEnable()

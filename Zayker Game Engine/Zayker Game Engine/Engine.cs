@@ -293,9 +293,9 @@ namespace ZEngine
                         if (ImGui.Button("[" + (projectAlreadyIncluded ? "X" : " ") + "] " + module.id))
                         {
                             if (!projectAlreadyIncluded)
-                                Core.ProjectSystem.currentProjectSettings.includedModules.Add(module.id);
+                                Core.ProjectSystem.AddModuleToProject(module);
                             else
-                                Core.ProjectSystem.currentProjectSettings.includedModules.Remove(module.id);
+                                Core.ProjectSystem.RemoveModuleFromProject(module);
                         }
                     }
                     ImGui.EndChild();
