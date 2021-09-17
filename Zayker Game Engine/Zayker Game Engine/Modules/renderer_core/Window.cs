@@ -85,6 +85,8 @@ namespace ZEngine.Rendering
             for (int i = 0; i < input.Mice.Count; i++)
             {
                 input.Mice[i].MouseMove += Input.InputModule.InvokeMouseMoveEvent;
+                input.Mice[i].MouseDown += Input.InputModule.InvokeMouseDownEvent;
+                input.Mice[i].MouseUp += Input.InputModule.InvokeMouseUpEvent;
             }
 
         }

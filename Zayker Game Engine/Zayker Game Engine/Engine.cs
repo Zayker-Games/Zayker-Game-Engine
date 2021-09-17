@@ -116,7 +116,11 @@ namespace ZEngine
                 float mouseY = -0.5f + (ZEngine.Input.InputModule.GetMousePos().Y / mainWindow.window.Size.Y);
                 mouseY *= 180f;
 
-                mainWindow.camera.forwards = ZEngine.Math.Quaternion.FromEulerAngles(0, -mouseX, -mouseY) * ZEngine.Math.Vector.Forwards;
+                bool rightMouseIsDown = Input.InputModule.IsMouseDown(Silk.NET.Input.MouseButton.Right);
+
+                mainWindow.cursorBehavior = rightMouseIsDown ? Rendering.Window.CursorBehavior.wraps : Rendering.Window.CursorBehavior.normal;
+                if (rightMouseIsDown)
+                    mainWindow.camera.forwards = ZEngine.Math.Quaternion.FromEulerAngles(0, -mouseX, -mouseY) * ZEngine.Math.Vector.Forwards;
 
                 mainWindow.AddToRenderQue(islandRenderRequest);
 
