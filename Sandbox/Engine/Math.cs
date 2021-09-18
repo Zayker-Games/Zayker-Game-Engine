@@ -34,6 +34,11 @@ namespace ZEngine
             return x;
         }
 
+        public static float Clamp(float x, float min, float max)
+        {
+            return MathF.Min(MathF.Max(x, min), max);
+        }
+
         public class Vector
         {
             public float x;
@@ -107,6 +112,10 @@ namespace ZEngine
             public static Vector operator *(Vector a, float s)
             {
                 return new Vector(a.x * s, a.y * s, a.z * s);
+            }
+            public static Vector operator /(Vector a, float s)
+            {
+                return new Vector(a.x / s, a.y / s, a.z / s);
             }
 
             public override string ToString()

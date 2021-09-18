@@ -54,7 +54,7 @@ namespace ZEngine.ECS.Components
         public override void DrawInspector()
         {
             // Here we have to create a temporary variable, which is very stupid. I'll have to change that!
-            System.Numerics.Vector3 positionReference = (System.Numerics.Vector3)entity.GetComponent<Transform>().position;
+            System.Numerics.Vector3 positionReference = (System.Numerics.Vector3)position;
             ImGuiNET.ImGui.InputFloat3("Position", ref positionReference);
             entity.GetComponent<Transform>().position = (Math.Vector)positionReference;
         }

@@ -12,6 +12,7 @@ namespace ZEngine.Data
         {
             // The id must match the modules folder name!
             this.id = "data";
+            this.dependencies = new List<string>() { };
         }
 
         public override void OnEnable()

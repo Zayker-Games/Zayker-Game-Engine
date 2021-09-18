@@ -14,7 +14,7 @@ namespace ZEngine.Core
         /// <summary>
         /// List of other modules, that this module needs to function. 
         /// </summary>
-        protected List<Module> dependencies;
+        public List<string> dependencies;
 
         /// <summary>
         /// If this is false, the file will not be copied to the build directory. This can be used for editor modules. 

@@ -52,6 +52,8 @@ public static class Game
         renderer.SetMaterial(material);
         renderer.SetTexture(texture);
 
+        entity.AddComponent<ZEngine.Physics.RigidBody>();
+
         // Setup camera
         ZEngine.Rendering.Camera camera = window.camera;
         camera.position.x = 0.0f;

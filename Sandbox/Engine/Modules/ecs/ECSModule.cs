@@ -11,6 +11,7 @@ namespace ZEngine.ECS
         public ECSModule()
         {
             this.id = "ecs";
+            this.dependencies = new List<string>() { "renderer_core", "debugger"};
             this.entities = new List<Entity>();
         }
 

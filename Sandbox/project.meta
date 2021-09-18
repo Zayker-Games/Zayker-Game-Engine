@@ -1,1 +1,1 @@
-{"name":"Sandbox","includedModules":["input","renderer_core","data","debugger","ecs"]}
+{"name":"Sandbox","includedModules":["input","renderer_core","data","debugger","ecs","physics"]}
